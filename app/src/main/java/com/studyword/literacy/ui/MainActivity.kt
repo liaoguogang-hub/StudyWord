@@ -27,7 +27,7 @@ import kotlin.random.Random
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val repository = CharacterRepository()
+    private lateinit var repository: CharacterRepository
     private lateinit var progressStore: ProgressStore
 
     private val knownIds: MutableSet<Int> = mutableSetOf()
@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        repository = CharacterRepository(this)
         progressStore = ProgressStore(this)
         reloadProgressFromStore()
         progressStore.recordSnapshot(knownIds.size, unknownIds.size)

@@ -26,7 +26,7 @@ import com.studyword.literacy.model.Difficulty
 class ProgressActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProgressBinding
-    private val repository = CharacterRepository()
+    private lateinit var repository: CharacterRepository
     private lateinit var progressStore: ProgressStore
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +34,7 @@ class ProgressActivity : AppCompatActivity() {
         binding = ActivityProgressBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        repository = CharacterRepository(this)
         progressStore = ProgressStore(this)
         binding.topBar.setNavigationOnClickListener { finish() }
 

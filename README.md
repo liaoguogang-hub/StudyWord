@@ -15,6 +15,7 @@
 - 历史持久化：自动保存“认识 / 不认识”记录，重新打开应用即可延续上次进度。
 - 数据导出：一键导出带有汉字、拼音、难度与掌握标记的 CSV 文件，方便打印或二次分析（移至设置页）。
 - 进度重置：支持一键清空记录，便于阶段性复测（移至设置页）。
+- 字库配置：`app/src/main/assets/character_sets.json` 统一维护 1200+ 常用汉字，可按需拓展或替换。
 
 ## 技术栈
 
@@ -46,6 +47,7 @@ StudyWord/
 │       │   │   └── CharacterResult.kt     # 记录枚举
 │       │   └── util/
 │       │       └── PinyinConverter.kt     # ICU 转拼音工具
+│       ├── assets/character_sets.json     # 汉字难度配置
 │       └── res/
 │           ├── layout/activity_main.xml   # 主界面布局（单字测验）
 │           ├── layout/activity_progress.xml # 统计与汉字清单页面

@@ -20,7 +20,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var progressStore: ProgressStore
-    private val repository = CharacterRepository()
+    private lateinit var repository: CharacterRepository
 
     private val exportLauncher = registerForActivityResult(
         ActivityResultContracts.CreateDocument("text/csv")
@@ -33,6 +33,7 @@ class SettingsActivity : AppCompatActivity() {
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        repository = CharacterRepository(this)
         progressStore = ProgressStore(this)
 
         binding.topBar.setNavigationOnClickListener { finish() }
