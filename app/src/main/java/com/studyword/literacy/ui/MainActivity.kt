@@ -63,6 +63,8 @@ class MainActivity : AppCompatActivity() {
         knownIds.addAll(progressStore.loadKnown())
         unknownIds.addAll(progressStore.loadUnknown())
 
+        progressStore.recordSnapshot(knownIds.size, unknownIds.size)
+
         setupDifficultyToggle()
         setupActions()
         rebuildQueue()
@@ -99,6 +101,7 @@ class MainActivity : AppCompatActivity() {
             knownIds.clear()
             unknownIds.clear()
             progressStore.reset()
+            progressStore.recordSnapshot(0, 0)
             rebuildQueue()
             loadNextCharacter()
             Snackbar.make(binding.root, "进度已重置", Snackbar.LENGTH_SHORT).show()
@@ -128,6 +131,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         progressStore.save(knownIds, unknownIds)
+        progressStore.recordSnapshot(knownIds.size, unknownIds.size)
         updateSummaryHint()
     }
 
