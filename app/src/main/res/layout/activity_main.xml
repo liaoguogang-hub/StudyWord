@@ -156,6 +156,7 @@
         android:textColor="@color/deep_blue"
         android:textSize="14sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/currentCharacterCard" />
 
@@ -172,7 +173,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/unknownButton"
-            style="@style/Widget.StudyWord.SecondaryButton"
+            style="@style/Widget.StudyWord.UnknownButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
