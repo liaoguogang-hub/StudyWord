@@ -58,16 +58,22 @@
         <com.google.android.material.chip.Chip
             android:id="@+id/chipEasy"
             style="@style/Widget.StudyWord.DifficultyChip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="简单" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipMedium"
             style="@style/Widget.StudyWord.DifficultyChip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="中等" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipHard"
             style="@style/Widget.StudyWord.DifficultyChip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="困难" />
     </com.google.android.material.chip.ChipGroup>
 
