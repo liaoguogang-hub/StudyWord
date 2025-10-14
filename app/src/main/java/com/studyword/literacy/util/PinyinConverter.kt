@@ -5,7 +5,7 @@ import java.util.Locale
 
 object PinyinConverter {
     private val transliterator: Transliterator by lazy {
-        Transliterator.getInstance("Han-Latin/Names; Latin-ASCII")
+        Transliterator.getInstance("Han-Latin/Names")
     }
 
     fun toPinyin(hanzi: String): String {
@@ -14,7 +14,7 @@ object PinyinConverter {
         if (raw.isBlank()) return ""
         val cleaned = raw
             .lowercase(Locale.CHINA)
-            .replace("[^a-z\\s]".toRegex(), " ")
+            .replace("[^\\p{L}\\s]".toRegex(), " ")
             .trim()
             .replace("\\s+".toRegex(), " ")
         return cleaned.split(" ").firstOrNull { it.isNotBlank() } ?: ""

@@ -3,10 +3,13 @@ package com.studyword.literacy.ui
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
+import android.content.Intent
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.view.animation.LinearInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -14,8 +17,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 import com.google.android.material.snackbar.Snackbar
 import com.studyword.literacy.data.CharacterRepository
 import com.studyword.literacy.data.ProgressStore
@@ -29,7 +30,7 @@ import java.io.OutputStreamWriter
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.ArrayDeque
-import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
@@ -37,7 +38,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val repository = CharacterRepository()
-    private val characterMap = repository.all().associateBy { it.id }
     private lateinit var progressStore: ProgressStore
 
     private val knownIds: MutableSet<Int> = mutableSetOf()
@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity() {
     private val pendingCharacters: ArrayDeque<LearningCharacter> = ArrayDeque()
     private var currentCharacter: LearningCharacter? = null
     private val random = Random(System.currentTimeMillis())
+    private val toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 80)
 
     private val exportLauncher = registerForActivityResult(
         ActivityResultContracts.CreateDocument("text/csv")
@@ -64,9 +65,13 @@ class MainActivity : AppCompatActivity() {
 
         setupDifficultyToggle()
         setupActions()
-        updateStatsAndLists()
         rebuildQueue()
         loadNextCharacter()
+    }
+
+    override fun onDestroy() {
+        toneGenerator.release()
+        super.onDestroy()
     }
 
     private fun setupDifficultyToggle() {
@@ -87,31 +92,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupActions() {
-        binding.knowButton.setOnClickListener {
-            handleResult(CharacterResult.KNOWN)
-        }
-
-        binding.unknownButton.setOnClickListener {
-            handleResult(CharacterResult.UNKNOWN)
-        }
-
-        binding.skipButton.setOnClickListener {
-            loadNextCharacter(requeueCurrent = true)
-        }
-
+        binding.knowButton.setOnClickListener { handleResult(CharacterResult.KNOWN) }
+        binding.unknownButton.setOnClickListener { handleResult(CharacterResult.UNKNOWN) }
+        binding.skipButton.setOnClickListener { loadNextCharacter(requeueCurrent = true) }
         binding.resetButton.setOnClickListener {
             knownIds.clear()
             unknownIds.clear()
             progressStore.reset()
-            updateStatsAndLists()
             rebuildQueue()
             loadNextCharacter()
             Snackbar.make(binding.root, "进度已重置", Snackbar.LENGTH_SHORT).show()
         }
-
         binding.exportButton.setOnClickListener {
             val date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
             exportLauncher.launch("识字进度_$date.csv")
+        }
+        binding.viewProgressButton.setOnClickListener {
+            startActivity(Intent(this, ProgressActivity::class.java))
         }
     }
 
@@ -121,25 +118,30 @@ class MainActivity : AppCompatActivity() {
             CharacterResult.KNOWN -> {
                 knownIds.add(character.id)
                 unknownIds.remove(character.id)
+                celebrate()
             }
             CharacterResult.UNKNOWN -> {
                 unknownIds.add(character.id)
                 knownIds.remove(character.id)
                 pendingCharacters.addLast(character)
+                loadNextCharacter()
             }
         }
         progressStore.save(knownIds, unknownIds)
-        updateStatsAndLists()
+        updateSummaryHint()
+    }
 
-        if (result == CharacterResult.KNOWN) {
-            setActionButtonsEnabled(false)
-            showConfetti()
-            binding.root.postDelayed({
-                loadNextCharacter()
-            }, CONFETTI_DELAY_MS)
-        } else {
+    private fun celebrate() {
+        setActionButtonsEnabled(false)
+        playTone()
+        showConfetti {
             loadNextCharacter()
+            setActionButtonsEnabled(true)
         }
+    }
+
+    private fun playTone() {
+        toneGenerator.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 180)
     }
 
     private fun rebuildQueue() {
@@ -177,15 +179,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         updateCurrentCharacterView(currentCharacter)
+        updateSummaryHint()
     }
 
     private fun updateCurrentCharacterView(character: LearningCharacter?) {
         if (character == null) {
             binding.currentCharacter.text = "——"
             binding.currentPinyin.text = "暂无汉字"
-            binding.currentDifficulty.text = ""
             binding.currentDifficulty.isVisible = false
-            binding.remainingHint.text = "请选择其他难度或重置进度"
+            binding.remainingHint.text = "暂无可测汉字，请调整难度或重置进度"
             setActionButtonsEnabled(false)
             return
         }
@@ -194,15 +196,16 @@ class MainActivity : AppCompatActivity() {
         binding.currentPinyin.text = character.pinyin.ifBlank { "(暂无拼音)" }
         binding.currentDifficulty.text = character.difficulty.label
         binding.currentDifficulty.isVisible = true
-        updateRemainingHint()
         setActionButtonsEnabled(true)
     }
 
-    private fun updateRemainingHint() {
-        val pool = repository.byDifficulty(currentDifficulty)
-        val untestedCount = pool.count { it.id !in knownIds && it.id !in unknownIds }
-        val reviewCount = pool.count { unknownIds.contains(it.id) }
-        binding.remainingHint.text = "未测 ${untestedCount} 个 · 待巩固 ${reviewCount} 个"
+    private fun updateSummaryHint() {
+        val total = repository.count()
+        val known = knownIds.size
+        val unknown = unknownIds.size
+        val untested = total - known - unknown
+        binding.remainingHint.text =
+            "已认识 $known / $total · 待巩固 $unknown · 未测 ${untested.coerceAtLeast(0)}"
     }
 
     private fun setActionButtonsEnabled(enabled: Boolean) {
@@ -211,82 +214,27 @@ class MainActivity : AppCompatActivity() {
         binding.skipButton.isEnabled = enabled
     }
 
-    private fun updateStatsAndLists() {
-        val total = repository.count()
-        val known = knownIds.size
-        val unknown = unknownIds.size
-        val rate = if (total == 0) 0.0 else known * 100.0 / total
-
-        binding.totalCountValue.text = total.toString()
-        binding.knownCountValue.text = known.toString()
-        binding.unknownCountValue.text = unknown.toString()
-        binding.masteryRateValue.text = String.format("%.1f%%", rate)
-
-        populateChipGroup(
-            binding.knownChipGroup,
-            binding.knownEmptyHint,
-            knownIds
-        )
-        populateChipGroup(
-            binding.unknownChipGroup,
-            binding.unknownEmptyHint,
-            unknownIds
-        )
-    }
-
-    private fun populateChipGroup(
-        group: ChipGroup,
-        emptyHint: View,
-        ids: Set<Int>
-    ) {
-        group.removeAllViews()
-
-        if (ids.isEmpty()) {
-            emptyHint.isVisible = true
-            group.isVisible = false
-            return
-        }
-
-        emptyHint.isVisible = false
-        group.isVisible = true
-
-        val characters = ids.mapNotNull { characterMap[it] }
-            .sortedBy { it.hanzi }
-
-        val display = characters.take(MAX_DISPLAY_CHARS)
-        display.forEach { character ->
-            group.addView(createChip(character.hanzi))
-        }
-
-        if (characters.size > MAX_DISPLAY_CHARS) {
-            group.addView(createChip("+${characters.size - MAX_DISPLAY_CHARS}"))
-        }
-    }
-
-    private fun createChip(text: String): Chip {
-        return Chip(this).apply {
-            this.text = text
-            isCheckable = false
-            isClickable = false
-            isCloseIconVisible = false
-            setEnsureMinTouchTargetSize(false)
-        }
-    }
-
-    private fun showConfetti() {
+    private fun showConfetti(onEnd: () -> Unit) {
         val overlay = binding.confettiOverlay
         val width = overlay.width
         val height = overlay.height
         if (width == 0 || height == 0) {
-            overlay.post { showConfetti() }
+            overlay.post { showConfetti(onEnd) }
             return
         }
+
+        overlay.removeAllViews()
+
+        val card = binding.currentCharacterCard
+        val centerX = if (card.width > 0) card.x + card.width / 2f else width / 2f
+        val centerY = if (card.height > 0) card.y + card.height / 2f else height / 2f
+        val particles = mutableListOf<ValueAnimator>()
 
         repeat(CONFETTI_COUNT) { index ->
             val emoji = CONFETTI_EMOJIS[index % CONFETTI_EMOJIS.size]
             val textView = TextView(this).apply {
                 text = emoji
-                textSize = random.nextInt(18, 32).toFloat()
+                textSize = random.nextInt(18, 34).toFloat()
                 alpha = 0f
             }
             val params = FrameLayout.LayoutParams(
@@ -295,29 +243,29 @@ class MainActivity : AppCompatActivity() {
             )
             overlay.addView(textView, params)
 
-            val startX = random.nextInt(width)
-            val startY = -random.nextInt(height / 3 + 1)
-            val endY = height + random.nextInt(height / 4 + 1)
-            val amplitude = random.nextInt(width / 5 + 1)
-            val phase = random.nextInt(4, 8)
-            val rotationRange = random.nextInt(90, 220)
+            textView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+            val halfWidth = textView.measuredWidth / 2f
+            val halfHeight = textView.measuredHeight / 2f
 
-            textView.translationX = startX.toFloat()
-            textView.translationY = startY.toFloat()
+            val angle = random.nextDouble(0.0, Math.PI * 2)
+            val velocity = random.nextDouble(0.35, 0.75) * height
+            val rotationDirection = if (random.nextBoolean()) 1 else -1
+            val rotationRange = random.nextInt(120, 300)
 
             val animator = ValueAnimator.ofFloat(0f, 1f).apply {
-                duration = random.nextLong(1100L, 1700L)
-                interpolator = LinearInterpolator()
+                duration = random.nextLong(900L, 1400L)
+                interpolator = DecelerateInterpolator()
                 addUpdateListener { valueAnimator ->
                     val fraction = valueAnimator.animatedValue as Float
-                    val currentY = startY + (endY - startY) * fraction
-                    val drift = amplitude * sin(fraction * phase * PI).toFloat()
-                    textView.translationX = startX + drift
-                    textView.translationY = currentY
-                    textView.rotation = rotationRange * (fraction - 0.5f)
+                    val distance = velocity * fraction
+                    val x = centerX + (distance * cos(angle)).toFloat()
+                    val y = centerY + (distance * sin(angle)).toFloat()
+                    textView.translationX = x - halfWidth
+                    textView.translationY = y - halfHeight
+                    textView.rotation = rotationDirection * rotationRange * fraction
                     textView.alpha = when {
-                        fraction < 0.1f -> fraction / 0.1f
-                        fraction > 0.85f -> (1f - fraction) / 0.15f
+                        fraction < 0.2f -> fraction / 0.2f
+                        fraction > 0.8f -> (1f - fraction) / 0.2f
                         else -> 1f
                     }
                 }
@@ -328,7 +276,14 @@ class MainActivity : AppCompatActivity() {
                 })
             }
             animator.start()
+            particles.add(animator)
         }
+
+        overlay.postDelayed({
+            particles.forEach { it.cancel() }
+            overlay.removeAllViews()
+            onEnd()
+        }, CONFETTI_DURATION_MS)
     }
 
     private fun exportProgress(uri: Uri) {
@@ -366,9 +321,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val MAX_DISPLAY_CHARS = 40
-        private const val CONFETTI_COUNT = 14
-        private const val CONFETTI_DELAY_MS = 600L
-        private val CONFETTI_EMOJIS = listOf("🎉", "✨", "🎈", "🎊", "🌟")
+        private const val CONFETTI_COUNT = 18
+        private const val CONFETTI_DURATION_MS = 900L
+        private val CONFETTI_EMOJIS = listOf("🎉", "✨", "🎈", "🎊", "🌟", "💫")
     }
 }

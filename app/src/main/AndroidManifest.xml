@@ -27,6 +27,10 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.studyword.literacy.ui.ProgressActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
