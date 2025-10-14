@@ -6,7 +6,7 @@
         <item name="colorPrimary">@color/deep_blue</item>
         <item name="colorPrimaryVariant">@color/sky_blue</item>
         <item name="colorSecondary">@color/tangerine</item>
-        <item name="android:fontFamily">@android:font/sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="materialAlertDialogTheme">@style/Theme.StudyWord.Dialog</item>
         <item name="android:navigationBarColor">@color/white</item>
         <item name="android:windowBackground">@drawable/bg_main_gradient</item>
