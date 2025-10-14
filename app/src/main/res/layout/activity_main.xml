@@ -139,32 +139,36 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/remainingHint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/difficulty_chip_background"
-                android:paddingStart="20dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="20dp"
-                android:paddingBottom="8dp"
-                android:text="未测 0 · 待巩固 0"
-                android:textColor="@color/gray_dark"
-                android:textSize="14sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/remainingHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_status_pill"
+        android:paddingStart="18dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="8dp"
+        android:text="已认识 0 / 0 | 待巩固 0 | 未测 0"
+        android:textColor="@color/deep_blue"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/currentCharacterCard" />
 
     <LinearLayout
         android:id="@+id/actionRow"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="20dp"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/currentCharacterCard">
+        app:layout_constraintTop_toBottomOf="@id/remainingHint">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/unknownButton"
