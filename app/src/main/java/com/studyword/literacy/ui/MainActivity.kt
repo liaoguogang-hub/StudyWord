@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity() {
     private var currentCharacter: LearningCharacter? = null
     private val random = Random(System.currentTimeMillis())
     private val toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 80)
+    private val mascotFaces = listOf("🐻", "🦊", "🐼", "🐰", "🦄", "🐨")
 
     private val exportLauncher = registerForActivityResult(
         ActivityResultContracts.CreateDocument("text/csv")
@@ -192,6 +193,7 @@ class MainActivity : AppCompatActivity() {
             binding.currentPinyin.text = "暂无汉字"
             binding.currentDifficulty.isVisible = false
             binding.remainingHint.text = "暂无可测汉字，请调整难度或重置进度"
+            binding.cardEmoji.text = "💤"
             setActionButtonsEnabled(false)
             return
         }
@@ -200,6 +202,7 @@ class MainActivity : AppCompatActivity() {
         binding.currentPinyin.text = character.pinyin.ifBlank { "(暂无拼音)" }
         binding.currentDifficulty.text = character.difficulty.label
         binding.currentDifficulty.isVisible = true
+        binding.cardEmoji.text = mascotFaces[random.nextInt(mascotFaces.size)]
         setActionButtonsEnabled(true)
     }
 

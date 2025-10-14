@@ -43,21 +43,23 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardElevation="3dp"
-                app:cardUseCompatPadding="true">
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="26dp"
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_card_playful"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="总体统计"
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
+                        android:text="📊 总体统计"
+                        android:textColor="@color/deep_blue"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -66,31 +68,35 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="字库总数：0"
-                        android:textColor="@color/gray_dark" />
+                        android:textColor="@color/gray_dark"
+                        android:textSize="15sp" />
 
                     <TextView
                         android:id="@+id/knownCountLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="6dp"
                         android:text="认识：0"
-                        android:textColor="@color/gray_dark" />
+                        android:textColor="@color/gray_dark"
+                        android:textSize="15sp" />
 
                     <TextView
                         android:id="@+id/unknownCountLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="6dp"
                         android:text="待巩固：0"
-                        android:textColor="@color/gray_dark" />
+                        android:textColor="@color/gray_dark"
+                        android:textSize="15sp" />
 
                     <TextView
                         android:id="@+id/masteryRateLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="6dp"
                         android:text="掌握率：0%"
-                        android:textColor="@color/gray_dark" />
+                        android:textColor="@color/gray_dark"
+                        android:textSize="15sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -98,20 +104,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                app:cardUseCompatPadding="true">
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="26dp"
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_card_playful"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="掌握率趋势"
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
+                        android:text="📈 掌握率趋势"
+                        android:textColor="@color/deep_blue"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -135,20 +144,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:cardUseCompatPadding="true">
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="26dp"
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_card_playful"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="难度掌握分布"
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
+                        android:text="🧩 难度掌握分布"
+                        android:textColor="@color/deep_blue"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -172,20 +184,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                app:cardUseCompatPadding="true">
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="26dp"
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_card_playful"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="当前认识的汉字"
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
+                        android:text="🎉 当前认识的汉字"
+                        android:textColor="@color/deep_blue"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -212,20 +227,23 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="24dp"
-                app:cardUseCompatPadding="true">
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="26dp"
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_card_playful"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="还需巩固的汉字"
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
+                        android:text="🧠 还需巩固的汉字"
+                        android:textColor="@color/deep_blue"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView

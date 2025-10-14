@@ -4,33 +4,45 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:paddingStart="20dp"
-    android:paddingTop="20dp"
-    android:paddingEnd="20dp"
-    android:paddingBottom="20dp"
+    android:background="@drawable/bg_main_gradient"
+    android:paddingStart="24dp"
+    android:paddingTop="32dp"
+    android:paddingEnd="24dp"
+    android:paddingBottom="24dp"
     tools:context=".ui.MainActivity">
 
     <TextView
         android:id="@+id/titleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="识字小帮手"
+        android:text="🌈 识字小帮手"
         android:textColor="@color/black"
-        android:textSize="24sp"
+        android:textSize="28sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="一起开启有趣的识字冒险！"
+        android:textColor="@color/gray_dark"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleText" />
+
+    <TextView
         android:id="@+id/difficultyLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="选择难度"
+        android:layout_marginTop="20dp"
+        android:text="选择任务难度"
         android:textColor="@color/gray_dark"
+        android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/titleText" />
+        app:layout_constraintTop_toBottomOf="@id/subtitle" />
 
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/difficultyToggle"
@@ -44,21 +56,21 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/easyButton"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.StudyWord.ToggleButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="简单" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/mediumButton"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.StudyWord.ToggleButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="中等" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/hardButton"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.StudyWord.ToggleButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="困难" />
@@ -69,8 +81,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="6dp"
+        android:foregroundGravity="center"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="26dp"
+        app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/difficultyToggle">
@@ -80,15 +94,23 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:padding="28dp">
+            android:padding="28dp"
+            android:background="@drawable/bg_card_playful">
+
+            <TextView
+                android:id="@+id/cardEmoji"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🎯"
+                android:textSize="32sp" />
 
             <TextView
                 android:id="@+id/currentCharacter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="汉"
-                android:textColor="@color/black"
-                android:textSize="56sp"
+                android:textColor="@color/deep_blue"
+                android:textSize="60sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -98,7 +120,8 @@
                 android:layout_marginTop="12dp"
                 android:text="hàn"
                 android:textColor="@color/gray_dark"
-                android:textSize="18sp" />
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/currentDifficulty"
@@ -106,22 +129,28 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/difficulty_chip_background"
-                android:paddingStart="14dp"
+                android:paddingStart="16dp"
                 android:paddingTop="6dp"
-                android:paddingEnd="14dp"
+                android:paddingEnd="16dp"
                 android:paddingBottom="6dp"
                 android:text="简单"
-                android:textColor="@color/gray_dark"
-                android:textSize="13sp" />
+                android:textColor="@color/deep_blue"
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/remainingHint"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:background="@drawable/difficulty_chip_background"
+                android:paddingStart="20dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="8dp"
                 android:text="未测 0 · 待巩固 0"
                 android:textColor="@color/gray_dark"
-                android:textSize="13sp" />
+                android:textSize="14sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -138,68 +167,62 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/unknownButton"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.StudyWord.SecondaryButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
             android:layout_weight="1"
-            android:text="不认识"
-            android:textAllCaps="false" />
+            android:text="不认识" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/knowButton"
-            style="@style/Widget.MaterialComponents.Button"
+            style="@style/Widget.StudyWord.PrimaryButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="认识"
-            android:textAllCaps="false" />
+            android:text="认识啦！" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/skipButton"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        style="@style/Widget.StudyWord.SecondaryButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="换一个"
-        android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/actionRow" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/viewProgressButton"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        style="@style/Widget.StudyWord.SecondaryButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="查看学习进度"
-        android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/skipButton" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/resetButton"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        style="@style/Widget.StudyWord.SecondaryButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="重置进度"
-        android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/viewProgressButton" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/exportButton"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        style="@style/Widget.StudyWord.SecondaryButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="导出识字数据"
-        android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

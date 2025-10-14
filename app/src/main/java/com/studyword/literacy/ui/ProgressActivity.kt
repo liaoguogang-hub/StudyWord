@@ -1,5 +1,6 @@
 package com.studyword.literacy.ui
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -95,6 +96,8 @@ class ProgressActivity : AppCompatActivity() {
         isClickable = false
         isCloseIconVisible = false
         setEnsureMinTouchTargetSize(false)
+        chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(this@ProgressActivity, R.color.bubble_pink))
+        setTextColor(ContextCompat.getColor(this@ProgressActivity, R.color.deep_blue))
     }
 
     private fun renderTrendChart(history: List<ProgressSnapshot>, total: Int) {
@@ -131,7 +134,7 @@ class ProgressActivity : AppCompatActivity() {
             granularity = 1f
         }
 
-        val color = ContextCompat.getColor(this, com.studyword.literacy.R.color.blue)
+        val color = ContextCompat.getColor(this, R.color.deep_blue)
         val dataSet = LineDataSet(entries, "掌握率").apply {
             lineWidth = 2.5f
             this.color = color
@@ -180,9 +183,9 @@ class ProgressActivity : AppCompatActivity() {
         }
 
         val colors = listOf(
-            ContextCompat.getColor(this, com.studyword.literacy.R.color.blue),
-            ContextCompat.getColor(this, com.studyword.literacy.R.color.teal_700),
-            ContextCompat.getColor(this, com.studyword.literacy.R.color.purple_500)
+            ContextCompat.getColor(this, R.color.sunshine),
+            ContextCompat.getColor(this, R.color.bubble_pink),
+            ContextCompat.getColor(this, R.color.mint)
         )
 
         val dataSet = PieDataSet(entries, "").apply {
