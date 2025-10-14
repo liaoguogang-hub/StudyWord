@@ -44,37 +44,32 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/subtitle" />
 
-    <com.google.android.material.button.MaterialButtonToggleGroup
-        android:id="@+id/difficultyToggle"
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/difficultyChipGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/difficultyLabel"
         app:selectionRequired="true"
+        app:singleLine="false"
         app:singleSelection="true">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/easyButton"
-            style="@style/Widget.StudyWord.ToggleButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipEasy"
+            style="@style/Widget.StudyWord.DifficultyChip"
             android:text="简单" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/mediumButton"
-            style="@style/Widget.StudyWord.ToggleButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipMedium"
+            style="@style/Widget.StudyWord.DifficultyChip"
             android:text="中等" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/hardButton"
-            style="@style/Widget.StudyWord.ToggleButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipHard"
+            style="@style/Widget.StudyWord.DifficultyChip"
             android:text="困难" />
-    </com.google.android.material.button.MaterialButtonToggleGroup>
+    </com.google.android.material.chip.ChipGroup>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/currentCharacterCard"
@@ -87,7 +82,7 @@
         app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/difficultyToggle">
+        app:layout_constraintTop_toBottomOf="@id/difficultyChipGroup">
 
         <LinearLayout
             android:layout_width="match_parent"

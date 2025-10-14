@@ -78,12 +78,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupDifficultyToggle() {
-        binding.difficultyToggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (!isChecked) return@addOnButtonCheckedListener
+        binding.difficultyChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            val checkedId = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
             currentDifficulty = when (checkedId) {
-                binding.easyButton.id -> Difficulty.EASY
-                binding.mediumButton.id -> Difficulty.MEDIUM
-                binding.hardButton.id -> Difficulty.HARD
+                binding.chipEasy.id -> Difficulty.EASY
+                binding.chipMedium.id -> Difficulty.MEDIUM
+                binding.chipHard.id -> Difficulty.HARD
                 else -> Difficulty.EASY
             }
             pendingCharacters.clear()
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
             rebuildQueue()
             loadNextCharacter()
         }
-        binding.difficultyToggle.check(binding.easyButton.id)
+        binding.chipEasy.isChecked = true
     }
 
     private fun setupActions() {
