@@ -133,11 +133,11 @@ class MainActivity : AppCompatActivity() {
 
         val needReview = pool.filter { unknownIds.contains(it.id) }
         val untested = pool.filter { it.id !in knownIds && it.id !in unknownIds }
-        val mastered = pool.filter { knownIds.contains(it.id) && !unknownIds.contains(it.id) }
+        val mastered = pool.filter { knownIds.contains(it.id) && it.id !in unknownIds }
 
-        pendingCharacters.addAll(needReview.shuffled(random))
-        pendingCharacters.addAll(untested.shuffled(random))
-        pendingCharacters.addAll(mastered.shuffled(random))
+        pendingCharacters.addAll(needReview)
+        pendingCharacters.addAll(untested)
+        pendingCharacters.addAll(mastered)
     }
 
     private fun loadNextCharacter(requeueCurrent: Boolean = false) {
@@ -283,7 +283,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val CONFETTI_COUNT = 18
-        private const val CONFETTI_DURATION_MS = 900L
+        private const val CONFETTI_DURATION_MS = 300L
         private val CONFETTI_EMOJIS = listOf("🎉", "✨", "🎈", "🎊", "🌟", "💫")
     }
 }
