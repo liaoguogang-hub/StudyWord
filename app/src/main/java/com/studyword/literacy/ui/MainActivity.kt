@@ -191,22 +191,6 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         reloadProgressFromStore()
         updateSummaryHint()
-        currentCharacter = null
-        rebuildQueue()
-        loadNextCharacter()
-    }
-
-    private fun reloadProgressFromStore() {
-        knownIds.clear()
-        knownIds.addAll(progressStore.loadKnown())
-        unknownIds.clear()
-        unknownIds.addAll(progressStore.loadUnknown())
-    }
-
-    override fun onResume() {
-        super.onResume()
-        reloadProgressFromStore()
-        updateSummaryHint()
         rebuildQueue()
         loadNextCharacter()
     }
