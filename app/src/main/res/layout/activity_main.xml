@@ -200,39 +200,35 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/actionRow" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/viewProgressButton"
-        style="@style/Widget.StudyWord.SecondaryButton"
+    <LinearLayout
+        android:id="@+id/bottomActions"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="查看学习进度"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/skipButton" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/resetButton"
-        style="@style/Widget.StudyWord.SecondaryButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="重置进度"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/viewProgressButton" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/exportButton"
-        style="@style/Widget.StudyWord.SecondaryButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="导出识字数据"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/resetButton" />
+        app:layout_constraintTop_toBottomOf="@id/skipButton">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/viewProgressButton"
+            style="@style/Widget.StudyWord.SecondaryButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:layout_weight="1"
+            android:text="查看学习进度" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/settingsButton"
+            style="@style/Widget.StudyWord.SecondaryButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="更多设置" />
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/confettiOverlay"

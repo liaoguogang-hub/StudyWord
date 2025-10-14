@@ -31,6 +31,10 @@
             android:name="com.studyword.literacy.ui.ProgressActivity"
             android:exported="false" />
 
+        <activity
+            android:name="com.studyword.literacy.ui.SettingsActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

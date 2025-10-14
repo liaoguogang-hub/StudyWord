@@ -6,29 +6,19 @@ import android.animation.ValueAnimator
 import android.content.Intent
 import android.media.AudioManager
 import android.media.ToneGenerator
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.TextView
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.studyword.literacy.data.CharacterRepository
 import com.studyword.literacy.data.ProgressStore
 import com.studyword.literacy.databinding.ActivityMainBinding
 import com.studyword.literacy.model.Difficulty
 import com.studyword.literacy.model.LearningCharacter
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.OutputStreamWriter
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.ArrayDeque
 import kotlin.math.cos
 import kotlin.math.sin
@@ -49,21 +39,13 @@ class MainActivity : AppCompatActivity() {
     private val toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 80)
     private val mascotFaces = listOf("🐻", "🦊", "🐼", "🐰", "🦄", "🐨")
 
-    private val exportLauncher = registerForActivityResult(
-        ActivityResultContracts.CreateDocument("text/csv")
-    ) { uri ->
-        uri?.let { exportProgress(it) }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         progressStore = ProgressStore(this)
-        knownIds.addAll(progressStore.loadKnown())
-        unknownIds.addAll(progressStore.loadUnknown())
-
+        reloadProgressFromStore()
         progressStore.recordSnapshot(knownIds.size, unknownIds.size)
 
         setupDifficultyToggle()
@@ -98,21 +80,11 @@ class MainActivity : AppCompatActivity() {
         binding.knowButton.setOnClickListener { handleResult(CharacterResult.KNOWN) }
         binding.unknownButton.setOnClickListener { handleResult(CharacterResult.UNKNOWN) }
         binding.skipButton.setOnClickListener { loadNextCharacter(requeueCurrent = true) }
-        binding.resetButton.setOnClickListener {
-            knownIds.clear()
-            unknownIds.clear()
-            progressStore.reset()
-            progressStore.recordSnapshot(0, 0)
-            rebuildQueue()
-            loadNextCharacter()
-            Snackbar.make(binding.root, "进度已重置", Snackbar.LENGTH_SHORT).show()
-        }
-        binding.exportButton.setOnClickListener {
-            val date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-            exportLauncher.launch("识字进度_$date.csv")
-        }
         binding.viewProgressButton.setOnClickListener {
             startActivity(Intent(this, ProgressActivity::class.java))
+        }
+        binding.settingsButton.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
     }
 
@@ -215,6 +187,37 @@ class MainActivity : AppCompatActivity() {
             "已认识 $known / $total · 待巩固 $unknown · 未测 ${untested.coerceAtLeast(0)}"
     }
 
+    override fun onResume() {
+        super.onResume()
+        reloadProgressFromStore()
+        updateSummaryHint()
+        currentCharacter = null
+        rebuildQueue()
+        loadNextCharacter()
+    }
+
+    private fun reloadProgressFromStore() {
+        knownIds.clear()
+        knownIds.addAll(progressStore.loadKnown())
+        unknownIds.clear()
+        unknownIds.addAll(progressStore.loadUnknown())
+    }
+
+    override fun onResume() {
+        super.onResume()
+        reloadProgressFromStore()
+        updateSummaryHint()
+        rebuildQueue()
+        loadNextCharacter()
+    }
+
+    private fun reloadProgressFromStore() {
+        knownIds.clear()
+        knownIds.addAll(progressStore.loadKnown())
+        unknownIds.clear()
+        unknownIds.addAll(progressStore.loadUnknown())
+    }
+
     private fun setActionButtonsEnabled(enabled: Boolean) {
         binding.knowButton.isEnabled = enabled
         binding.unknownButton.isEnabled = enabled
@@ -291,40 +294,6 @@ class MainActivity : AppCompatActivity() {
             overlay.removeAllViews()
             onEnd()
         }, CONFETTI_DURATION_MS)
-    }
-
-    private fun exportProgress(uri: Uri) {
-        lifecycleScope.launch {
-            try {
-                withContext(Dispatchers.IO) {
-                    contentResolver.openOutputStream(uri)?.use { stream ->
-                        OutputStreamWriter(stream, Charsets.UTF_8).use { writer ->
-                            writer.appendLine("汉字,拼音,难度,掌握情况")
-                            repository.all().forEach { character ->
-                                val status = when {
-                                    knownIds.contains(character.id) -> "认识"
-                                    unknownIds.contains(character.id) -> "不认识"
-                                    else -> "未测试"
-                                }
-                                writer.appendLine(
-                                    "${character.hanzi}," +
-                                        "${character.pinyin}," +
-                                        "${character.difficulty.label}," +
-                                        status
-                                )
-                            }
-                        }
-                    }
-                }
-                Toast.makeText(this@MainActivity, "导出成功", Toast.LENGTH_SHORT).show()
-            } catch (error: Exception) {
-                Toast.makeText(
-                    this@MainActivity,
-                    "导出失败：${error.localizedMessage}",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
     }
 
     companion object {
