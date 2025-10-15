@@ -1,5 +1,6 @@
 package com.studyword.literacy.ui
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
@@ -37,6 +38,10 @@ class SettingsActivity : AppCompatActivity() {
         progressStore = ProgressStore(this)
 
         binding.topBar.setNavigationOnClickListener { finish() }
+
+        binding.libraryButton.setOnClickListener {
+            startActivity(Intent(this, CharacterLibraryActivity::class.java))
+        }
 
         binding.exportButton.setOnClickListener {
             val date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))

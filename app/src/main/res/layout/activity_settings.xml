@@ -50,12 +50,20 @@
             android:textColor="@color/gray_dark"
             android:textSize="13sp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/exportButton"
-            style="@style/Widget.StudyWord.PrimaryButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/libraryButton"
+                style="@style/Widget.StudyWord.SecondaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="浏览全部汉字" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/exportButton"
+                style="@style/Widget.StudyWord.PrimaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
             android:text="导出识字数据" />
 
         <com.google.android.material.button.MaterialButton
