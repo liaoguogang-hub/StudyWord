@@ -37,8 +37,8 @@ class CharacterLibraryActivity : AppCompatActivity() {
         unknownIds.addAll(progressStore.loadUnknown())
 
         setupToolbar()
-        setupFilters()
         setupRecycler()
+        setupFilters()
         renderList()
     }
 
