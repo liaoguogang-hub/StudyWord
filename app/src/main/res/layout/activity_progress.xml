@@ -121,6 +121,36 @@
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/trendRangeChipGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        app:selectionRequired="true"
+                        app:singleSelection="true">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chipRangeWeek"
+                            style="@style/Widget.StudyWord.DifficultyChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="近7天" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chipRangeMonth"
+                            style="@style/Widget.StudyWord.DifficultyChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="近30天" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chipRangeYear"
+                            style="@style/Widget.StudyWord.DifficultyChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="近一年" />
+                    </com.google.android.material.chip.ChipGroup>
+
                     <TextView
                         android:id="@+id/trendEmptyHint"
                         android:layout_width="wrap_content"

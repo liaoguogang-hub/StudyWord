@@ -33,6 +33,8 @@ class ProgressActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProgressBinding
     private lateinit var repository: CharacterRepository
     private lateinit var progressStore: ProgressStore
+    private var trendRange: TrendRange = TrendRange.WEEK
+    private var initializingRangeToggle = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +45,7 @@ class ProgressActivity : AppCompatActivity() {
         progressStore = ProgressStore(this)
         binding.topBar.setNavigationOnClickListener { finish() }
 
+        setupTrendRangeToggle()
         renderProgress()
     }
 
@@ -51,6 +54,8 @@ class ProgressActivity : AppCompatActivity() {
         val unknownIds = progressStore.loadUnknown()
         val characters = repository.all().associateBy { it.id }
         val history = progressStore.loadHistory()
+        val filteredHistory = filterHistory(history)
+        val formatter = currentDateFormatter()
 
         val total = repository.count()
         val known = knownIds.size
@@ -73,7 +78,7 @@ class ProgressActivity : AppCompatActivity() {
             unknownIds.mapNotNull { characters[it]?.hanzi }
         )
 
-        renderTrendChart(history, total)
+        renderTrendChart(filteredHistory, total, formatter)
         renderDifficultyPie(knownIds)
     }
 
@@ -106,13 +111,13 @@ class ProgressActivity : AppCompatActivity() {
         setTextColor(ContextCompat.getColor(this@ProgressActivity, R.color.deep_blue))
     }
 
-    private fun renderTrendChart(history: List<ProgressSnapshot>, total: Int) {
+    private fun renderTrendChart(history: List<ProgressSnapshot>, total: Int, formatter: SimpleDateFormat) {
         val chart = binding.progressLineChart
         val recent = history.takeLast(MAX_TREND_POINTS)
         val dateLabels = mutableListOf<String>()
         val entries = recent.mapIndexed { index, snapshot ->
             val rate = if (total == 0) 0f else snapshot.knownCount * 100f / total
-            dateLabels += dateFormatter.format(Date(snapshot.timestamp))
+            dateLabels += formatter.format(Date(snapshot.timestamp))
             Entry(index.toFloat(), rate)
         }
 
@@ -166,6 +171,40 @@ class ProgressActivity : AppCompatActivity() {
 
         chart.data = LineData(dataSet)
         chart.invalidate()
+    }
+
+    private fun setupTrendRangeToggle() {
+        initializingRangeToggle = true
+        binding.trendRangeChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            val checkedId = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
+            trendRange = when (checkedId) {
+                binding.chipRangeWeek.id -> TrendRange.WEEK
+                binding.chipRangeMonth.id -> TrendRange.MONTH
+                binding.chipRangeYear.id -> TrendRange.YEAR
+                else -> TrendRange.WEEK
+            }
+            if (!initializingRangeToggle) {
+                renderProgress()
+            }
+        }
+        binding.chipRangeWeek.isChecked = true
+        initializingRangeToggle = false
+    }
+
+    private fun filterHistory(history: List<ProgressSnapshot>): List<ProgressSnapshot> {
+        val now = System.currentTimeMillis()
+        val rangeMillis = when (trendRange) {
+            TrendRange.WEEK -> DAYS_7
+            TrendRange.MONTH -> DAYS_30
+            TrendRange.YEAR -> DAYS_365
+        }
+        val cutoff = now - rangeMillis
+        return history.filter { it.timestamp >= cutoff }
+    }
+
+    private fun currentDateFormatter(): SimpleDateFormat = when (trendRange) {
+        TrendRange.WEEK, TrendRange.MONTH -> SimpleDateFormat("MM-dd", Locale.getDefault())
+        TrendRange.YEAR -> SimpleDateFormat("yy-MM", Locale.getDefault())
     }
 
     private fun renderDifficultyPie(knownIds: Set<Int>) {
@@ -223,6 +262,14 @@ class ProgressActivity : AppCompatActivity() {
 
     companion object {
         private const val MAX_TREND_POINTS = 20
-        private val dateFormatter = SimpleDateFormat("MM-dd", Locale.getDefault())
+        private const val DAYS_7 = 7L * 24 * 60 * 60 * 1000
+        private const val DAYS_30 = 30L * 24 * 60 * 60 * 1000
+        private const val DAYS_365 = 365L * 24 * 60 * 60 * 1000
+    }
+
+    private enum class TrendRange {
+        WEEK,
+        MONTH,
+        YEAR
     }
 }
