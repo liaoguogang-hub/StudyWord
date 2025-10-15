@@ -6,16 +6,6 @@ import android.util.Log
 
 class ProgressStore(context: Context) {
 
-    companion object {
-        private const val TAG = "ProgressStore"
-    }
-
-
-    companion object {
-        private const val TAG = "ProgressStore"
-    }
-
-
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
@@ -39,7 +29,6 @@ class ProgressStore(context: Context) {
     fun recordSnapshot(knownCount: Int, unknownCount: Int) {
         val history = loadHistory().toMutableList()
         val last = history.lastOrNull()
-        Log.d(TAG, "recordSnapshot before -> size=${history.size}, lastKnown=${last?.knownCount}, lastUnknown=${last?.unknownCount}")
         Log.d(TAG, "recordSnapshot before -> size=${history.size}, lastKnown=${last?.knownCount}, lastUnknown=${last?.unknownCount}")
         if (last != null &&
             last.knownCount == knownCount &&
@@ -85,6 +74,7 @@ class ProgressStore(context: Context) {
     }
 
     companion object {
+        private const val TAG = "ProgressStore"
         private const val PREFS_NAME = "literacy_progress"
         private const val KEY_KNOWN = "known_ids"
         private const val KEY_UNKNOWN = "unknown_ids"

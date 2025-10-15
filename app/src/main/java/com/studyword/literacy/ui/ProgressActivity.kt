@@ -27,6 +27,7 @@ import com.studyword.literacy.model.Difficulty
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.max
 import kotlin.math.min
 
 class ProgressActivity : AppCompatActivity() {
@@ -121,7 +122,7 @@ class ProgressActivity : AppCompatActivity() {
         }
         val dateLabels = displayPoints.map { it.label }
 
-        if (entries.size < 2) {
+        if (entries.isEmpty()) {
             binding.trendEmptyHint.isVisible = true
             chart.clear()
             chart.isVisible = false
@@ -138,11 +139,18 @@ class ProgressActivity : AppCompatActivity() {
         chart.setPinchZoom(false)
         chart.isHighlightPerTapEnabled = true
         chart.axisRight.isEnabled = false
+        val maxRate = displayPoints.maxOf { it.rate }
+        val minRate = displayPoints.minOf { it.rate }
+        val padding = max(5f, (maxRate - minRate) * 0.1f)
+        val axisMax = min(100f, maxRate + padding)
+        val axisMin = max(0f, minRate - padding)
+
         chart.axisLeft.apply {
-            axisMinimum = 0f
-            axisMaximum = 100f
+            axisMinimum = axisMin
+            axisMaximum = if (axisMax <= axisMin) axisMin + 5f else axisMax
             setDrawGridLines(true)
             textColor = Color.DKGRAY
+            granularity = 1f
         }
         chart.xAxis.apply {
             position = XAxis.XAxisPosition.BOTTOM
@@ -150,12 +158,15 @@ class ProgressActivity : AppCompatActivity() {
             setDrawAxisLine(false)
             textColor = Color.DKGRAY
             granularity = 1f
-            setLabelCount(min(dateLabels.size, 6), true)
+            val step = max(1, dateLabels.size / MAX_LABEL_COUNT)
+            setLabelCount(min(dateLabels.size, MAX_LABEL_COUNT), true)
             labelRotationAngle = -30f
             valueFormatter = object : ValueFormatter() {
                 override fun getAxisLabel(value: Float, axis: AxisBase?): String {
                     val index = value.toInt()
-                    return if (index in dateLabels.indices) dateLabels[index] else ""
+                    return if (index in dateLabels.indices && (index % step == 0 || index == dateLabels.lastIndex)) {
+                        dateLabels[index]
+                    } else ""
                 }
             }
         }
@@ -223,9 +234,7 @@ class ProgressActivity : AppCompatActivity() {
                 binding.chipRangeYear.id -> TrendRange.YEAR
                 else -> TrendRange.WEEK
             }
-            if (!initializingRangeToggle) {
-                renderProgress()
-            }
+            renderProgress()
         }
         binding.chipRangeWeek.isChecked = true
         initializingRangeToggle = false
@@ -303,6 +312,7 @@ class ProgressActivity : AppCompatActivity() {
     companion object {
         private const val MAX_TREND_POINTS = 30
         private const val VISIBLE_RANGE = 8f
+        private const val MAX_LABEL_COUNT = 6
         private const val DAYS_7 = 7L * 24 * 60 * 60 * 1000
         private const val DAYS_30 = 30L * 24 * 60 * 60 * 1000
         private const val DAYS_365 = 365L * 24 * 60 * 60 * 1000
