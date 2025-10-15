@@ -2,8 +2,19 @@ package com.studyword.literacy.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 
 class ProgressStore(context: Context) {
+
+    companion object {
+        private const val TAG = "ProgressStore"
+    }
+
+
+    companion object {
+        private const val TAG = "ProgressStore"
+    }
+
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -28,6 +39,8 @@ class ProgressStore(context: Context) {
     fun recordSnapshot(knownCount: Int, unknownCount: Int) {
         val history = loadHistory().toMutableList()
         val last = history.lastOrNull()
+        Log.d(TAG, "recordSnapshot before -> size=${history.size}, lastKnown=${last?.knownCount}, lastUnknown=${last?.unknownCount}")
+        Log.d(TAG, "recordSnapshot before -> size=${history.size}, lastKnown=${last?.knownCount}, lastUnknown=${last?.unknownCount}")
         if (last != null &&
             last.knownCount == knownCount &&
             last.unknownCount == unknownCount
@@ -47,6 +60,10 @@ class ProgressStore(context: Context) {
         val serialized = trimmed.joinToString(HISTORY_DELIMITER) {
             listOf(it.timestamp, it.knownCount, it.unknownCount).joinToString(ENTRY_DELIMITER)
         }
+        trimmed.lastOrNull()?.let {
+            Log.d(TAG, "recordSnapshot after -> size=${trimmed.size}, latestKnown=${it.knownCount}, latestUnknown=${it.unknownCount}, ts=${it.timestamp}")
+        }
+        Log.d(TAG, "recordSnapshot after -> size=${trimmed.size}, latestKnown=${trimmed.last().knownCount}, latestUnknown=${trimmed.last().unknownCount}")
         prefs.edit().putString(KEY_HISTORY, serialized).apply()
     }
 
