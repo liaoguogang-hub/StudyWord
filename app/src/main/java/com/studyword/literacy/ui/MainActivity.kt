@@ -14,6 +14,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.studyword.literacy.R
 import com.google.android.material.snackbar.Snackbar
 import com.studyword.literacy.data.CharacterRepository
 import com.studyword.literacy.data.ProgressStore
