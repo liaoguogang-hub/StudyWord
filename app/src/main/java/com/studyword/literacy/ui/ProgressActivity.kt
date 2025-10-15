@@ -7,6 +7,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -15,6 +16,7 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.chip.Chip
 import com.studyword.literacy.R
 import com.studyword.literacy.data.CharacterRepository
@@ -22,6 +24,9 @@ import com.studyword.literacy.data.ProgressSnapshot
 import com.studyword.literacy.data.ProgressStore
 import com.studyword.literacy.databinding.ActivityProgressBinding
 import com.studyword.literacy.model.Difficulty
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ProgressActivity : AppCompatActivity() {
 
@@ -103,8 +108,11 @@ class ProgressActivity : AppCompatActivity() {
 
     private fun renderTrendChart(history: List<ProgressSnapshot>, total: Int) {
         val chart = binding.progressLineChart
-        val entries = history.takeLast(MAX_TREND_POINTS).mapIndexed { index, snapshot ->
+        val recent = history.takeLast(MAX_TREND_POINTS)
+        val dateLabels = mutableListOf<String>()
+        val entries = recent.mapIndexed { index, snapshot ->
             val rate = if (total == 0) 0f else snapshot.knownCount * 100f / total
+            dateLabels += dateFormatter.format(Date(snapshot.timestamp))
             Entry(index.toFloat(), rate)
         }
 
@@ -133,6 +141,14 @@ class ProgressActivity : AppCompatActivity() {
             setDrawAxisLine(false)
             textColor = Color.DKGRAY
             granularity = 1f
+            setLabelCount(dateLabels.size, true)
+            labelRotationAngle = -30f
+            valueFormatter = object : ValueFormatter() {
+                override fun getAxisLabel(value: Float, axis: AxisBase?): String {
+                    val index = value.toInt()
+                    return if (index in dateLabels.indices) dateLabels[index] else ""
+                }
+            }
         }
 
         val color = ContextCompat.getColor(this, R.color.deep_blue)
@@ -207,5 +223,6 @@ class ProgressActivity : AppCompatActivity() {
 
     companion object {
         private const val MAX_TREND_POINTS = 20
+        private val dateFormatter = SimpleDateFormat("MM-dd", Locale.getDefault())
     }
 }
