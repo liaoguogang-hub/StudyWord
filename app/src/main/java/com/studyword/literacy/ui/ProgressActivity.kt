@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.github.mikephil.charting.components.AxisBase
+import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -27,6 +28,7 @@ import com.studyword.literacy.model.Difficulty
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.min
 
 class ProgressActivity : AppCompatActivity() {
 
@@ -113,13 +115,12 @@ class ProgressActivity : AppCompatActivity() {
 
     private fun renderTrendChart(history: List<ProgressSnapshot>, total: Int, formatter: SimpleDateFormat) {
         val chart = binding.progressLineChart
-        val recent = history.takeLast(MAX_TREND_POINTS)
-        val dateLabels = mutableListOf<String>()
-        val entries = recent.mapIndexed { index, snapshot ->
-            val rate = if (total == 0) 0f else snapshot.knownCount * 100f / total
-            dateLabels += formatter.format(Date(snapshot.timestamp))
-            Entry(index.toFloat(), rate)
+        val aggregatedPoints = aggregateTrendPoints(history, total, formatter)
+        val displayPoints = aggregatedPoints.takeLast(MAX_TREND_POINTS)
+        val entries = displayPoints.mapIndexed { index, point ->
+            Entry(index.toFloat(), point.rate)
         }
+        val dateLabels = displayPoints.map { it.label }
 
         if (entries.size < 2) {
             binding.trendEmptyHint.isVisible = true
@@ -132,7 +133,11 @@ class ProgressActivity : AppCompatActivity() {
         chart.isVisible = true
         chart.description.isEnabled = false
         chart.legend.isEnabled = false
-        chart.setTouchEnabled(false)
+        chart.setTouchEnabled(true)
+        chart.isDragEnabled = true
+        chart.setScaleEnabled(false)
+        chart.setPinchZoom(false)
+        chart.isHighlightPerTapEnabled = true
         chart.axisRight.isEnabled = false
         chart.axisLeft.apply {
             axisMinimum = 0f
@@ -146,7 +151,7 @@ class ProgressActivity : AppCompatActivity() {
             setDrawAxisLine(false)
             textColor = Color.DKGRAY
             granularity = 1f
-            setLabelCount(dateLabels.size, true)
+            setLabelCount(min(dateLabels.size, 6), true)
             labelRotationAngle = -30f
             valueFormatter = object : ValueFormatter() {
                 override fun getAxisLabel(value: Float, axis: AxisBase?): String {
@@ -154,6 +159,13 @@ class ProgressActivity : AppCompatActivity() {
                     return if (index in dateLabels.indices) dateLabels[index] else ""
                 }
             }
+        }
+
+        if (entries.size > VISIBLE_RANGE.toInt()) {
+            chart.setVisibleXRangeMaximum(VISIBLE_RANGE)
+            chart.moveViewToX(entries.size - VISIBLE_RANGE)
+        } else {
+            chart.setVisibleXRangeMaximum(entries.size.toFloat())
         }
 
         val color = ContextCompat.getColor(this, R.color.deep_blue)
@@ -167,10 +179,39 @@ class ProgressActivity : AppCompatActivity() {
             setDrawFilled(true)
             fillColor = color
             fillAlpha = 70
+            setDrawHighlightIndicators(false)
+            highLightColor = ContextCompat.getColor(this@ProgressActivity, R.color.tangerine)
         }
 
         chart.data = LineData(dataSet)
+        chart.marker = ProgressMarkerView(this, displayPoints)
         chart.invalidate()
+    }
+
+    private fun aggregateTrendPoints(
+        history: List<ProgressSnapshot>,
+        total: Int,
+        displayFormatter: SimpleDateFormat
+    ): List<TrendPoint> {
+        if (history.isEmpty()) return emptyList()
+        val sorted = history.sortedBy { it.timestamp }
+        val keyFormatter = when (trendRange) {
+            TrendRange.YEAR -> SimpleDateFormat("yyyyMM", Locale.getDefault())
+            else -> SimpleDateFormat("yyyyMMdd", Locale.getDefault())
+        }
+        val map = linkedMapOf<String, ProgressSnapshot>()
+        sorted.forEach { snapshot ->
+            val key = keyFormatter.format(Date(snapshot.timestamp))
+            map[key] = snapshot
+        }
+        return map.values.map { snapshot ->
+            val rate = if (total == 0) 0f else snapshot.knownCount * 100f / total
+            TrendPoint(
+                label = displayFormatter.format(Date(snapshot.timestamp)),
+                rate = rate,
+                timestamp = snapshot.timestamp
+            )
+        }
     }
 
     private fun setupTrendRangeToggle() {
@@ -261,7 +302,8 @@ class ProgressActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val MAX_TREND_POINTS = 20
+        private const val MAX_TREND_POINTS = 30
+        private const val VISIBLE_RANGE = 8f
         private const val DAYS_7 = 7L * 24 * 60 * 60 * 1000
         private const val DAYS_30 = 30L * 24 * 60 * 60 * 1000
         private const val DAYS_365 = 365L * 24 * 60 * 60 * 1000
@@ -272,4 +314,10 @@ class ProgressActivity : AppCompatActivity() {
         MONTH,
         YEAR
     }
+
+    data class TrendPoint(
+        val label: String,
+        val rate: Float,
+        val timestamp: Long
+    )
 }

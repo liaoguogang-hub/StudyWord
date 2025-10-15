@@ -4,5 +4,6 @@
     <string name="status_known">已认识</string>
     <string name="status_unknown">待巩固</string>
     <string name="status_unseen">未学习</string>
+    <string name="marker_rate_format">掌握率：%1$.1f%%</string>
     <string name="back">返回</string>
 </resources>
