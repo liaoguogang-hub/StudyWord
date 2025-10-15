@@ -12,6 +12,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.google.android.material.snackbar.Snackbar
 import com.studyword.literacy.data.CharacterRepository
@@ -36,7 +37,8 @@ class MainActivity : AppCompatActivity() {
     private val pendingCharacters: ArrayDeque<LearningCharacter> = ArrayDeque()
     private var currentCharacter: LearningCharacter? = null
     private val random = Random(System.currentTimeMillis())
-    private val toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 80)
+    private val positiveTone = ToneGenerator(AudioManager.STREAM_MUSIC, 80)
+    private val encourageTone = ToneGenerator(AudioManager.STREAM_MUSIC, 70)
     private val mascotFaces = listOf("🐻", "🦊", "🐼", "🐰", "🦄", "🐨")
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +58,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        toneGenerator.release()
+        positiveTone.release()
+        encourageTone.release()
         super.onDestroy()
     }
 
@@ -101,6 +104,8 @@ class MainActivity : AppCompatActivity() {
                 unknownIds.add(character.id)
                 knownIds.remove(character.id)
                 pendingCharacters.addLast(character)
+                showEncourageSparkle()
+                encourageTone.startTone(ToneGenerator.TONE_PROP_BEEP2, 250)
                 loadNextCharacter()
             }
         }
@@ -111,15 +116,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun celebrate() {
         setActionButtonsEnabled(false)
-        playTone()
+        positiveTone.startTone(ToneGenerator.TONE_PROP_PROMPT, 250)
         showConfetti {
             loadNextCharacter()
             setActionButtonsEnabled(true)
         }
-    }
-
-    private fun playTone() {
-        toneGenerator.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 180)
     }
 
     private fun rebuildQueue() {
@@ -207,6 +208,56 @@ class MainActivity : AppCompatActivity() {
         binding.knowButton.isEnabled = enabled
         binding.unknownButton.isEnabled = enabled
         binding.skipButton.isEnabled = enabled
+    }
+
+    private fun showEncourageSparkle() {
+        val overlay = binding.confettiOverlay
+        val width = overlay.width
+        val height = overlay.height
+        if (width == 0 || height == 0) {
+            overlay.post { showEncourageSparkle() }
+            return
+        }
+
+        val messages = listOf("继续加油！", "还差一点点", "我们一起努力")
+        val label = TextView(this).apply {
+            text = messages[random.nextInt(messages.size)]
+            textSize = 18f
+            setTextColor(ContextCompat.getColor(context, R.color.deep_blue))
+            setBackgroundResource(R.drawable.bg_status_unseen)
+            setPadding(28, 12, 28, 12)
+            alpha = 0f
+        }
+
+        val params = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
+        )
+        overlay.addView(label, params)
+
+        val startX = width / 2f - label.paint.measureText(label.text.toString()) / 2
+        val startY = binding.actionRow.y - 24f
+        label.translationX = startX
+        label.translationY = startY
+
+        ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 700
+            addUpdateListener { animator ->
+                val fraction = animator.animatedValue as Float
+                label.translationY = startY - 90 * fraction
+                label.alpha = when {
+                    fraction < 0.25f -> fraction / 0.25f
+                    fraction > 0.8f -> (1f - fraction) / 0.2f
+                    else -> 1f
+                }
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    overlay.removeView(label)
+                }
+            })
+            start()
+        }
     }
 
     private fun showConfetti(onEnd: () -> Unit) {
