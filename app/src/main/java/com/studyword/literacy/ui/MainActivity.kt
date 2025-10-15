@@ -4,8 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Intent
-import android.media.AudioManager
-import android.media.ToneGenerator
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.View
 import android.view.animation.DecelerateInterpolator
@@ -38,8 +37,8 @@ class MainActivity : AppCompatActivity() {
     private val pendingCharacters: ArrayDeque<LearningCharacter> = ArrayDeque()
     private var currentCharacter: LearningCharacter? = null
     private val random = Random(System.currentTimeMillis())
-    private val positiveTone = ToneGenerator(AudioManager.STREAM_MUSIC, 80)
-    private val encourageTone = ToneGenerator(AudioManager.STREAM_MUSIC, 70)
+    private var successPlayer: MediaPlayer? = null
+    private var encouragePlayer: MediaPlayer? = null
     private val mascotFaces = listOf("🐻", "🦊", "🐼", "🐰", "🦄", "🐨")
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,8 +58,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        positiveTone.release()
-        encourageTone.release()
+        successPlayer?.release()
+        successPlayer = null
+        encouragePlayer?.release()
+        encouragePlayer = null
         super.onDestroy()
     }
 
@@ -106,7 +107,7 @@ class MainActivity : AppCompatActivity() {
                 knownIds.remove(character.id)
                 pendingCharacters.addLast(character)
                 showEncourageSparkle()
-                encourageTone.startTone(ToneGenerator.TONE_PROP_BEEP2, 250)
+                playEncourageSound()
                 loadNextCharacter()
             }
         }
@@ -117,7 +118,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun celebrate() {
         setActionButtonsEnabled(false)
-        positiveTone.startTone(ToneGenerator.TONE_PROP_PROMPT, 250)
+        playSuccessSound()
         showConfetti {
             loadNextCharacter()
             setActionButtonsEnabled(true)
@@ -331,6 +332,36 @@ class MainActivity : AppCompatActivity() {
             overlay.removeAllViews()
             onEnd()
         }, CONFETTI_DURATION_MS)
+    }
+
+    private fun playSuccessSound() {
+        var player = successPlayer
+        if (player == null) {
+            player = MediaPlayer.create(this, R.raw.success)
+            player?.setOnCompletionListener { mp -> mp.seekTo(0) }
+            successPlayer = player
+        }
+        player?.let {
+            if (it.isPlaying) {
+                it.seekTo(0)
+            }
+            it.start()
+        }
+    }
+
+    private fun playEncourageSound() {
+        var player = encouragePlayer
+        if (player == null) {
+            player = MediaPlayer.create(this, R.raw.fail)
+            player?.setOnCompletionListener { mp -> mp.seekTo(0) }
+            encouragePlayer = player
+        }
+        player?.let {
+            if (it.isPlaying) {
+                it.seekTo(0)
+            }
+            it.start()
+        }
     }
 
     companion object {
