@@ -54,7 +54,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/backButton" />
 
-    <!-- 模式 + 难度切换 -->
+    <!-- 模式 + 难度切换(v1.3.0:modeChipGroup 内含 4 个 chip,中英文两两一组,按语种显隐) -->
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/modeChipGroup"
         android:layout_width="wrap_content"
@@ -79,6 +79,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="📖 看拼音" />
+
+        <!-- v1.3.0 新增:英文题型 chip,默认隐藏,英文模式显示 -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipListenLetter"
+            style="@style/Widget.StudyWord.DifficultyChip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔤 听字母"
+            android:visibility="gone" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipListenWord"
+            style="@style/Widget.StudyWord.DifficultyChip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📚 听单词"
+            android:visibility="gone" />
     </com.google.android.material.chip.ChipGroup>
 
     <com.google.android.material.chip.ChipGroup

@@ -15,29 +15,39 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.studyword.literacy.R
 import com.studyword.literacy.data.CharacterRepository
+import com.studyword.literacy.data.EnglishRepository
 import com.studyword.literacy.data.ProgressStore
 import com.studyword.literacy.databinding.ActivityGameBinding
+import com.studyword.literacy.model.ChineseStudyItem
 import com.studyword.literacy.model.Difficulty
-import com.studyword.literacy.model.LearningCharacter
+import com.studyword.literacy.model.EnglishLetterItem
+import com.studyword.literacy.model.EnglishWordItem
+import com.studyword.literacy.model.StudyItem
+import com.studyword.literacy.model.StudyMode
 import com.studyword.literacy.util.TtsManager
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
 /**
- * 游戏模式主页面(识字闯关)
+ * 游戏模式主页面(中英文识字闯关)
+ *
+ * v1.3.0 起支持英文题型:
+ * - LISTEN_LETTER:听字母名,4 个 Aa 字母卡里选
+ * - LISTEN_WORD:听单词,4 个英文单词里选
  *
  * 入口:主页 "🎮 玩游戏" 按钮
- * 模式:LISTEN(听音找字)/ PINYIN(看拼音选字)
  * 流程:5 题一轮,单选 4 选 1,星星评级
  */
 class GameActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityGameBinding
     private lateinit var repository: CharacterRepository
+    private lateinit var englishRepository: EnglishRepository
     private lateinit var progressStore: ProgressStore
 
     private var mode: GameMode = GameMode.LISTEN
+    private var language: StudyMode = StudyMode.CHINESE
     private var difficulty: Difficulty = Difficulty.EASY
     private var round: GameRound? = null
 
@@ -52,11 +62,13 @@ class GameActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         repository = CharacterRepository(this)
+        englishRepository = EnglishRepository(this)
         progressStore = ProgressStore(this)
         TtsManager.init(this)
 
         // 解析入口参数
         mode = GameMode.fromName(intent.getStringExtra(EXTRA_MODE))
+        language = mode.language
         difficulty = intent.getStringExtra(EXTRA_DIFFICULTY)
             ?.let { runCatching { Difficulty.valueOf(it) }.getOrNull() }
             ?: Difficulty.EASY
@@ -78,17 +90,29 @@ class GameActivity : AppCompatActivity() {
     private fun setupModeChips() {
         binding.modeChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
             val id = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
-            mode = if (id == binding.chipListen.id) GameMode.LISTEN else GameMode.PINYIN
+            mode = when (id) {
+                binding.chipListen.id -> GameMode.LISTEN
+                binding.chipPinyin.id -> GameMode.PINYIN
+                binding.chipListenLetter.id -> GameMode.LISTEN_LETTER
+                binding.chipListenWord.id -> GameMode.LISTEN_WORD
+                else -> GameMode.LISTEN
+            }
+            language = mode.language
             startNewRound()
         }
-        // 根据入口 mode 设置初始选中
+        // 根据入口 mode 设置初始选中,并按语种显隐 chip
         when (mode) {
             GameMode.LISTEN -> binding.chipListen.isChecked = true
             GameMode.PINYIN -> binding.chipPinyin.isChecked = true
+            GameMode.LISTEN_LETTER -> binding.chipListenLetter.isChecked = true
+            GameMode.LISTEN_WORD -> binding.chipListenWord.isChecked = true
         }
+        applyLanguageVisibility()
     }
 
     private fun setupDifficultyChips() {
+        // 英文模式没有难度,隐藏 chip 组
+        binding.difficultyChipGroup.isVisible = language == StudyMode.CHINESE
         binding.difficultyChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
             val id = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
             difficulty = when (id) {
@@ -104,6 +128,14 @@ class GameActivity : AppCompatActivity() {
             Difficulty.MEDIUM -> binding.chipMedium.isChecked = true
             Difficulty.HARD -> binding.chipHard.isChecked = true
         }
+    }
+
+    private fun applyLanguageVisibility() {
+        val isEnglish = language == StudyMode.ENGLISH
+        binding.chipListen.isVisible = !isEnglish
+        binding.chipPinyin.isVisible = !isEnglish
+        binding.chipListenLetter.isVisible = isEnglish
+        binding.chipListenWord.isVisible = isEnglish
     }
 
     private fun setupActions() {
@@ -129,30 +161,51 @@ class GameActivity : AppCompatActivity() {
         }
 
         val questions = buildQuestions(pool, count = QUESTIONS_PER_ROUND)
-        round = GameRound(mode, difficulty, questions)
+        round = GameRound(mode, difficulty.takeIf { language == StudyMode.CHINESE }, questions)
 
         binding.resultCard.isVisible = false
         binding.questionCard.isVisible = true
         binding.optionsGrid.isVisible = true
         binding.skipButton.isVisible = true
         binding.modeChipGroup.isVisible = true
-        binding.difficultyChipGroup.isVisible = true
 
         showCurrentQuestion()
     }
 
     /**
-     * 题池 = 当前难度 ∩ 已学过的字(认识 ∪ 待巩固)
-     *
-     * 设计:游戏只是练习,只能基于已学过的字出题,
-     * 避免出现孩子完全没见过的字。
+     * 题池 = (当前语言 ∩ 已学过的项)。
+     * 中文:byDifficulty ∩ (known + unknown)
+     * 英文:letters + words ∩ (known + unknown),按 mode 进一步过滤 letter / word
      */
-    private fun buildStudiedPool(): List<LearningCharacter> {
-        val known = progressStore.loadKnown()
-        val unknown = progressStore.loadUnknown()
-        val studiedIds: Set<Int> = known + unknown
-        return repository.byDifficulty(difficulty)
-            .filter { it.id in studiedIds }
+    private fun buildStudiedPool(): List<StudyItem> {
+        val known: Set<Int>
+        val unknown: Set<Int>
+        return when (language) {
+            StudyMode.CHINESE -> {
+                known = progressStore.loadKnown()
+                unknown = progressStore.loadUnknown()
+                val studiedIds = known + unknown
+                repository.byDifficulty(difficulty)
+                    .filter { it.id in studiedIds }
+                    .map { ChineseStudyItem(it) }
+            }
+            StudyMode.ENGLISH -> {
+                known = progressStore.loadEnglishKnown()
+                unknown = progressStore.loadEnglishUnknown()
+                val studiedIds = known + unknown
+                val allItems = mutableListOf<StudyItem>()
+                if (mode == GameMode.LISTEN_LETTER) {
+                    allItems += englishRepository.letters()
+                        .filter { it.id in studiedIds }
+                        .map { EnglishLetterItem(it) }
+                } else if (mode == GameMode.LISTEN_WORD) {
+                    allItems += englishRepository.words()
+                        .filter { it.id in studiedIds }
+                        .map { EnglishWordItem(it) }
+                }
+                allItems
+            }
+        }
     }
 
     private fun showEmptyState() {
@@ -167,12 +220,15 @@ class GameActivity : AppCompatActivity() {
         binding.resultEmoji.text = getString(R.string.game_empty_emoji)
         binding.resultStars.text = ""
         binding.resultTitle.text = getString(R.string.game_empty_title)
-        binding.resultScore.text = getString(R.string.game_empty_message)
+        binding.resultScore.text = getString(
+            if (language == StudyMode.ENGLISH) R.string.game_empty_message_en
+            else R.string.game_empty_message
+        )
         binding.replayButton.isVisible = false
     }
 
     private fun buildQuestions(
-        pool: List<LearningCharacter>,
+        pool: List<StudyItem>,
         count: Int
     ): List<GameQuestion> {
         // 同题去重:确保每轮 5 题的 correct 不同
@@ -202,7 +258,7 @@ class GameActivity : AppCompatActivity() {
             r.totalQuestions
         )
 
-        // 题目区
+        // 题目区(按 mode 与语种分支)
         when (mode) {
             GameMode.LISTEN -> {
                 binding.speakPromptButton.isVisible = true
@@ -214,29 +270,66 @@ class GameActivity : AppCompatActivity() {
                 binding.speakPromptButton.isVisible = false
                 binding.speakPromptHint.isVisible = false
                 binding.pinyinPrompt.isVisible = true
-                binding.pinyinPrompt.text = q.correct.pinyin.ifBlank { "?" }
+                binding.pinyinPrompt.text = q.correct.secondaryText.ifBlank { "?" }
+            }
+            GameMode.LISTEN_LETTER -> {
+                binding.speakPromptButton.isVisible = true
+                binding.speakPromptHint.isVisible = true
+                binding.pinyinPrompt.isVisible = false
+                binding.speakPromptHint.text = "Listen and pick the letter"
+                speakCurrentPrompt()
+            }
+            GameMode.LISTEN_WORD -> {
+                binding.speakPromptButton.isVisible = true
+                binding.speakPromptHint.isVisible = true
+                binding.pinyinPrompt.isVisible = false
+                binding.speakPromptHint.text = "Listen and pick the word"
+                speakCurrentPrompt()
             }
         }
 
-        // 选项区
+        // 选项区(中英文用同一个按钮,只是 text 不同)
         optionButtons.forEachIndexed { index, btn ->
             val opt = q.options.getOrNull(index)
             if (opt == null) {
                 btn.isVisible = false
             } else {
                 btn.isVisible = true
-                btn.text = opt.hanzi
+                btn.text = renderOptionLabel(opt)
                 btn.background = ContextCompat.getDrawable(this, R.drawable.bg_option_default)
                 btn.isEnabled = true
             }
         }
     }
 
+    /**
+     * 渲染选项按钮文字:
+     * - 中文:汉字
+     * - 英文 letter:"Aa"(大小写同行)
+     * - 英文 word:单词
+     */
+    private fun renderOptionLabel(item: StudyItem): String = when (item) {
+        is ChineseStudyItem -> item.character.hanzi
+        is EnglishLetterItem -> "${item.letter.uppercase}${item.letter.lowercase}"
+        is EnglishWordItem -> item.word.word
+    }
+
     private fun speakCurrentPrompt() {
         val q = round?.currentQuestion ?: return
-        val text = if (q.correct.pinyin.isNotBlank()) "${q.correct.hanzi}   ${q.correct.pinyin}"
-                   else q.correct.hanzi
-        TtsManager.speak(text, utteranceId = "game_q_${q.correct.id}")
+        when (q.correct) {
+            is ChineseStudyItem -> {
+                val hanzi = q.correct.character.hanzi
+                val pinyin = q.correct.character.pinyin
+                val text = if (pinyin.isNotBlank()) "$hanzi   $pinyin" else hanzi
+                TtsManager.speak(text, utteranceId = "game_q_${q.correct.id}")
+            }
+            is EnglishLetterItem -> {
+                TtsManager.speakEnglish(q.correct.letter.uppercase, utteranceId = "game_q_en_${q.correct.id}")
+            }
+            is EnglishWordItem -> {
+                TtsManager.speakEnglish(q.correct.word.word, utteranceId = "game_q_en_${q.correct.id}")
+            }
+        }
     }
 
     // ============================================================
@@ -266,7 +359,11 @@ class GameActivity : AppCompatActivity() {
             }
             correctBtn?.background = ContextCompat.getDrawable(this, R.drawable.bg_option_correct)
             // 答错时主动念一遍正确答案
-            TtsManager.speak(q.correct.hanzi, utteranceId = "game_wrong_${q.correct.id}")
+            when (q.correct) {
+                is ChineseStudyItem -> TtsManager.speak(q.correct.character.hanzi, utteranceId = "game_wrong_${q.correct.id}")
+                is EnglishLetterItem -> TtsManager.speakEnglish(q.correct.letter.uppercase, utteranceId = "game_wrong_en_${q.correct.id}")
+                is EnglishWordItem -> TtsManager.speakEnglish(q.correct.word.word, utteranceId = "game_wrong_en_${q.correct.id}")
+            }
         }
 
         // 800ms 后进入下一题
