@@ -2,8 +2,11 @@ package com.studyword.literacy.data
 
 import android.content.Context
 import com.studyword.literacy.model.Difficulty
+import com.studyword.literacy.model.ExampleSentence
 import com.studyword.literacy.model.LearningCharacter
+import com.studyword.literacy.model.WordEntry
 import com.studyword.literacy.util.PinyinConverter
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import java.util.LinkedHashSet
@@ -60,24 +63,87 @@ class CharacterRepository(context: Context) {
                     ?: throw IllegalStateException("字库配置缺少键：$key")
                 val list = mutableListOf<LearningCharacter>()
                 for (i in 0 until array.length()) {
-                    val raw = array.optString(i).trim()
-                    if (raw.isEmpty()) continue
-                    val hanzi = raw.substring(0, 1)
-                    if (seen.add(hanzi)) {
-                        val pinyin = PinyinConverter.toPinyin(hanzi)
-                        val entry = LearningCharacter(
-                            id = nextId++,
-                            hanzi = hanzi,
-                            pinyin = pinyin,
-                            difficulty = difficulty
-                        )
-                        items += entry
-                        list += entry
-                    }
+                    val parsed = parseEntry(array, i) ?: continue
+                    if (!seen.add(parsed.hanzi)) continue
+                    val pinyin = PinyinConverter.toPinyin(parsed.hanzi)
+                    val entry = parsed.copy(
+                        id = nextId++,
+                        pinyin = pinyin,
+                        difficulty = difficulty
+                    )
+                    items += entry
+                    list += entry
                 }
                 grouped[difficulty] = list
             }
             return items to grouped
+        }
+
+        /**
+         * 解析数组中的单项。
+         *
+         * 支持两种格式(向后兼容):
+         * - 字符串: `"天"` —— 仅含单字,words/examples 视为空
+         * - 对象: `{"char":"天","words":[…],"examples":[…]}` —— 含词组与例句
+         *
+         * 返回的 [LearningCharacter] 中 id/pinyin/difficulty 为占位值,由调用方覆盖。
+         */
+        private fun parseEntry(array: JSONArray, index: Int): LearningCharacter? {
+            val raw = array.opt(index) ?: return null
+            val hanzi: String
+            val words: List<WordEntry>
+            val examples: List<ExampleSentence>
+            when (raw) {
+                is String -> {
+                    val trimmed = raw.trim()
+                    if (trimmed.isEmpty()) return null
+                    hanzi = trimmed.substring(0, 1)
+                    words = emptyList()
+                    examples = emptyList()
+                }
+                is JSONObject -> {
+                    val charStr = raw.optString("char", "").trim()
+                    if (charStr.isEmpty()) return null
+                    hanzi = charStr.substring(0, 1)
+                    words = parseWords(raw.optJSONArray("words"))
+                    examples = parseExamples(raw.optJSONArray("examples"))
+                }
+                else -> return null
+            }
+            return LearningCharacter(
+                id = -1,
+                hanzi = hanzi,
+                pinyin = "",
+                difficulty = Difficulty.EASY,
+                words = words,
+                examples = examples
+            )
+        }
+
+        private fun parseWords(array: JSONArray?): List<WordEntry> {
+            if (array == null || array.length() == 0) return emptyList()
+            val result = mutableListOf<WordEntry>()
+            for (i in 0 until array.length()) {
+                val obj = array.optJSONObject(i) ?: continue
+                val word = obj.optString("word", "").trim()
+                if (word.isEmpty()) continue
+                val pinyin = obj.optString("pinyin", "").trim()
+                result += WordEntry(word, pinyin)
+            }
+            return result
+        }
+
+        private fun parseExamples(array: JSONArray?): List<ExampleSentence> {
+            if (array == null || array.length() == 0) return emptyList()
+            val result = mutableListOf<ExampleSentence>()
+            for (i in 0 until array.length()) {
+                val obj = array.optJSONObject(i) ?: continue
+                val sentence = obj.optString("sentence", "").trim()
+                if (sentence.isEmpty()) continue
+                val pinyin = obj.optString("pinyin", "").trim()
+                result += ExampleSentence(sentence, pinyin)
+            }
+            return result
         }
     }
 }
