@@ -49,6 +49,31 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
+            <!-- v1.3.0 新增:语言切换 chip group,中文 / ENGLISH 二选一 -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/languageChipGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:selectionRequired="true"
+                app:singleLine="false"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipLanguageChinese"
+                    style="@style/Widget.StudyWord.DifficultyChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="中文" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipLanguageEnglish"
+                    style="@style/Widget.StudyWord.DifficultyChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ENGLISH" />
+            </com.google.android.material.chip.ChipGroup>
+
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/statusFilterGroup"
                 android:layout_width="wrap_content"
