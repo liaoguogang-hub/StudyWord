@@ -3,6 +3,30 @@
 本项目版本号遵循 [语义化版本 2.0](https://semver.org/lang/zh-CN/) 规范。
 格式参考 [Keep a Changelog 1.1](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.2.0] - 2026-10-03
+
+### 新增
+- 🧩 **字卡下方新增"词组"区** —— 把"单字"扩展到"字 + 词",帮助 3-5 岁孩子从"认字"过渡到"组词"
+  - 每个常用字配 2~3 个词组(如 "天" -> "天空 / 今天 / 天气")
+  - 词组以可点击 chip 形式排列,点击即触发 TTS 朗读(汉字 + 拼音)
+  - 数据缺失的字(老字库中暂未手写词组的字)整块区域自动隐藏,不显示空标签
+- 📖 **字卡下方新增"例句"区** —— 让字进入"语境",帮助理解字义
+  - 每个常用字配 1 条例句(如 "天" -> "今天天气真好。")
+  - 例句整行可点击,点击即触发 TTS 朗读(汉字 + 拼音)
+- 🗂️ **`scripts/generate_words.py`** —— 一键为字库前 N 个常用字注入词组 + 例句数据
+  - 内置 100 个最常见字的 curated 字典,默认覆盖字库前 100 项
+  - 支持 `--limit`、`--dry-run` 参数,可重复执行(已转换的条目会自动跳过)
+
+### 数据模型
+- 新增 `model/WordEntry.kt`(词组 + 拼音)
+- 新增 `model/ExampleSentence.kt`(例句 + 拼音)
+- `LearningCharacter` 新增 `words: List<WordEntry>` 与 `examples: List<ExampleSentence>` 字段,**默认值空列表,保证向后兼容**
+- `CharacterRepository` 支持两种 JSON 格式并存:旧格式 `"天"` 与新格式 `{"char":"天","words":[…],"examples":[…]}` 都能解析,旧字库无需迁移
+
+### 改进
+- 字卡新增 `Widget.StudyWord.WordChip` 样式,沿用 Material chip 风格(浅蓝底 + 深蓝字 + 圆角)
+- 字卡内布局紧凑化(emoji/字/拼音/难度之间的间距从 12dp 调到 8dp),为新内容腾出空间
+
 ## [1.1.1] - 2026-10-03
 
 ### 修复
