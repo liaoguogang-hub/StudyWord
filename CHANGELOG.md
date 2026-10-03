@@ -3,6 +3,46 @@
 本项目版本号遵循 [语义化版本 2.0](https://semver.org/lang/zh-CN/) 规范。
 格式参考 [Keep a Changelog 1.1](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.4.1] - 2026-10-03
+
+本版本是一次"体验打磨"补丁,针对 v1.4.0 的 8 个 UX 问题逐项处理。
+
+### 修复
+- 🐛 **例句英文 + 中文 TTS 重叠** —— `TtsManager.speakSequential` 内部每段都走 `QUEUE_FLUSH`,导致每一段都打断上一段,英文读一半中文就插进来,两段叠在一起
+  - 方案:抽出 `speakInternal(text, isEnglish, utteranceId, flush)`,`speakSequential` 只在第一项用 `QUEUE_FLUSH` 清空旧队列,余项用 `QUEUE_ADD` 串接,引擎按顺序朗读
+  - 默认段间隔 `delayMs` 由 200ms 提到 500ms,贴合孩子的反应节奏
+- 🐛 **灰色按钮中间有一条白条** —— 抽屉里 3 个 SecondaryButton 与主页 "➡️" 显示为"灰色底 + 白色中条"
+  - 原因:`Widget.MaterialComponents.Button` 父样式默认有 `app:backgroundTint = colorPrimary`,即使用了 `bg_button_secondary.xml` 也会被父样式 tint 覆盖
+  - 方案:主题里 `PrimaryButton / SecondaryButton / UnknownButton / OptionButton` 全部改用 `Widget.MaterialComponents.Button.UnelevatedButton` 父样式,无默认 tint,drawable 完全控制外观
+- 🐛 **字库 / 进度页点英文 id 跳转静默失败** —— 点 letter "G" 后跳回主页还是上一个字,点英文单词也一样
+  - 原因:`loadItemById` 只在当前子模式的 pool 中查找,英文 letter id 在 words pool 中找不到
+  - 方案:`EnglishRepository.WORD_ID_OFFSET = 1000`,`id < 1000` 视为 letter 自动切到 `LETTERS` 子模式 + 字母难度,`id >= 1000` 视为 word 自动切到 `WORDS` + 当前难度
+
+### 新增
+- 🔠 **字母行 Aa 一行展示** —— 之前 letter 卡片是双行大写 + 小写,占纵向 ~120dp
+  - 现在大写 80sp 在左、小写 44sp 在右(baseline 对齐),整行约 80dp,首屏可见
+  - 点击整行(`letterContainer`)→ 只朗读字母名,不会顺带读 example word 与中文意思
+- 🏷️ **英文 word 卡片显示中文意思** —— `wordMeaning` TextView,字号 24sp,与字母卡的 "example word 中文" 视觉一致
+- 🖐️ **字库 / 进度页加边滑返回** —— 左边缘 24dp 区域内右滑 → `finish()` 关闭 Activity
+  - `GestureDetector.SimpleOnGestureListener.onFling` 监听,`SWIPE_DISTANCE_THRESHOLD=120dp`,`SWIPE_VELOCITY_THRESHOLD=400`
+  - 配套保留顶部返回按钮(已在 v1.3.x 加),方便喜欢点按的家长
+- 🎨 **3D 糖果卡通风全面重设计** —— 参考 Khan Academy Kids / Duolingo ABC,告别平面感
+  - 背景:`bg_main_gradient` 三段渐变,天蓝 → 淡紫 → 蜜桃(135°),全屏柔和
+  - 字卡:`bg_card_playful` = 2.5dp 深蓝描边 + 白→薄荷→粉渐变 + 顶部高光,看起来像会发光的糖果
+  - 主按钮:`bg_button_primary` = 蓝→深蓝→橘渐变 + 顶部高光
+  - 次按钮:`bg_button_secondary` = 深蓝描边 + 白→薄荷渐变
+  - 警告按钮:`bg_button_unknown` = 橙→橘→红渐变
+  - 所有 `MaterialCardView` 升级 `cardElevation 0 → 6~8dp`、`cornerRadius 26 → 28dp`
+  - 右上角汉堡按钮单独加 `app:elevation="6dp"`,立体跳出
+- 📐 **主页头部压缩** —— 标题 28sp → 22sp,subtitle 与标题 baseline 对齐合并到一行
+  - `paddingTop` 32dp → 16dp,englishSubModeGroup `marginTop` 12dp → 6dp
+  - 720p 屏幕上卡片首屏可见 ~75%,不再需要上滑才能看到字卡
+
+### 兼容
+- `versionCode 6 → 7`,`versionName 1.4.0 → 1.4.1`
+- 数据层完全兼容 v1.4.0,无任何数据迁移
+- `english_sets.json` / `characters.json` 内容未改
+
 ## [1.4.0] - 2026-10-03
 
 ### 新增
