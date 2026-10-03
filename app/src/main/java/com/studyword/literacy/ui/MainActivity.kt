@@ -6,6 +6,7 @@ import android.animation.ValueAnimator
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.studyword.literacy.R
+import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import com.studyword.literacy.data.CharacterRepository
 import com.studyword.literacy.data.ProgressStore
@@ -80,6 +82,15 @@ class MainActivity : AppCompatActivity() {
         val pinyin = character.pinyin.ifBlank { "" }
         val text = if (pinyin.isNotEmpty()) "${character.hanzi}   $pinyin" else character.hanzi
         TtsManager.speak(text, utteranceId = "main_char_${character.id}")
+    }
+
+    /**
+     * 朗读一段自定义文本(供词组 chip / 例句 TextView 点击调用)。
+     * 如果同时给了拼音,TTS 会先读字、再读拼音(用两个空格分隔,TTS 自然停顿)。
+     */
+    private fun speakWordOrSentence(text: String, pinyin: String, utteranceId: String) {
+        val combined = if (pinyin.isNotBlank()) "$text   $pinyin" else text
+        TtsManager.speak(combined, utteranceId = utteranceId)
     }
 
     private fun setupDifficultyToggle() {
@@ -196,6 +207,7 @@ class MainActivity : AppCompatActivity() {
             binding.remainingHint.text = "暂无可测汉字，请调整难度或重置进度"
             binding.cardEmoji.text = "💤"
             setActionButtonsEnabled(false)
+            renderWordsAndExamples(null)
             return
         }
 
@@ -205,7 +217,87 @@ class MainActivity : AppCompatActivity() {
         binding.currentDifficulty.isVisible = true
         binding.cardEmoji.text = mascotFaces[random.nextInt(mascotFaces.size)]
         setActionButtonsEnabled(true)
+        renderWordsAndExamples(character)
         // 不自动朗读,等孩子主动点 "🔊 听一听" 按钮
+    }
+
+    /**
+     * 把当前汉字的词组与例句渲染到字卡下方。
+     *
+     * 数据缺失(空列表)时:
+     * - 词组/例句两块区域全部隐藏,不显示空标签
+     * - 字卡恢复原来的紧凑外观
+     *
+     * 数据存在时:
+     * - 词组 chip 点击即朗读该词组(带拼音)
+     * - 例句 TextView 整体可点,点击即朗读该例句
+     */
+    private fun renderWordsAndExamples(character: LearningCharacter?) {
+        val wordsGroup = binding.wordsChipGroup
+        val exampleView = binding.exampleSentence
+        val wordsDivider = binding.wordsDivider
+        val wordsLabel = binding.wordsLabel
+        val examplesLabel = binding.examplesLabel
+
+        // 先清掉旧的 chip,避免切换汉字时残留
+        wordsGroup.removeAllViews()
+        exampleView.setOnClickListener(null)
+        exampleView.text = ""
+
+        val words = character?.words.orEmpty()
+        val examples = character?.examples.orEmpty()
+
+        if (words.isEmpty() && examples.isEmpty()) {
+            wordsGroup.isVisible = false
+            exampleView.isVisible = false
+            wordsDivider.isVisible = false
+            wordsLabel.isVisible = false
+            examplesLabel.isVisible = false
+            return
+        }
+
+        // 词组区
+        if (words.isNotEmpty()) {
+            wordsDivider.isVisible = true
+            wordsLabel.isVisible = true
+            wordsGroup.isVisible = true
+            val inflater = LayoutInflater.from(this)
+            words.forEachIndexed { index, entry ->
+                val chip = inflater.inflate(R.layout.item_word_chip, wordsGroup, false) as Chip
+                chip.text = entry.word
+                chip.setOnClickListener {
+                    speakWordOrSentence(
+                        text = entry.word,
+                        pinyin = entry.pinyin,
+                        utteranceId = "main_word_${character?.id ?: 0}_$index"
+                    )
+                }
+                wordsGroup.addView(chip)
+            }
+        } else {
+            wordsGroup.isVisible = false
+            wordsLabel.isVisible = false
+            wordsDivider.isVisible = examples.isNotEmpty()  // 有例句时仍显示分隔线
+        }
+
+        // 例句区:取第一条,若有多条则用换行连接展示
+        if (examples.isNotEmpty()) {
+            examplesLabel.isVisible = true
+            exampleView.isVisible = true
+            val combinedText = examples.joinToString(separator = "\n") { it.sentence }
+            exampleView.text = combinedText
+            exampleView.setOnClickListener {
+                val first = examples.first()
+                speakWordOrSentence(
+                    text = first.sentence,
+                    pinyin = first.pinyin,
+                    utteranceId = "main_example_${character?.id ?: 0}"
+                )
+            }
+        } else {
+            examplesLabel.isVisible = false
+            exampleView.isVisible = false
+        }
     }
 
     private fun updateSummaryHint() {
