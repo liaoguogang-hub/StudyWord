@@ -97,28 +97,46 @@ object TtsManager {
      *   残留 en-US 状态导致中文被按英文规则朗读
      */
     fun speak(text: String, utteranceId: String? = null): Boolean {
-        val engine = tts ?: return false
-        if (!isReady || text.isBlank()) return false
-        engine.setLanguage(Locale.SIMPLIFIED_CHINESE)
-        return engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId).let {
-            it == TextToSpeech.SUCCESS
-        }
+        return speakInternal(text, isEnglish = false, utteranceId = utteranceId, flush = true)
     }
 
     /**
      * 朗读一段英文文字(单词/字母/例句均可)。
      */
     fun speakEnglish(text: String, utteranceId: String? = null): Boolean {
+        return speakInternal(text, isEnglish = true, utteranceId = utteranceId, flush = true)
+    }
+
+    /**
+     * 内部核心朗读方法。
+     * - [flush]=true:QUEUE_FLUSH,打断当前引擎中的所有朗读(独立朗读某段时使用)
+     * - [flush]=false:QUEUE_ADD,追加到引擎当前朗读队列末尾,前一段自然结束才读这一段
+     * 复合发音(如 "Apple 苹果")用 speakSequential,首项 flush=true、其余 flush=false,
+     * 引擎会按顺序串读且自然带停顿,避免前一段被后一段打断。
+     */
+    private fun speakInternal(
+        text: String,
+        isEnglish: Boolean,
+        utteranceId: String?,
+        flush: Boolean
+    ): Boolean {
         val engine = tts ?: return false
-        if (!isEnglishReady || text.isBlank()) return false
-        val switchResult = engine.setLanguage(Locale.US)
-        if (switchResult == TextToSpeech.LANG_MISSING_DATA ||
-            switchResult == TextToSpeech.LANG_NOT_SUPPORTED
-        ) {
-            return false
+        if (text.isBlank()) return false
+        if (isEnglish) {
+            if (!isEnglishReady) return false
+            val switchResult = engine.setLanguage(Locale.US)
+            if (switchResult == TextToSpeech.LANG_MISSING_DATA ||
+                switchResult == TextToSpeech.LANG_NOT_SUPPORTED
+            ) {
+                return false
+            }
+        } else {
+            if (!isReady) return false
+            engine.setLanguage(Locale.SIMPLIFIED_CHINESE)
         }
-        val result = engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
-        return result == TextToSpeech.SUCCESS
+        val mode = if (flush) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
+        val id = utteranceId ?: "tts_${System.nanoTime()}"
+        return engine.speak(text, mode, null, id) == TextToSpeech.SUCCESS
     }
 
     /**
@@ -151,7 +169,11 @@ object TtsManager {
     }
 
     /**
-     * v1.4.0:按顺序串发多段文字,英文 + 中文混合,200ms 间隔。
+     * 按顺序串发多段文字,英文 + 中文混合,默认 500ms 间隔。
+     *
+     * v1.4.1 修复:之前每段都 QUEUE_FLUSH 导致后一段打断前一段
+     * (用户听到中英文重叠 / 前段被截断)。改为"首项 FLUSH + 后续 ADD",
+     * 引擎自然等前一段读完再读下一段,delayMs 作为最小间隔。
      *
      * 用法:
      * ```
@@ -162,31 +184,27 @@ object TtsManager {
      *     "I love my cat."  to true,
      *     "我爱我的猫。"  to false
      *   ),
-     *   delayMs = 200,
+     *   delayMs = 500,
      *   baseUtteranceId = "main_seq_5"
      * )
      * ```
-     *
-     * 实现:
-     * - 每段调用 speak/speakEnglish,使用 QUEUE_ADD 串起来
-     * - 每段之间间隔由 delayMs 控制(主线程 postDelayed)
      */
     fun speakSequential(
         items: List<Pair<String, Boolean>>,
-        delayMs: Long = 200,
+        delayMs: Long = 500,
         baseUtteranceId: String = "seq_${System.nanoTime()}"
     ) {
         if (items.isEmpty()) return
-        // 清掉旧的复合队列
         charQueue.clear()
         engineFlush()
         items.forEachIndexed { idx, (text, isEnglish) ->
             mainHandler.postDelayed({
-                if (isEnglish) {
-                    speakEnglish(text, utteranceId = "${baseUtteranceId}_${idx}")
-                } else {
-                    speak(text, utteranceId = "${baseUtteranceId}_${idx}")
-                }
+                speakInternal(
+                    text = text,
+                    isEnglish = isEnglish,
+                    utteranceId = "${baseUtteranceId}_${idx}",
+                    flush = (idx == 0)
+                )
             }, delayMs * idx)
         }
     }
