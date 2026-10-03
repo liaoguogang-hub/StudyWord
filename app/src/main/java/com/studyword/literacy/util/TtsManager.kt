@@ -45,8 +45,8 @@ object TtsManager {
     var isEnglishReady: Boolean = false
         private set
 
-    /** 默认慢速:适合 3-5 岁孩子;范围 0.5(很慢)~1.0(正常) */
-    private const val DEFAULT_SPEECH_RATE = 0.7f
+    /** v1.4.2:正常语速。用户反馈"词组/例句读得慢、卡",从 0.7f 提到 1.0f(系统默认值) */
+    private const val DEFAULT_SPEECH_RATE = 1.0f
 
     // ========== v1.4.0:char-by-char 队列 ==========
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -142,30 +142,16 @@ object TtsManager {
     /**
      * v1.4.0:逐字朗读一段中文(用于词组 / 例句)。
      *
-     * 解决问题:
-     * - 把 `日子 + 空格 + rì zi` 直接塞给华为 xiaoyi 引擎,引擎对"rì zi"按英文处理,中文"日"被误读
-     * - 改为按字符拆开,每个字单独 speak(),引擎使用默认读音(对常用字最准)
-     * - 汉字之间用 QUEUE_ADD,引擎会按顺序朗读(中间有微小停顿,但不卡)
+     * v1.4.2 改为薄包装 — 直接走 [speak] 整段朗读。
+     * 之前 char-by-char 是为了解决"把 rì zi 拼音塞给引擎导致'日'误读",
+     * 但代价是词组/例句读得太慢、听起来像在拼字。用户反馈后改为整段朗读,
+     * 引擎用默认发音对常用字最准(PinyinConverter overrides 已修了已知坏 case)。
      *
-     * 实现:
-     * - 引擎回调 UtteranceProgressListener.onDone 时,从 [charQueue] 取下一个字符
-     * - 监听器无法回调时(fallback),用 mainHandler 每 200ms 轮询 engine.isSpeaking
+     * 保留函数签名只是为了不破坏调用方编译路径,内部退化为 speak()。
      */
+    @Suppress("UNUSED_PARAMETER")
     fun speakPhraseCharByChar(text: String, utteranceId: String) {
-        if (!isReady) return
-        // 清空旧队列,打断之前任何朗读
-        charQueue.clear()
-        engineFlush()
-        // 把 text 中所有汉字放入队列(过滤掉标点 / 空格 / ASCII 拉丁字母)
-        text.forEach { c ->
-            if (c.isLetter() && c.code > 127) {
-                charQueue.addLast(CharJob(c.toString(), isEnglish = false, baseId = utteranceId))
-            }
-        }
-        if (charQueue.isEmpty()) return
-        charQueueActive = true
-        // 启动首字;后续字由 UtteranceProgressListener.onDone 接力
-        speakNextInQueue()
+        speak(text, utteranceId = utteranceId)
     }
 
     /**

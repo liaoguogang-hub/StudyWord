@@ -74,13 +74,21 @@ class MainActivity : AppCompatActivity() {
     private val pendingItems: ArrayDeque<StudyItem> = ArrayDeque()
     private var currentItem: StudyItem? = null
 
+    /**
+     * v1.4.2:跳转来源 — null = 正常启动;/ "progress" = 从 ProgressActivity 跳回;
+     * "library" = 从 CharacterLibraryActivity 跳回。用于显示"← 返回进度/字库"按钮。
+     */
+    private var jumpSource: String? = null
+
     private val random = Random(System.currentTimeMillis())
     private var successPlayer: MediaPlayer? = null
     private var encouragePlayer: MediaPlayer? = null
     private val mascotFaces = listOf("🐻", "🦊", "🐼", "🐰", "🦄", "🐨")
+    private val drawerGreetings = listOf("你好呀!", "欢迎回来!", "今天我们一起学!", "Hi,准备好啦吗?")
 
     /**
-     * 从 ProgressActivity / CharacterLibraryActivity 接 selectedId + language
+     * 从 ProgressActivity / CharacterLibraryActivity 接 selectedId + language + 来源页
+     * 来源页用于显示"← 返回"按钮,让用户能从主页跳回去
      */
     private val pageResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -90,6 +98,9 @@ class MainActivity : AppCompatActivity() {
         val selectedId = data.getIntExtra(EXTRA_SELECTED_ID, -1)
         val lang = data.getStringExtra(EXTRA_SELECTED_LANG) ?: return@registerForActivityResult
         if (selectedId < 0) return@registerForActivityResult
+        // v1.4.2:记录来源,显示"← 返回"按钮
+        jumpSource = data.getStringExtra(EXTRA_SOURCE_PAGE)
+        refreshBackJumpButton()
         loadItemById(selectedId, lang)
     }
 
@@ -109,11 +120,13 @@ class MainActivity : AppCompatActivity() {
         TtsManager.init(this)
         setupMenuButton()
         setupDrawerEntries()
+        setupBackJumpButton()
         setupLanguageToggle()
         setupDifficultyToggle()
         setupEnglishSubModeToggle()
         setupActions()
         setupCardClick()
+        refreshDrawerGreeting()
         rebuildQueue()
         loadNextItem()
     }
@@ -134,8 +147,9 @@ class MainActivity : AppCompatActivity() {
     /**
      * 朗读当前学习项。点卡片触发。
      * v1.4.1:letter 模式只读字母名(用户需求);word 模式读 EN + 中文意思(带停顿)
+     * v1.4.2:中文字只读一遍,不再把拼音拼到文本里给 TTS(否则会被读成"日 rì")
      *
-     * - 中文字 → speak(汉字 + 拼音)— 拼音由 PinyinConverter 算得
+     * - 中文字 → speak(汉字)— 引擎默认读音,常用字最准
      * - 英文 letter → speakEnglish(uppercase),只读字母名(示例词由 chip 单独触发)
      * - 英文 word → speakSequential(word, chineseMeaning) 500ms 停顿
      */
@@ -143,9 +157,8 @@ class MainActivity : AppCompatActivity() {
         val item = currentItem ?: return
         when (item) {
             is ChineseStudyItem -> {
-                val pinyin = item.character.pinyin.ifBlank { "" }
-                val text = if (pinyin.isNotEmpty()) "${item.character.hanzi}   $pinyin" else item.character.hanzi
-                TtsManager.speak(text, utteranceId = "main_char_${item.id}")
+                // v1.4.2:只读汉字一遍,不再 append 拼音(拼音仅作为卡片下方的 visual hint)
+                TtsManager.speak(item.character.hanzi, utteranceId = "main_char_${item.id}")
             }
             is EnglishLetterItem -> {
                 TtsManager.speakEnglish(item.letter.uppercase, utteranceId = "main_letter_${item.id}")
@@ -174,21 +187,25 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * 朗读一段自定义文本(供词组 chip / 例句 TextView 点击调用)。
-     * 中文走 char-by-char 队列(多音字安全),英文走 speakEnglish。
+     * v1.4.2:中文走整段 speak(),正常语速(用户反馈"词组例句读得慢")
      */
     private fun speakWordOrSentence(text: String, pinyin: String, utteranceId: String, isEnglish: Boolean) {
         if (isEnglish) {
             TtsManager.speakEnglish(text, utteranceId = utteranceId)
         } else {
-            // 中文走 char-by-char 队列,引擎用默认读音(避开多音字误读)
-            TtsManager.speakPhraseCharByChar(text, utteranceId = utteranceId)
+            TtsManager.speak(text, utteranceId = utteranceId)
         }
     }
 
-    /** 例句朗读:英文 → 英文 + 中文翻译;中文 → char-by-char */
+    /**
+     * 例句朗读。v1.4.2:全部正常语速一遍发音。
+     * - 英文 word:英文 + 中文翻译(500ms 间隔)
+     * - 英文 letter:只读英文
+     * - 中文:整段读一遍
+     */
     private fun speakExampleSentence(item: StudyItem?, sentence: String, utteranceId: String) {
         if (item == null) {
-            TtsManager.speakPhraseCharByChar(sentence, utteranceId = utteranceId)
+            TtsManager.speak(sentence, utteranceId = utteranceId)
             return
         }
         if (item is EnglishWordItem && item.word.exampleSentenceTranslation.isNotBlank()) {
@@ -204,8 +221,8 @@ class MainActivity : AppCompatActivity() {
             // 字母没有例句;走英文版
             TtsManager.speakEnglish(sentence, utteranceId = utteranceId)
         } else {
-            // 中文例句:char-by-char
-            TtsManager.speakPhraseCharByChar(sentence, utteranceId = utteranceId)
+            // 中文例句:整段一遍
+            TtsManager.speak(sentence, utteranceId = utteranceId)
         }
     }
 
@@ -220,22 +237,63 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * 抽屉内的导航入口。抽屉中的进度 / 字库 / 设置点击也走 pageResultLauncher,
-     * 进度 / 字库可以返回 selectedId 触发跳回主页特定卡片。
+     * v1.4.2:抽屉入口改为 3 张大卡(进度 / 字库 / 设置)。
+     * - 进度 / 字库走 pageResultLauncher,可能返回 selectedId 跳回主页特定卡片
+     * - 设置走普通 startActivity
      */
     private fun setupDrawerEntries() {
-        binding.viewProgressButton.setOnClickListener {
+        binding.drawerProgressCard.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.END)
             pageResultLauncher.launch(Intent(this, ProgressActivity::class.java))
         }
-        binding.libraryButton.setOnClickListener {
+        binding.drawerLibraryCard.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.END)
             pageResultLauncher.launch(Intent(this, CharacterLibraryActivity::class.java))
         }
-        binding.settingsButton.setOnClickListener {
+        binding.drawerSettingsCard.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.END)
             startActivity(Intent(this, SettingsActivity::class.java))
         }
+    }
+
+    /**
+     * v1.4.2:从进度 / 字库跳转回来后,显示"← 返回进度"或"← 返回字库"按钮。
+     * 点击 → 重启源 Activity + 关闭主页。
+     */
+    private fun setupBackJumpButton() {
+        binding.backJumpButton.setOnClickListener {
+            val intent = when (jumpSource) {
+                SOURCE_PROGRESS -> Intent(this, ProgressActivity::class.java)
+                SOURCE_LIBRARY -> Intent(this, CharacterLibraryActivity::class.java)
+                else -> null
+            }
+            if (intent != null) {
+                startActivity(intent)
+                finish()
+            }
+        }
+    }
+
+    private fun refreshBackJumpButton() {
+        val source = jumpSource
+        if (source == null) {
+            binding.backJumpButton.visibility = View.GONE
+            return
+        }
+        binding.backJumpButton.visibility = View.VISIBLE
+        binding.backJumpButton.text = when (source) {
+            SOURCE_PROGRESS -> "← 返回进度"
+            SOURCE_LIBRARY -> "← 返回字库"
+            else -> "← 返回"
+        }
+    }
+
+    /**
+     * v1.4.2:每次启动随机挑一句问候,放在抽屉顶部
+     */
+    private fun refreshDrawerGreeting() {
+        binding.drawerGreeting.text = drawerGreetings[random.nextInt(drawerGreetings.size)]
+        binding.drawerAvatar.text = mascotFaces[random.nextInt(mascotFaces.size)]
     }
 
     private fun setupLanguageToggle() {
@@ -269,7 +327,7 @@ class MainActivity : AppCompatActivity() {
         binding.difficultyLabel.isVisible = true
         binding.difficultyChipGroup.isVisible = true
         binding.englishSubModeGroup.isVisible = isEnglish
-        binding.subtitle.text = if (isEnglish) "Letters & words, learn with fun!" else "一起开启有趣的识字冒险！"
+        // v1.4.2:删 subtitle TextView,问候文案移到抽屉 greeting 区
         // 英文默认选中 letters
         if (isEnglish && !binding.chipSubLetters.isChecked && !binding.chipSubWords.isChecked) {
             binding.chipSubLetters.isChecked = true
@@ -931,5 +989,9 @@ class MainActivity : AppCompatActivity() {
         /** ProgressActivity / CharacterLibraryActivity setResult 时填入的 extras */
         const val EXTRA_SELECTED_ID = "selected_id"
         const val EXTRA_SELECTED_LANG = "selected_lang"  // "CHINESE" / "ENGLISH"
+        /** v1.4.2:跳转来源 — 主页收到后可显示"← 返回"按钮跳回源 Activity */
+        const val EXTRA_SOURCE_PAGE = "source_page"
+        const val SOURCE_PROGRESS = "progress"
+        const val SOURCE_LIBRARY = "library"
     }
 }

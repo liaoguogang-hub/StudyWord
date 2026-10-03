@@ -234,11 +234,13 @@ class ProgressActivity : AppCompatActivity() {
 
     /**
      * v1.4.0:跳转回主页特定卡片
+     * v1.4.2:同时把 source=progress 发回去,主页可显示"← 返回进度"按钮
      */
     private fun jumpBackToHome(itemId: Int, lang: String) {
         val data = Intent().apply {
             putExtra(MainActivity.EXTRA_SELECTED_ID, itemId)
             putExtra(MainActivity.EXTRA_SELECTED_LANG, lang)
+            putExtra(MainActivity.EXTRA_SOURCE_PAGE, MainActivity.SOURCE_PROGRESS)
         }
         setResult(RESULT_OK, data)
         finish()

@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    主页根布局:v1.4.0 改用 DrawerLayout 根,右侧抽屉收纳"语言/难度/进度/设置"。
-    主页内容区只剩字卡 + 4 个底部按钮(认识/不认识/下一个/游戏),emoji 表示。
-
-    v1.4.0 改动:
-      - 顶层 FrameLayout → DrawerLayout
-      - languageLabel + languageChipGroup + difficultyLabel + difficultyChipGroup
-        全部移入抽屉(drawerContainer)
-      - 删除 listenButton + viewProgressButton + settingsButton
-      - 字卡字号加大(currentCharacter 60→80, words/example 16→22, cardEmoji 32→48)
-      - 新增 menuButton(右上角汉堡按钮),点击抽屉
-      - 新增 englishSubModeGroup(英文 mode 时显示,字母/单词 二选一)
-      - 新增 difficultyGroup 在英文 mode 也显示,单词 mode 时按难度过滤
+    v1.4.2 主页根布局 — 顶栏只留右上角汉堡按钮(打开抽屉),其余 chrome 全移入抽屉
+    - 删 titleText / subtitle(用户反馈"左上角内容太多,卡片首屏可见")
+    - 删 englishSubModeGroup 顶部 margin,卡片直接贴在 NestedScrollView 顶部
+    - 顶部加 backJumpButton(返回上一页)— 仅跳转来源 = 进度/字库时显示
+    - 抽屉重设计:问候卡 + 语言/难度合并卡 + 3 张大入口卡(每张图+标题+副标题)
 -->
 <androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -37,7 +30,7 @@
             android:clipToPadding="false"
             android:fillViewport="true"
             android:paddingStart="20dp"
-            android:paddingTop="16dp"
+            android:paddingTop="12dp"
             android:paddingEnd="20dp"
             android:paddingBottom="24dp">
 
@@ -46,44 +39,17 @@
                 android:layout_height="wrap_content">
 
                 <!--
-                    v1.4.1:头部压缩 — 标题 22sp,去掉独立 subtitle 行,
-                    把 welcome 语并入 englishSubModeGroup 同一行(英文 mode)。
-                    节省纵向 ~50dp,卡片在 720dp 屏幕上首屏即可见 ~75% 内容。
-                -->
-                <TextView
-                    android:id="@+id/titleText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🌈 识字小帮手"
-                    android:textColor="@color/black"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/subtitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:text="一起开启有趣的识字冒险！"
-                    android:textColor="@color/gray_dark"
-                    android:textSize="12sp"
-                    app:layout_constraintBaseline_toBaselineOf="@id/titleText"
-                    app:layout_constraintStart_toEndOf="@id/titleText" />
-
-                <!--
-                    v1.4.0/v1.4.1:英文 mode 时显示"字母 / 单词"子模式切换。
-                    v1.4.1 marginTop 12→6dp,贴近标题行;中文 mode 时整体隐藏。
+                    v1.4.2:英文 mode 时显示"字母 / 单词"子模式切换。
+                    marginTop 0(原 6dp)— 标题已删除,直接紧贴顶部
                 -->
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/englishSubModeGroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="0dp"
                     android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/titleText"
+                    app:layout_constraintTop_toTopOf="parent"
                     app:selectionRequired="true"
                     app:singleLine="true"
                     app:singleSelection="true">
@@ -105,13 +71,13 @@
 
                 <!--
                     字卡:点击整张卡片用 v1.4.0 触发 speakCurrentItem()
-                    v1.4.1:卡片本身不再 clickable,改由内部 letterContainer(字母行) + 示例词 chip 单独响应
+                    v1.4.2:卡片本身不再 clickable,改由内部 letterContainer + 示例词 chip 单独响应
                 -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/currentCharacterCard"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="12dp"
                     android:clickable="false"
                     android:focusable="false"
                     app:cardBackgroundColor="@android:color/transparent"
@@ -139,10 +105,6 @@
                             android:text="🎯"
                             android:textSize="48sp" />
 
-                        <!--
-                            currentCharacter:中文汉字 / 英文单词 显示此 TextView
-                            英文 letter 模式隐藏,改用 uppercaseText + lowercaseText 双行
-                        -->
                         <TextView
                             android:id="@+id/currentCharacter"
                             android:layout_width="wrap_content"
@@ -152,8 +114,6 @@
                             android:textSize="80sp"
                             android:textStyle="bold" />
 
-                        <!-- v1.3.0/v1.4.0/v1.4.1:英文 letter 模式显示大写 + 小写在一行
-                            整个 letterContainer 可点击 → 只朗读字母名(uppercase) -->
                         <LinearLayout
                             android:id="@+id/letterContainer"
                             android:layout_width="wrap_content"
@@ -185,7 +145,6 @@
                                 android:textStyle="bold" />
                         </LinearLayout>
 
-                        <!-- v1.4.1:英文 word 模式下显示中文意思(单词释义),与字母卡的中文 hint 对齐 -->
                         <TextView
                             android:id="@+id/wordMeaning"
                             android:layout_width="wrap_content"
@@ -222,7 +181,6 @@
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
-                        <!-- 词组 + 例句(v1.2.0/v1.4.0),字号加大 -->
                         <View
                             android:id="@+id/wordsDivider"
                             android:layout_width="match_parent"
@@ -302,16 +260,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/currentCharacterCard" />
 
-                <!--
-                    v1.4.0:4 个按钮 emoji 化
-                    - 😊 认识 → knowButton(PrimaryButton)
-                    - 😢 不认识 → unknownButton(UnknownButton)
-                    - ➡️ 下一个 → skipButton(SecondaryButton,大 emoji)
-                    - 🎮 游戏 → playGameButton(PrimaryButton,大 emoji)
-
-                    监听按钮已被删除,字卡点击即发音
-                    查看进度 + 更多设置已移入抽屉
-                -->
                 <LinearLayout
                     android:id="@+id/actionRow"
                     android:layout_width="0dp"
@@ -377,7 +325,7 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.core.widget.NestedScrollView>
 
-        <!-- 撒花层:FrameLayout 顶层,clickable=false 透传点击 -->
+        <!-- 撒花层 -->
         <FrameLayout
             android:id="@+id/confettiOverlay"
             android:layout_width="match_parent"
@@ -385,13 +333,42 @@
             android:clickable="false"
             android:focusable="false" />
 
-        <!-- 右上角汉堡按钮:点击打开抽屉 — v1.4.1 加 3D 糖果阴影 -->
+        <!--
+            v1.4.2:顶部"返回上一页"按钮 — 仅当 jumpSource != null 时显示
+            平时 gone,不占位
+        -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/backJumpButton"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_gravity="top|start"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/white"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minWidth="0dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="16dp"
+            android:text="← 返回"
+            android:textColor="@color/deep_blue"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:cornerRadius="24dp"
+            app:elevation="6dp" />
+
+        <!--
+            v1.4.1 右上角汉堡按钮 — 永久显示,打开抽屉
+        -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/menuButton"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_gravity="top|end"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="16dp"
             android:backgroundTint="@color/white"
             android:insetLeft="0dp"
@@ -408,143 +385,330 @@
     </FrameLayout>
 
     <!-- ======================================================== -->
-    <!-- 右侧抽屉:语言/难度/进度/设置                              -->
+    <!-- v1.4.2 抽屉重设计 — 顶部问候 + 语言/难度合并 + 3 张大入口卡 -->
     <!-- ======================================================== -->
     <LinearLayout
-        android:layout_width="300dp"
+        android:layout_width="320dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
         android:background="@color/white"
         android:elevation="16dp"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="16dp">
 
-        <TextView
+        <!-- 顶部问候卡 — 立体 3D 糖果风 -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🎛 设置"
-            android:textColor="@color/black"
-            android:textSize="22sp"
+            android:background="@drawable/bg_card_playful"
+            android:elevation="4dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/drawerAvatar"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/bg_drawer_avatar"
+                android:gravity="center"
+                android:text="🦄"
+                android:textSize="36sp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/drawerGreeting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="你好呀!"
+                    android:textColor="@color/deep_blue"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/drawerSubGreeting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="今天一起学点什么呢?"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 语言 + 难度合并卡 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_card_playful"
+            android:elevation="4dp"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🌍 学习设置"
+                android:textColor="@color/deep_blue"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/languageLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="语言"
+                android:textColor="@color/gray_dark"
+                android:textSize="12sp" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/languageChipGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipLanguageChinese"
+                    style="@style/Widget.StudyWord.DifficultyChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🇨🇳 中文" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipLanguageEnglish"
+                    style="@style/Widget.StudyWord.DifficultyChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🇬🇧 ENGLISH" />
+            </com.google.android.material.chip.ChipGroup>
+
+            <TextView
+                android:id="@+id/difficultyLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="难度"
+                android:textColor="@color/gray_dark"
+                android:textSize="12sp" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/difficultyChipGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipEasy"
+                    style="@style/Widget.StudyWord.DifficultyChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="简单" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipMedium"
+                    style="@style/Widget.StudyWord.DifficultyChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="中等" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipHard"
+                    style="@style/Widget.StudyWord.DifficultyChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="困难" />
+            </com.google.android.material.chip.ChipGroup>
+        </LinearLayout>
+
+        <!-- 浏览 section 标题 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="6dp"
+            android:text="📚 浏览"
+            android:textColor="@color/gray_dark"
+            android:textSize="13sp"
             android:textStyle="bold" />
 
-        <View
+        <!-- 入口卡:学习进度 — 蓝紫渐变 -->
+        <LinearLayout
+            android:id="@+id/drawerProgressCard"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_drawer_nav_blue"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_drawer_nav_icon"
+                android:gravity="center"
+                android:text="📊"
+                android:textSize="26sp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="学习进度"
+                    android:textColor="@color/deep_blue"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="看掌握率、复习列表"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textColor="@color/deep_blue"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- 入口卡:字库浏览 — 粉橘渐变 -->
+        <LinearLayout
+            android:id="@+id/drawerLibraryCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_drawer_nav_pink"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_drawer_nav_icon"
+                android:gravity="center"
+                android:text="📖"
+                android:textSize="26sp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="字库浏览"
+                    android:textColor="@color/deep_blue"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="3000+ 字、26 字母、30 单词"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textColor="@color/deep_blue"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- 入口卡:更多设置 — 薄荷渐变 -->
+        <LinearLayout
+            android:id="@+id/drawerSettingsCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:layout_marginBottom="12dp"
-            android:background="@color/sky_blue" />
+            android:background="@drawable/bg_drawer_nav_mint"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
 
-        <TextView
-            android:id="@+id/languageLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="🌍 选择语言"
-            android:textColor="@color/gray_dark"
-            android:textSize="14sp" />
+            <TextView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_drawer_nav_icon"
+                android:gravity="center"
+                android:text="⚙️"
+                android:textSize="26sp" />
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/languageChipGroup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            app:selectionRequired="true"
-            app:singleLine="true"
-            app:singleSelection="true">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipLanguageChinese"
-                style="@style/Widget.StudyWord.DifficultyChip"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="更多设置"
+                    android:textColor="@color/deep_blue"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="重置进度、导出 CSV"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🇨🇳 中文" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipLanguageEnglish"
-                style="@style/Widget.StudyWord.DifficultyChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🇬🇧 ENGLISH" />
-        </com.google.android.material.chip.ChipGroup>
-
-        <TextView
-            android:id="@+id/difficultyLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="🎯 选择任务难度"
-            android:textColor="@color/gray_dark"
-            android:textSize="14sp" />
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/difficultyChipGroup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            app:selectionRequired="true"
-            app:singleLine="true"
-            app:singleSelection="true">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipEasy"
-                style="@style/Widget.StudyWord.DifficultyChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="简单" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipMedium"
-                style="@style/Widget.StudyWord.DifficultyChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="中等" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipHard"
-                style="@style/Widget.StudyWord.DifficultyChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="困难" />
-        </com.google.android.material.chip.ChipGroup>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="8dp"
-            android:background="@color/sky_blue" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/viewProgressButton"
-            style="@style/Widget.StudyWord.SecondaryButton"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="6dp"
-            android:gravity="start|center_vertical"
-            android:paddingStart="20dp"
-            android:text="📊 学习进度"
-            android:textSize="16sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/libraryButton"
-            style="@style/Widget.StudyWord.SecondaryButton"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="6dp"
-            android:gravity="start|center_vertical"
-            android:paddingStart="20dp"
-            android:text="📚 字库浏览"
-            android:textSize="16sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/settingsButton"
-            style="@style/Widget.StudyWord.SecondaryButton"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="6dp"
-            android:gravity="start|center_vertical"
-            android:paddingStart="20dp"
-            android:text="⚙️ 更多设置"
-            android:textSize="16sp" />
+                android:text="›"
+                android:textColor="@color/deep_blue"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
     </LinearLayout>
 
