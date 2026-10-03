@@ -1,28 +1,18 @@
 package com.studyword.literacy.game
 
 import com.studyword.literacy.model.Difficulty
-import com.studyword.literacy.model.LearningCharacter
-
-/**
- * 单个题目(4 选 1)
- */
-data class GameQuestion(
-    val correct: LearningCharacter,
-    val options: List<LearningCharacter>  // 长度 = 4,包含 correct
-) {
-    /** 选项是否包含某个 id */
-    fun contains(id: Int): Boolean = options.any { it.id == id }
-}
 
 /**
  * 一轮游戏(5 题)。
  *
  * 设计:不持有 ProgressStore 数据,游戏只是"练习",
  * 不会改变 known/unknown,孩子需要在主页做真正掌握判定。
+ *
+ * Phase 2:[difficulty] 可空 —— 英文题型没有难度区分,GameActivity 传 null。
  */
 class GameRound(
     val mode: GameMode,
-    val difficulty: Difficulty,
+    val difficulty: Difficulty?,
     private val questions: List<GameQuestion>
 ) {
     val totalQuestions: Int get() = questions.size
