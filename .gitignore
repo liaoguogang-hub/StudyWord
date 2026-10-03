@@ -97,3 +97,13 @@ lint/tmp/
 
 # Generated PDFs (for testing)
 *.pdf
+
+# 调试用的本地截图/UI 转储(不入版本)
+debug_*.png
+game_*.png
+main_*.png
+sw_*.png
+ui_*.xml
+ui*.xml
+dump.sh
+sw_*.json
