@@ -3,6 +3,41 @@
 本项目版本号遵循 [语义化版本 2.0](https://semver.org/lang/zh-CN/) 规范。
 格式参考 [Keep a Changelog 1.1](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.4.2] - 2026-10-03
+
+本版本针对 v1.4.1 的 4 项遗留 UX 问题逐项处理 + 8 张文生图提示词。
+
+### 新增
+- ✂️ **删主页头部 chrome** — 删 `titleText`("🌈 识字小帮手")+ `subtitle`("一起开启有趣的识字冒险！")
+  - `englishSubModeGroup` marginTop 6→0dp,卡片首屏即可见完整:汉字 + 拼音 + 难度 + 词组 + 例句 + 4 emoji 按钮
+  - 顶部只剩右上角汉堡按钮(≡),空白处变清爽
+- 🎨 **抽屉全面重设计** — 不再是 "chip + 3 个灰按钮"
+  - 顶部 greeting 卡:随机动物 emoji + "你好呀!" 问候 + 副标题,3D 糖果风
+  - "🌍 学习设置" 合并卡:语言 + 难度 chip 同卡,减少视觉割裂
+  - 3 张大入口卡(学习进度 / 字库浏览 / 更多设置),每张含:圆形图标底 + 标题 + 描述 + ›
+    蓝紫渐变 / 粉橘渐变 / 薄荷渐变 区分功能
+  - 新增 5 个 drawable:`bg_drawer_avatar`、`bg_drawer_nav_icon`、`bg_drawer_nav_{blue,pink,mint}`
+- 🔙 **跳转源页"← 返回"按钮** — 字库 / 进度点击跳转后,主页顶部左侧显示"← 返回进度" 或 "← 返回字库"
+  - ProgressActivity / CharacterLibraryActivity `setResult` 时新增 `EXTRA_SOURCE_PAGE` 标记源页
+  - MainActivity 收到后保存 `jumpSource`,显示按钮
+  - 点击重启动源 Activity + 关闭主页(不会因 stack 空而退出 app)
+  - 正常启动时不显示按钮,不占位
+- 🗣️ **中文整段正常语速朗读**
+  - `DEFAULT_SPEECH_RATE` 0.7f → 1.0f(用户反馈"词组例句读得慢、卡")
+  - `speakPhraseCharByChar` 改为薄包装,内部直接走 `speak()` 整段朗读
+  - `speakCurrentItem` 中文字不再 append 拼音(否则 "日 rì" 被读两遍),拼音仅作为卡片下方的 visual hint
+
+### 文生图提示词(交付)
+- 2 张开机图英文 prompt,用于 splash 真实图片上线:
+  - **Prompt 1 — 故事书主题**:3D 卡通熊猫坐在大打开的故事书上,周围漂浮认 / 字 / 大 / 家 立体字块
+  - **Prompt 2 — 字母动物主题**:3D 兔子戴巫师帽挥出金色闪光,周围 A B C 字母块 + 天 字块
+  - 详见会话上下文(本次对话顶部)
+
+### 兼容
+- `versionCode 7 → 8`,`versionName 1.4.1 → 1.4.2`
+- `EXTRA_SOURCE_PAGE` 是 result intent 新增 extra,旧接收方忽略无副作用
+- 数据层完全兼容 v1.4.1,无任何数据迁移
+
 ## [1.4.1] - 2026-10-03
 
 本版本是一次"体验打磨"补丁,针对 v1.4.0 的 8 个 UX 问题逐项处理。
