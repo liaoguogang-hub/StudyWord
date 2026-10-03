@@ -11,12 +11,16 @@ import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
-import com.studyword.literacy.R
 import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
+import com.studyword.literacy.R
 import com.studyword.literacy.data.CharacterRepository
 import com.studyword.literacy.data.EnglishRepository
 import com.studyword.literacy.data.ProgressStore
@@ -25,6 +29,7 @@ import com.studyword.literacy.game.GameActivity
 import com.studyword.literacy.game.GameMode
 import com.studyword.literacy.model.ChineseStudyItem
 import com.studyword.literacy.model.Difficulty
+import com.studyword.literacy.model.EnglishCategory
 import com.studyword.literacy.model.EnglishLetterItem
 import com.studyword.literacy.model.EnglishWordItem
 import com.studyword.literacy.model.StudyItem
@@ -35,6 +40,14 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
+/**
+ * 主页(v1.4.0):
+ * - 右上角抽屉收纳语言/难度/进度/设置
+ * - 字卡可点击 → speakCurrentItem()
+ * - 英文 mode 增加子模式(字母/单词)+ 单词按难度过滤
+ * - 4 个 emoji 按钮(😊/😢/→/🎮),点击带中文 toast 提示
+ * - 通过 registerForActivityResult 接 ProgressActivity/CharacterLibraryActivity 的跳转回值
+ */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -42,19 +55,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var englishRepository: EnglishRepository
     private lateinit var progressStore: ProgressStore
 
-    // ====== Phase 2 状态:当前学习语种 ======
+    // ====== 语种 ======
     private var currentMode: StudyMode = StudyMode.CHINESE
 
-    // ====== 中文维度 ======
+    // ====== 中文 ======
     private val knownIds: MutableSet<Int> = mutableSetOf()
     private val unknownIds: MutableSet<Int> = mutableSetOf()
     private var currentDifficulty: Difficulty = Difficulty.EASY
 
-    // ====== 英文维度 ======
+    // ====== 英文 ======
     private val englishKnownIds: MutableSet<Int> = mutableSetOf()
     private val englishUnknownIds: MutableSet<Int> = mutableSetOf()
+    /** v1.4.0:英文 mode 的子模式。LETTERS=只显示字母;WORDS=只显示单词(按难度过滤) */
+    private var englishSubMode: EnglishSubMode = EnglishSubMode.LETTERS
 
-    // ====== 统一学习队列(StudyItem 抽象,中英文共用) ======
+    // ====== 队列 ======
     private val pendingItems: ArrayDeque<StudyItem> = ArrayDeque()
     private var currentItem: StudyItem? = null
 
@@ -62,6 +77,20 @@ class MainActivity : AppCompatActivity() {
     private var successPlayer: MediaPlayer? = null
     private var encouragePlayer: MediaPlayer? = null
     private val mascotFaces = listOf("🐻", "🦊", "🐼", "🐰", "🦄", "🐨")
+
+    /**
+     * 从 ProgressActivity / CharacterLibraryActivity 接 selectedId + language
+     */
+    private val pageResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode != RESULT_OK) return@registerForActivityResult
+        val data = result.data ?: return@registerForActivityResult
+        val selectedId = data.getIntExtra(EXTRA_SELECTED_ID, -1)
+        val lang = data.getStringExtra(EXTRA_SELECTED_LANG) ?: return@registerForActivityResult
+        if (selectedId < 0) return@registerForActivityResult
+        loadItemById(selectedId, lang)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,16 +101,18 @@ class MainActivity : AppCompatActivity() {
         englishRepository = EnglishRepository(this)
         progressStore = ProgressStore(this)
 
-        // 读取上次语种并恢复
         currentMode = StudyMode.fromName(progressStore.loadLanguage())
-
         reloadAllProgressFromStore()
         progressStore.recordSnapshot(knownIds.size, unknownIds.size)
 
         TtsManager.init(this)
+        setupMenuButton()
+        setupDrawerEntries()
         setupLanguageToggle()
         setupDifficultyToggle()
+        setupEnglishSubModeToggle()
         setupActions()
+        setupCardClick()
         rebuildQueue()
         loadNextItem()
     }
@@ -91,18 +122,19 @@ class MainActivity : AppCompatActivity() {
         successPlayer = null
         encouragePlayer?.release()
         encouragePlayer = null
+        TtsManager.shutdown()
         super.onDestroy()
     }
 
     // ============================================================
-    // TTS 朗读:按语种路由
+    // TTS 朗读
     // ============================================================
 
     /**
-     * 朗读当前学习项。
-     * 中文:汉字 + 拼音(走 TtsManager.speak,中文 Locale)
-     * 英文 letter:大写 + 小写(走 speakEnglish)
-     * 英文 word:单词 + 音标(走 speakEnglish)
+     * 朗读当前学习项。点卡片触发。
+     * - 中文字 → speak(汉字 + 拼音)— 拼音由 PinyinConverter 算得
+     * - 英文 letter → speakSequential(letter, exampleWord, exampleWordChinese)
+     * - 英文 word → speakSequential(word, chineseMeaning)
      */
     private fun speakCurrentItem() {
         val item = currentItem ?: return
@@ -113,30 +145,96 @@ class MainActivity : AppCompatActivity() {
                 TtsManager.speak(text, utteranceId = "main_char_${item.id}")
             }
             is EnglishLetterItem -> {
-                TtsManager.speakEnglish(item.letter.uppercase, utteranceId = "main_letter_${item.id}")
+                val letter = item.letter
+                TtsManager.speakSequential(
+                    items = buildList {
+                        add(letter.uppercase to true)
+                        if (letter.exampleWord.isNotBlank()) add(letter.exampleWord to true)
+                        if (letter.exampleWordChinese.isNotBlank()) add(letter.exampleWordChinese to false)
+                    },
+                    delayMs = 250,
+                    baseUtteranceId = "main_letter_${item.id}"
+                )
             }
             is EnglishWordItem -> {
-                TtsManager.speakEnglish(item.word.word, utteranceId = "main_word_${item.id}")
+                val word = item.word
+                TtsManager.speakSequential(
+                    items = buildList {
+                        add(word.word to true)
+                        if (word.chineseMeaning.isNotBlank()) add(word.chineseMeaning to false)
+                    },
+                    delayMs = 250,
+                    baseUtteranceId = "main_word_${item.id}"
+                )
             }
         }
     }
 
     /**
      * 朗读一段自定义文本(供词组 chip / 例句 TextView 点击调用)。
-     * 中文走 [TtsManager.speak],英文走 [TtsManager.speakEnglish]。
+     * 中文走 char-by-char 队列(多音字安全),英文走 speakEnglish。
      */
     private fun speakWordOrSentence(text: String, pinyin: String, utteranceId: String, isEnglish: Boolean) {
         if (isEnglish) {
             TtsManager.speakEnglish(text, utteranceId = utteranceId)
         } else {
-            val combined = if (pinyin.isNotBlank()) "$text   $pinyin" else text
-            TtsManager.speak(combined, utteranceId = utteranceId)
+            // 中文走 char-by-char 队列,引擎用默认读音(避开多音字误读)
+            TtsManager.speakPhraseCharByChar(text, utteranceId = utteranceId)
+        }
+    }
+
+    /** 例句朗读:英文 → 英文 + 中文翻译;中文 → char-by-char */
+    private fun speakExampleSentence(item: StudyItem?, sentence: String, utteranceId: String) {
+        if (item == null) {
+            TtsManager.speakPhraseCharByChar(sentence, utteranceId = utteranceId)
+            return
+        }
+        if (item is EnglishWordItem && item.word.exampleSentenceTranslation.isNotBlank()) {
+            TtsManager.speakSequential(
+                items = listOf(
+                    sentence to true,
+                    item.word.exampleSentenceTranslation to false
+                ),
+                delayMs = 300,
+                baseUtteranceId = utteranceId
+            )
+        } else if (item is EnglishLetterItem) {
+            // 字母没有例句;走英文版
+            TtsManager.speakEnglish(sentence, utteranceId = utteranceId)
+        } else {
+            // 中文例句:char-by-char
+            TtsManager.speakPhraseCharByChar(sentence, utteranceId = utteranceId)
         }
     }
 
     // ============================================================
-    // 顶部控件初始化
+    // 控件初始化
     // ============================================================
+
+    private fun setupMenuButton() {
+        binding.menuButton.setOnClickListener {
+            binding.drawerLayout.openDrawer(GravityCompat.END)
+        }
+    }
+
+    /**
+     * 抽屉内的导航入口。抽屉中的进度 / 字库 / 设置点击也走 pageResultLauncher,
+     * 进度 / 字库可以返回 selectedId 触发跳回主页特定卡片。
+     */
+    private fun setupDrawerEntries() {
+        binding.viewProgressButton.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.END)
+            pageResultLauncher.launch(Intent(this, ProgressActivity::class.java))
+        }
+        binding.libraryButton.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.END)
+            pageResultLauncher.launch(Intent(this, CharacterLibraryActivity::class.java))
+        }
+        binding.settingsButton.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.END)
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+    }
 
     private fun setupLanguageToggle() {
         binding.languageChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
@@ -156,7 +254,6 @@ class MainActivity : AppCompatActivity() {
                 loadNextItem()
             }
         }
-        // 初始化选中状态
         when (currentMode) {
             StudyMode.CHINESE -> binding.chipLanguageChinese.isChecked = true
             StudyMode.ENGLISH -> binding.chipLanguageEnglish.isChecked = true
@@ -164,17 +261,18 @@ class MainActivity : AppCompatActivity() {
         applyModeUi()
     }
 
-    /**
-     * 切换语言时,根据当前 mode 调整 UI:
-     * - 中文模式显示"选择任务难度"+ 简单/中等/困难
-     * - 英文模式隐藏难度 chip(英文只有 LETTERS / WORDS 两类,但通过 Pool 决定,无需用户选)
-     */
+    /** 中文 → 显示"难度",隐藏英文子模式;英文 → 显示"英文子模式",但难度仍按英文模式显示 */
     private fun applyModeUi() {
         val isEnglish = currentMode == StudyMode.ENGLISH
-        binding.difficultyLabel.isVisible = !isEnglish
-        binding.difficultyChipGroup.isVisible = !isEnglish
-        // 英文模式标题文案微调
+        binding.difficultyLabel.isVisible = true
+        binding.difficultyChipGroup.isVisible = true
+        binding.englishSubModeGroup.isVisible = isEnglish
         binding.subtitle.text = if (isEnglish) "Letters & words, learn with fun!" else "一起开启有趣的识字冒险！"
+        // 英文默认选中 letters
+        if (isEnglish && !binding.chipSubLetters.isChecked && !binding.chipSubWords.isChecked) {
+            binding.chipSubLetters.isChecked = true
+            englishSubMode = EnglishSubMode.LETTERS
+        }
     }
 
     private fun setupDifficultyToggle() {
@@ -194,19 +292,40 @@ class MainActivity : AppCompatActivity() {
         binding.chipEasy.isChecked = true
     }
 
-    private fun setupActions() {
-        binding.knowButton.setOnClickListener { handleResult(ItemResult.KNOWN) }
-        binding.unknownButton.setOnClickListener { handleResult(ItemResult.UNKNOWN) }
-        binding.skipButton.setOnClickListener { loadNextItem(requeueCurrent = true) }
-        binding.listenButton.setOnClickListener { speakCurrentItem() }
-        binding.viewProgressButton.setOnClickListener {
-            startActivity(Intent(this, ProgressActivity::class.java))
+    private fun setupEnglishSubModeToggle() {
+        binding.englishSubModeGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            val checkedId = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
+            englishSubMode = when (checkedId) {
+                binding.chipSubLetters.id -> EnglishSubMode.LETTERS
+                binding.chipSubWords.id -> EnglishSubMode.WORDS
+                else -> EnglishSubMode.LETTERS
+            }
+            pendingItems.clear()
+            currentItem = null
+            rebuildQueue()
+            loadNextItem()
         }
-        binding.settingsButton.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
+    }
+
+    /**
+     * 4 个 emoji 按钮:认识 / 不认识 / 下一个 / 游戏
+     * 每个点击有中文 toast 提示
+     */
+    private fun setupActions() {
+        binding.knowButton.setOnClickListener {
+            toast("认识啦!")
+            handleResult(ItemResult.KNOWN)
+        }
+        binding.unknownButton.setOnClickListener {
+            toast("没关系,下次记住!")
+            handleResult(ItemResult.UNKNOWN)
+        }
+        binding.skipButton.setOnClickListener {
+            toast("下一个!")
+            loadNextItem(requeueCurrent = true)
         }
         binding.playGameButton.setOnClickListener {
-            // 根据当前 mode 选择默认游戏类型
+            toast("来玩游戏吧!")
             val defaultMode = when (currentMode) {
                 StudyMode.CHINESE -> GameMode.LISTEN
                 StudyMode.ENGLISH -> GameMode.LISTEN_LETTER
@@ -217,6 +336,48 @@ class MainActivity : AppCompatActivity() {
             }
             startActivity(intent)
         }
+    }
+
+    /** 字卡点击 → speakCurrentItem() */
+    private fun setupCardClick() {
+        binding.currentCharacterCard.setOnClickListener { speakCurrentItem() }
+    }
+
+    private fun toast(text: String) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+    }
+
+    // ============================================================
+    // 跳转回主页特定卡片
+    // ============================================================
+
+    /**
+     * 从 ProgressActivity / CharacterLibraryActivity 跳转回主页指定卡片。
+     *
+     * - 如果语言不同,先切语言(切完会 rebuildQueue,然后再把 id 推到队首)
+     * - 如果 id 找不到(已删除/不在当前池),保留当前卡片不动
+     */
+    private fun loadItemById(id: Int, lang: String) {
+        val targetMode = StudyMode.fromName(lang)
+        if (targetMode != currentMode) {
+            currentMode = targetMode
+            progressStore.saveLanguage(targetMode.name)
+            applyModeUi()
+        }
+        rebuildQueue()
+        // 把 id 推到队首(ArrayDeque 没有 removeAt,改用 toList+重建)
+        val matchIdx = pendingItems.indexOfFirst { it.id == id }
+        if (matchIdx > 0) {
+            val all = pendingItems.toList()
+            pendingItems.clear()
+            val found = all[matchIdx]
+            pendingItems.addLast(found)
+            all.forEachIndexed { i, it -> if (i != matchIdx) pendingItems.addLast(it) }
+        } else if (matchIdx < 0) {
+            // 不在当前 pool — 静默忽略(避免误跳导致空卡)
+            return
+        }
+        loadNextItem()
     }
 
     // ============================================================
@@ -284,9 +445,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * 按当前 mode 与难度/状态,重建题池。
-     * - 中文:[Difficulty] × (known + unknown + 未测),unknown 优先复习
-     * - 英文:letters(26) + words(30) ∩ (known + unknown + 未测),unknown 优先复习
+     * 重建题池。
+     * - 中文:repository.byDifficulty(currentDifficulty)
+     * - 英文 + LETTERS:全部字母
+     * - 英文 + WORDS:byCategoryAndDifficulty(WORDS, currentDifficulty)
      */
     private fun rebuildQueue() {
         pendingItems.clear()
@@ -294,8 +456,8 @@ class MainActivity : AppCompatActivity() {
         if (pool.isEmpty()) {
             updateCurrentItemView(null)
             val emptyMsg = when (currentMode) {
-                StudyMode.CHINESE -> "当前难度暂无字词，请稍后再试"
-                StudyMode.ENGLISH -> "No items yet, please check your data"
+                StudyMode.CHINESE -> "当前难度暂无字词,请稍后再试"
+                StudyMode.ENGLISH -> "暂无内容,请切换子模式或难度"
             }
             Snackbar.make(binding.root, emptyMsg, Snackbar.LENGTH_SHORT).show()
             return
@@ -314,9 +476,17 @@ class MainActivity : AppCompatActivity() {
     private fun buildCurrentPool(): List<StudyItem> = when (currentMode) {
         StudyMode.CHINESE -> repository.byDifficulty(currentDifficulty).map { ChineseStudyItem(it) }
         StudyMode.ENGLISH -> {
-            val letters = englishRepository.letters().map { EnglishLetterItem(it) }
-            val words = englishRepository.words().map { EnglishWordItem(it) }
-            letters + words
+            val rawItems: List<Any> = when (englishSubMode) {
+                EnglishSubMode.LETTERS -> englishRepository.byCategory(EnglishCategory.LETTERS)
+                EnglishSubMode.WORDS -> englishRepository.byCategoryAndDifficulty(EnglishCategory.WORDS, currentDifficulty)
+            }
+            rawItems.map { item ->
+                when (item) {
+                    is com.studyword.literacy.model.EnglishLetter -> EnglishLetterItem(item)
+                    is com.studyword.literacy.model.EnglishWord -> EnglishWordItem(item)
+                    else -> null
+                }
+            }.filterNotNull()
         }
     }
 
@@ -357,7 +527,7 @@ class MainActivity : AppCompatActivity() {
             binding.currentPinyin.text = ""
             binding.currentDifficulty.isVisible = false
             binding.remainingHint.text = when (currentMode) {
-                StudyMode.CHINESE -> "暂无可测汉字，请调整难度或重置进度"
+                StudyMode.CHINESE -> "暂无可测汉字,请调整难度或重置进度"
                 StudyMode.ENGLISH -> "暂无可测内容"
             }
             binding.cardEmoji.text = "💤"
@@ -366,7 +536,6 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // 主显:中文字 / 英文 word → currentCharacter;英文 letter → uppercaseText + lowercaseText
         val isLetter = item is EnglishLetterItem
         binding.currentCharacter.isVisible = !isLetter
         binding.uppercaseText.isVisible = isLetter
@@ -379,29 +548,22 @@ class MainActivity : AppCompatActivity() {
             binding.currentCharacter.text = item.primaryText
         }
 
-        // 拼音 / 音标
         binding.currentPinyin.text = item.secondaryText.ifBlank { "--" }
 
-        // 难度/类别徽章
         binding.currentDifficulty.text = item.category
         binding.currentDifficulty.isVisible = true
 
-        // 顶部表情
-        binding.cardEmoji.text = if (item is EnglishWordItem) {
-            // 英文单词用统一的 emoji(没有 mascot 对应)
-            "🔤"
-        } else {
-            mascotFaces[random.nextInt(mascotFaces.size)]
-        }
+        binding.cardEmoji.text = if (item is EnglishWordItem) "🔤" else mascotFaces[random.nextInt(mascotFaces.size)]
 
         setActionButtonsEnabled(true)
         renderWordsAndExamples(item)
-        // 不自动朗读,等孩子主动点 "🔊 听一听" 按钮
     }
 
     /**
-     * 把当前学习项的词组与例句渲染到字卡下方。
-     * 设计完全复用 v1.2.0 逻辑,仅 TTS 路由改为按 ttsLocale 区分。
+     * 渲染词组 + 例句。
+     * v1.4.0 改进:
+     * - 英文 letter 的 exampleWord 后面加上中文意思 chip(不可点,作为展示)
+     * - 例句点击用 speakExampleSentence(英文 + 中文翻译)
      */
     private fun renderWordsAndExamples(item: StudyItem?) {
         val wordsGroup = binding.wordsChipGroup
@@ -410,7 +572,6 @@ class MainActivity : AppCompatActivity() {
         val wordsLabel = binding.wordsLabel
         val examplesLabel = binding.examplesLabel
 
-        // 先清掉旧的 chip,避免切换字时残留
         wordsGroup.removeAllViews()
         exampleView.setOnClickListener(null)
         exampleView.text = ""
@@ -428,12 +589,10 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // 词组区(英文 letter 的 exampleWord 也走这里,作为单个 chip)
         if (words.isNotEmpty()) {
             wordsDivider.isVisible = true
             wordsLabel.isVisible = true
             wordsGroup.isVisible = true
-            // 英文 letter 用 "🌟 示例词",中文用 "🧩 词组"
             wordsLabel.text = if (isEnglish) "🌟 示例词" else "🧩 词组"
             val inflater = LayoutInflater.from(this)
             words.forEachIndexed { index, entry ->
@@ -449,32 +608,33 @@ class MainActivity : AppCompatActivity() {
                 }
                 wordsGroup.addView(chip)
             }
+            // 英文 letter:在示例词 chip 后追加"中文意思"chip(只读,展示)
+            if (item is EnglishLetterItem && item.letter.exampleWordChinese.isNotBlank()) {
+                val hintChip = inflater.inflate(R.layout.item_word_chip, wordsGroup, false) as Chip
+                hintChip.text = item.letter.exampleWordChinese
+                hintChip.isClickable = false
+                hintChip.isCheckable = false
+                wordsGroup.addView(hintChip)
+            }
         } else {
             wordsGroup.isVisible = false
             wordsLabel.isVisible = false
             wordsDivider.isVisible = examples.isNotEmpty()
         }
 
-        // 例句区(英文 word 的 exampleSentence 走这里,中文字也走这里)
         if (examples.isNotEmpty()) {
             examplesLabel.isVisible = true
             exampleView.isVisible = true
             examplesLabel.text = if (isEnglish) "📖 Example" else "📖 例句"
             val first = examples.first()
-            // 英文 word 拼接中文释义(显示在例句下方),点击只朗读英文例句
-            val displayText = if (isEnglish && item?.exampleTranslation?.isNotBlank() == true) {
-                "${first.sentence}\n— ${item.exampleTranslation}"
+            val displayText = if (isEnglish && item?.englishExtra?.isNotBlank() == true) {
+                "${first.sentence}\n— ${item.englishExtra}"
             } else {
                 examples.joinToString(separator = "\n") { it.sentence }
             }
             exampleView.text = displayText
             exampleView.setOnClickListener {
-                speakWordOrSentence(
-                    text = first.sentence,
-                    pinyin = first.pinyin,
-                    utteranceId = "main_example_${item?.id ?: 0}",
-                    isEnglish = isEnglish
-                )
+                speakExampleSentence(item, first.sentence, "main_example_${item?.id ?: 0}")
             }
         } else {
             examplesLabel.isVisible = false
@@ -507,7 +667,8 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         reloadAllProgressFromStore()
         updateSummaryHint()
-        rebuildQueue()
+        // 注:不重建队列 — 避免覆盖 loadItemById 跳转进来的特定 id
+        if (currentItem == null) rebuildQueue()
         loadNextItem()
     }
 
@@ -526,6 +687,7 @@ class MainActivity : AppCompatActivity() {
         binding.knowButton.isEnabled = enabled
         binding.unknownButton.isEnabled = enabled
         binding.skipButton.isEnabled = enabled
+        binding.playGameButton.isEnabled = enabled
     }
 
     private fun showEncourageSparkle() {
@@ -553,8 +715,10 @@ class MainActivity : AppCompatActivity() {
         )
         overlay.addView(label, params)
 
+        // v1.4.0:锚点改为 remainingHint(原本是 actionRow,但现在 actionRow 是 emoji 按钮不美观)
         val startX = width / 2f - label.paint.measureText(label.text.toString()) / 2
-        val startY = binding.actionRow.y - 24f
+        val anchorY = binding.remainingHint.y.takeIf { it > 0f } ?: (height / 2f)
+        val startY = anchorY - 24f
         label.translationX = startX
         label.translationY = startY
 
@@ -681,10 +845,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private enum class ItemResult { KNOWN, UNKNOWN }
+    private enum class EnglishSubMode { LETTERS, WORDS }
 
     companion object {
         private const val CONFETTI_COUNT = 18
         private const val CONFETTI_DURATION_MS = 300L
         private val CONFETTI_EMOJIS = listOf("🎉", "✨", "🎈", "🎊", "🌟", "💫")
+
+        /** ProgressActivity / CharacterLibraryActivity setResult 时填入的 extras */
+        const val EXTRA_SELECTED_ID = "selected_id"
+        const val EXTRA_SELECTED_LANG = "selected_lang"  // "CHINESE" / "ENGLISH"
     }
 }
