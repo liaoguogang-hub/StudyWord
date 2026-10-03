@@ -6,4 +6,24 @@
     <string name="status_unseen">未学习</string>
     <string name="marker_rate_format">掌握率：%1$.1f%%</string>
     <string name="back">返回</string>
+
+    <!-- 游戏模式 v1.1.0 -->
+    <string name="game_title">识字闯关</string>
+    <string name="game_listen_label">🔊 听音</string>
+    <string name="game_pinyin_label">📖 看拼音</string>
+    <string name="game_speak_hint">点喇叭,听声音</string>
+    <string name="game_progress_format">%1$d / %2$d</string>
+    <string name="game_skip">跳过 ↻</string>
+    <string name="game_replay">再来一轮 ↻</string>
+    <string name="game_exit">返回主页</string>
+    <string name="game_score_format">答对 %1$d / %2$d</string>
+    <string name="game_stars_3">太棒了!</string>
+    <string name="game_stars_2">真不错!</string>
+    <string name="game_stars_1">加油,继续!</string>
+    <string name="game_stars_0">再试一次</string>
+    <string name="game_result_emoji_3">🎉</string>
+    <string name="game_result_emoji_2">🌟</string>
+    <string name="game_result_emoji_1">💪</string>
+    <string name="game_result_emoji_0">🤔</string>
+    <string name="game_no_chars">当前难度暂无字词</string>
 </resources>
