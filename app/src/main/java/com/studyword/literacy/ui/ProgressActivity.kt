@@ -20,10 +20,14 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.chip.Chip
 import com.studyword.literacy.R
 import com.studyword.literacy.data.CharacterRepository
+import com.studyword.literacy.data.EnglishRepository
 import com.studyword.literacy.data.ProgressSnapshot
 import com.studyword.literacy.data.ProgressStore
 import com.studyword.literacy.databinding.ActivityProgressBinding
 import com.studyword.literacy.model.Difficulty
+import com.studyword.literacy.model.EnglishLetterItem
+import com.studyword.literacy.model.EnglishWordItem
+import com.studyword.literacy.model.StudyItem
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -34,6 +38,7 @@ class ProgressActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProgressBinding
     private lateinit var repository: CharacterRepository
+    private lateinit var englishRepository: EnglishRepository
     private lateinit var progressStore: ProgressStore
     private var trendRange: TrendRange = TrendRange.WEEK
     private var initializingRangeToggle = false
@@ -44,6 +49,7 @@ class ProgressActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         repository = CharacterRepository(this)
+        englishRepository = EnglishRepository(this)
         progressStore = ProgressStore(this)
         binding.topBar.setNavigationOnClickListener { finish() }
 
@@ -52,6 +58,7 @@ class ProgressActivity : AppCompatActivity() {
     }
 
     private fun renderProgress() {
+        // ====== 中文 ======
         val knownIds = progressStore.loadKnown()
         val unknownIds = progressStore.loadUnknown()
         val characters = repository.all().associateBy { it.id }
@@ -82,6 +89,47 @@ class ProgressActivity : AppCompatActivity() {
 
         renderTrendChart(filteredHistory, total, formatter)
         renderDifficultyPie(knownIds)
+
+        // ====== 英文 ======
+        val enKnownIds = progressStore.loadEnglishKnown()
+        val enUnknownIds = progressStore.loadEnglishUnknown()
+        val enTotal = englishRepository.count()
+        val enKnown = enKnownIds.size
+        val enUnknown = enUnknownIds.size
+        val enMastery = if (enTotal == 0) 0.0 else enKnown * 100.0 / enTotal
+
+        val letterCount = englishRepository.letterCount()
+        val wordCount = englishRepository.wordCount()
+        binding.enTotalLabel.text = "Total: $letterCount letters · $wordCount words"
+        binding.enKnownLabel.text = "Known: $enKnown"
+        binding.enUnknownLabel.text = "Review: $enUnknown"
+        binding.enMasteryLabel.text = String.format("Mastery: %.1f%%", enMastery)
+
+        // 渲染英文 known / unknown chip 列表(letter 显示 Aa,word 显示单词 + 中文释义)
+        val knownItems = enKnownIds.mapNotNull { id ->
+            englishRepository.findByLetterById(id)
+                ?: englishRepository.findByWordById(id)
+        }
+        val unknownItems = enUnknownIds.mapNotNull { id ->
+            englishRepository.findByLetterById(id)
+                ?: englishRepository.findByWordById(id)
+        }
+        populateChipGroup(
+            binding.enKnownChipGroup,
+            binding.enKnownEmptyHint,
+            knownItems.map { renderEnglishLabel(it) }
+        )
+        populateChipGroup(
+            binding.enUnknownChipGroup,
+            binding.enUnknownEmptyHint,
+            unknownItems.map { renderEnglishLabel(it) }
+        )
+    }
+
+    private fun renderEnglishLabel(item: StudyItem): String = when (item) {
+        is EnglishLetterItem -> "${item.letter.uppercase}${item.letter.lowercase}"
+        is EnglishWordItem -> "${item.word.word}·${item.word.chineseMeaning}"
+        else -> item.primaryText
     }
 
     private fun populateChipGroup(
