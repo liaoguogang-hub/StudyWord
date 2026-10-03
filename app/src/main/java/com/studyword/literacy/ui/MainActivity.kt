@@ -20,6 +20,7 @@ import com.studyword.literacy.data.ProgressStore
 import com.studyword.literacy.databinding.ActivityMainBinding
 import com.studyword.literacy.model.Difficulty
 import com.studyword.literacy.model.LearningCharacter
+import com.studyword.literacy.util.TtsManager
 import java.util.ArrayDeque
 import kotlin.math.cos
 import kotlin.math.sin
@@ -41,6 +42,9 @@ class MainActivity : AppCompatActivity() {
     private var encouragePlayer: MediaPlayer? = null
     private val mascotFaces = listOf("🐻", "🦊", "🐼", "🐰", "🦄", "🐨")
 
+    // TTS: 使用全局单例 TtsManager,避免重复初始化引擎
+    // 主页只调 init,不负责 shutdown(进程退出时自动释放)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -51,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         reloadProgressFromStore()
         progressStore.recordSnapshot(knownIds.size, unknownIds.size)
 
+        TtsManager.init(this)
         setupDifficultyToggle()
         setupActions()
         rebuildQueue()
@@ -63,6 +68,16 @@ class MainActivity : AppCompatActivity() {
         encouragePlayer?.release()
         encouragePlayer = null
         super.onDestroy()
+    }
+
+    /**
+     * 朗读当前汉字。读"字 + 拼音",孩子可点击"听一听"按钮重复播放。
+     */
+    private fun speakCurrentCharacter() {
+        val character = currentCharacter ?: return
+        val pinyin = character.pinyin.ifBlank { "" }
+        val text = if (pinyin.isNotEmpty()) "${character.hanzi}   $pinyin" else character.hanzi
+        TtsManager.speak(text, utteranceId = "main_char_${character.id}")
     }
 
     private fun setupDifficultyToggle() {
@@ -86,6 +101,7 @@ class MainActivity : AppCompatActivity() {
         binding.knowButton.setOnClickListener { handleResult(CharacterResult.KNOWN) }
         binding.unknownButton.setOnClickListener { handleResult(CharacterResult.UNKNOWN) }
         binding.skipButton.setOnClickListener { loadNextCharacter(requeueCurrent = true) }
+        binding.listenButton.setOnClickListener { speakCurrentCharacter() }
         binding.viewProgressButton.setOnClickListener {
             startActivity(Intent(this, ProgressActivity::class.java))
         }
@@ -180,6 +196,7 @@ class MainActivity : AppCompatActivity() {
         binding.currentDifficulty.isVisible = true
         binding.cardEmoji.text = mascotFaces[random.nextInt(mascotFaces.size)]
         setActionButtonsEnabled(true)
+        // 不自动朗读,等孩子主动点 "🔊 听一听" 按钮
     }
 
     private fun updateSummaryHint() {
