@@ -26,4 +26,7 @@
     <string name="game_result_emoji_1">💪</string>
     <string name="game_result_emoji_0">🤔</string>
     <string name="game_no_chars">当前难度暂无字词</string>
+    <string name="game_empty_emoji">📖</string>
+    <string name="game_empty_title">还没有学过的字</string>
+    <string name="game_empty_message">先去主页学习几个汉字,再来玩吧!</string>
 </resources>

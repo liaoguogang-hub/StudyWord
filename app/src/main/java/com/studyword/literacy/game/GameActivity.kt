@@ -15,6 +15,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.studyword.literacy.R
 import com.studyword.literacy.data.CharacterRepository
+import com.studyword.literacy.data.ProgressStore
 import com.studyword.literacy.databinding.ActivityGameBinding
 import com.studyword.literacy.model.Difficulty
 import com.studyword.literacy.model.LearningCharacter
@@ -34,6 +35,7 @@ class GameActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityGameBinding
     private lateinit var repository: CharacterRepository
+    private lateinit var progressStore: ProgressStore
 
     private var mode: GameMode = GameMode.LISTEN
     private var difficulty: Difficulty = Difficulty.EASY
@@ -50,6 +52,7 @@ class GameActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         repository = CharacterRepository(this)
+        progressStore = ProgressStore(this)
         TtsManager.init(this)
 
         // 解析入口参数
@@ -119,9 +122,9 @@ class GameActivity : AppCompatActivity() {
     // ============================================================
 
     private fun startNewRound() {
-        val pool = repository.byDifficulty(difficulty)
+        val pool = buildStudiedPool()
         if (pool.size < 4) {
-            Snackbar.make(binding.root, R.string.game_no_chars, Snackbar.LENGTH_SHORT).show()
+            showEmptyState()
             return
         }
 
@@ -136,6 +139,36 @@ class GameActivity : AppCompatActivity() {
         binding.difficultyChipGroup.isVisible = true
 
         showCurrentQuestion()
+    }
+
+    /**
+     * 题池 = 当前难度 ∩ 已学过的字(认识 ∪ 待巩固)
+     *
+     * 设计:游戏只是练习,只能基于已学过的字出题,
+     * 避免出现孩子完全没见过的字。
+     */
+    private fun buildStudiedPool(): List<LearningCharacter> {
+        val known = progressStore.loadKnown()
+        val unknown = progressStore.loadUnknown()
+        val studiedIds: Set<Int> = known + unknown
+        return repository.byDifficulty(difficulty)
+            .filter { it.id in studiedIds }
+    }
+
+    private fun showEmptyState() {
+        round = null
+        binding.resultCard.isVisible = true
+        binding.questionCard.isVisible = false
+        binding.optionsGrid.isVisible = false
+        binding.skipButton.isVisible = false
+        binding.modeChipGroup.isVisible = false
+        binding.difficultyChipGroup.isVisible = false
+
+        binding.resultEmoji.text = getString(R.string.game_empty_emoji)
+        binding.resultStars.text = ""
+        binding.resultTitle.text = getString(R.string.game_empty_title)
+        binding.resultScore.text = getString(R.string.game_empty_message)
+        binding.replayButton.isVisible = false
     }
 
     private fun buildQuestions(
@@ -264,6 +297,7 @@ class GameActivity : AppCompatActivity() {
         binding.questionCard.isVisible = false
         binding.optionsGrid.isVisible = false
         binding.skipButton.isVisible = false
+        binding.replayButton.isVisible = true
 
         val stars = r.stars()
         binding.resultStars.text = "⭐".repeat(stars).ifEmpty { "💧" }
