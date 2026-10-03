@@ -667,9 +667,13 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         reloadAllProgressFromStore()
         updateSummaryHint()
-        // 注:不重建队列 — 避免覆盖 loadItemById 跳转进来的特定 id
-        if (currentItem == null) rebuildQueue()
-        loadNextItem()
+        // 仅在 currentItem 丢失时(首次启动 / 进程被回收)才重建队列 + loadNext。
+        // 否则 pageResultLauncher → loadItemById 设置的 currentItem 会被 onResume 的
+        // loadNextItem 覆盖,导致跳转失效(显示队列中下一项而非跳转目标)。
+        if (currentItem == null) {
+            rebuildQueue()
+            loadNextItem()
+        }
     }
 
     private fun reloadAllProgressFromStore() {
