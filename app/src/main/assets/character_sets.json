@@ -1,105 +1,1397 @@
 {
   "easy": [
-    "一",
-    "二",
-    "三",
-    "四",
-    "五",
-    "六",
-    "七",
-    "八",
-    "九",
-    "十",
-    "天",
-    "地",
-    "人",
-    "口",
-    "手",
-    "足",
-    "日",
-    "月",
-    "山",
-    "水",
-    "火",
-    "木",
-    "田",
-    "爸",
-    "妈",
-    "爷",
-    "奶",
-    "哥",
-    "姐",
-    "弟",
-    "妹",
-    "家",
-    "子",
-    "女",
-    "心",
-    "爱",
-    "书",
-    "本",
-    "笔",
-    "校",
-    "学",
-    "友",
-    "吃",
-    "喝",
-    "玩",
-    "乐",
-    "车",
-    "马",
-    "牛",
-    "羊",
-    "乙",
-    "了",
-    "力",
-    "又",
-    "儿",
-    "入",
-    "几",
-    "厂",
-    "刀",
-    "乃",
-    "丁",
-    "卜",
-    "个",
-    "上",
-    "大",
-    "也",
-    "于",
-    "下",
-    "之",
-    "么",
-    "小",
-    "与",
-    "已",
-    "工",
-    "己",
-    "门",
-    "及",
-    "义",
-    "才",
-    "万",
-    "飞",
-    "干",
-    "士",
-    "广",
-    "土",
-    "千",
-    "久",
-    "卫",
-    "习",
-    "乡",
-    "亡",
-    "凡",
-    "亿",
-    "川",
-    "丈",
-    "尸",
-    "亏",
-    "寸",
-    "夕",
-    "弓",
+    {
+      "char": "一",
+      "words": [
+        {
+          "word": "一起",
+          "pinyin": "yī qǐ"
+        },
+        {
+          "word": "一会儿",
+          "pinyin": "yī huì er"
+        },
+        {
+          "word": "一只",
+          "pinyin": "yī zhī"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我们一起去公园。",
+          "pinyin": "wǒ men yī qǐ qù gōng yuán"
+        }
+      ]
+    },
+    {
+      "char": "二",
+      "words": [
+        {
+          "word": "二月",
+          "pinyin": "èr yuè"
+        },
+        {
+          "word": "第二",
+          "pinyin": "dì èr"
+        },
+        {
+          "word": "二十",
+          "pinyin": "èr shí"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "二月份是我的生日。",
+          "pinyin": "èr yuè fèn shì wǒ de shēng rì"
+        }
+      ]
+    },
+    {
+      "char": "三",
+      "words": [
+        {
+          "word": "三天",
+          "pinyin": "sān tiān"
+        },
+        {
+          "word": "三月",
+          "pinyin": "sān yuè"
+        },
+        {
+          "word": "三角形",
+          "pinyin": "sān jiǎo xíng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "再过三天就是周末了。",
+          "pinyin": "zài guò sān tiān jiù shì zhōu mò le"
+        }
+      ]
+    },
+    {
+      "char": "四",
+      "words": [
+        {
+          "word": "四季",
+          "pinyin": "sì jì"
+        },
+        {
+          "word": "四个",
+          "pinyin": "sì ge"
+        },
+        {
+          "word": "四方",
+          "pinyin": "sì fāng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "一年有四个季节。",
+          "pinyin": "yì nián yǒu sì ge jì jié"
+        }
+      ]
+    },
+    {
+      "char": "五",
+      "words": [
+        {
+          "word": "五个",
+          "pinyin": "wǔ ge"
+        },
+        {
+          "word": "五彩",
+          "pinyin": "wǔ cǎi"
+        },
+        {
+          "word": "五只",
+          "pinyin": "wǔ zhī"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我有五个气球。",
+          "pinyin": "wǒ yǒu wǔ ge qì qiú"
+        }
+      ]
+    },
+    {
+      "char": "六",
+      "words": [
+        {
+          "word": "六个",
+          "pinyin": "liù ge"
+        },
+        {
+          "word": "六月",
+          "pinyin": "liù yuè"
+        },
+        {
+          "word": "六一",
+          "pinyin": "liù yī"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "桌上摆了六个苹果。",
+          "pinyin": "zhuō shàng bǎi le liù ge píng guǒ"
+        }
+      ]
+    },
+    {
+      "char": "七",
+      "words": [
+        {
+          "word": "七个",
+          "pinyin": "qī ge"
+        },
+        {
+          "word": "七彩",
+          "pinyin": "qī cǎi"
+        },
+        {
+          "word": "七天",
+          "pinyin": "qī tiān"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "彩虹有七种颜色。",
+          "pinyin": "cǎi hóng yǒu qī zhǒng yán sè"
+        }
+      ]
+    },
+    {
+      "char": "八",
+      "words": [
+        {
+          "word": "八个",
+          "pinyin": "bā ge"
+        },
+        {
+          "word": "八月",
+          "pinyin": "bā yuè"
+        },
+        {
+          "word": "八方",
+          "pinyin": "bā fāng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "池塘里有八只小鸭子。",
+          "pinyin": "chí táng lǐ yǒu bā zhī xiǎo yā zi"
+        }
+      ]
+    },
+    {
+      "char": "九",
+      "words": [
+        {
+          "word": "九个",
+          "pinyin": "jiǔ ge"
+        },
+        {
+          "word": "九月",
+          "pinyin": "jiǔ yuè"
+        },
+        {
+          "word": "九只",
+          "pinyin": "jiǔ zhī"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "九月开学啦。",
+          "pinyin": "jiǔ yuè kāi xué la"
+        }
+      ]
+    },
+    {
+      "char": "十",
+      "words": [
+        {
+          "word": "十个",
+          "pinyin": "shí ge"
+        },
+        {
+          "word": "十月",
+          "pinyin": "shí yuè"
+        },
+        {
+          "word": "十岁",
+          "pinyin": "shí suì"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我今年十岁了。",
+          "pinyin": "wǒ jīn nián shí suì le"
+        }
+      ]
+    },
+    {
+      "char": "天",
+      "words": [
+        {
+          "word": "天空",
+          "pinyin": "tiān kōng"
+        },
+        {
+          "word": "今天",
+          "pinyin": "jīn tiān"
+        },
+        {
+          "word": "天气",
+          "pinyin": "tiān qì"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "今天的天气真好。",
+          "pinyin": "jīn tiān de tiān qì zhēn hǎo"
+        }
+      ]
+    },
+    {
+      "char": "地",
+      "words": [
+        {
+          "word": "土地",
+          "pinyin": "tǔ dì"
+        },
+        {
+          "word": "地球",
+          "pinyin": "dì qiú"
+        },
+        {
+          "word": "地上",
+          "pinyin": "dì shàng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "地上有一只小蚂蚁。",
+          "pinyin": "dì shàng yǒu yī zhī xiǎo mǎ yǐ"
+        }
+      ]
+    },
+    {
+      "char": "人",
+      "words": [
+        {
+          "word": "大人",
+          "pinyin": "dà ren"
+        },
+        {
+          "word": "人们",
+          "pinyin": "rén men"
+        },
+        {
+          "word": "小朋友",
+          "pinyin": "xiǎo péng yǒu"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "公园里有许多人。",
+          "pinyin": "gōng yuán lǐ yǒu xǔ duō rén"
+        }
+      ]
+    },
+    {
+      "char": "口",
+      "words": [
+        {
+          "word": "口袋",
+          "pinyin": "kǒu dai"
+        },
+        {
+          "word": "口水",
+          "pinyin": "kǒu shuǐ"
+        },
+        {
+          "word": "口渴",
+          "pinyin": "kǒu kě"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我口渴了想喝水。",
+          "pinyin": "wǒ kǒu kě le xiǎng hē shuǐ"
+        }
+      ]
+    },
+    {
+      "char": "手",
+      "words": [
+        {
+          "word": "小手",
+          "pinyin": "xiǎo shǒu"
+        },
+        {
+          "word": "手指",
+          "pinyin": "shǒu zhǐ"
+        },
+        {
+          "word": "拍手",
+          "pinyin": "pāi shǒu"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "大家拍手表扬他。",
+          "pinyin": "dà jiā pāi shǒu biǎo yáng tā"
+        }
+      ]
+    },
+    {
+      "char": "足",
+      "words": [
+        {
+          "word": "足球",
+          "pinyin": "zú qiú"
+        },
+        {
+          "word": "足够",
+          "pinyin": "zú gòu"
+        },
+        {
+          "word": "足迹",
+          "pinyin": "zú jì"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我喜欢踢足球。",
+          "pinyin": "wǒ xǐ huan tī zú qiú"
+        }
+      ]
+    },
+    {
+      "char": "日",
+      "words": [
+        {
+          "word": "日子",
+          "pinyin": "rì zi"
+        },
+        {
+          "word": "生日",
+          "pinyin": "shēng rì"
+        },
+        {
+          "word": "日记",
+          "pinyin": "rì jì"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "今天是我盼望的日子。",
+          "pinyin": "jīn tiān shì wǒ pàn wàng de rì zi"
+        }
+      ]
+    },
+    {
+      "char": "月",
+      "words": [
+        {
+          "word": "月亮",
+          "pinyin": "yuè liang"
+        },
+        {
+          "word": "月份",
+          "pinyin": "yuè fèn"
+        },
+        {
+          "word": "月饼",
+          "pinyin": "yuè bǐng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "十五的月亮圆又亮。",
+          "pinyin": "shí wǔ de yuè liang yuán yòu liàng"
+        }
+      ]
+    },
+    {
+      "char": "山",
+      "words": [
+        {
+          "word": "高山",
+          "pinyin": "gāo shān"
+        },
+        {
+          "word": "上山",
+          "pinyin": "shàng shān"
+        },
+        {
+          "word": "山水",
+          "pinyin": "shān shuǐ"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我们一起去爬高山。",
+          "pinyin": "wǒ men yī qǐ qù pá gāo shān"
+        }
+      ]
+    },
+    {
+      "char": "水",
+      "words": [
+        {
+          "word": "喝水",
+          "pinyin": "hē shuǐ"
+        },
+        {
+          "word": "水果",
+          "pinyin": "shuǐ guǒ"
+        },
+        {
+          "word": "河水",
+          "pinyin": "hé shuǐ"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "小朋友要多喝水。",
+          "pinyin": "xiǎo péng yǒu yào duō hē shuǐ"
+        }
+      ]
+    },
+    {
+      "char": "火",
+      "words": [
+        {
+          "word": "火车",
+          "pinyin": "huǒ chē"
+        },
+        {
+          "word": "火箭",
+          "pinyin": "huǒ jiàn"
+        },
+        {
+          "word": "火星",
+          "pinyin": "huǒ xīng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "火车在铁轨上跑。",
+          "pinyin": "huǒ chē zài tiě guǐ shàng pǎo"
+        }
+      ]
+    },
+    {
+      "char": "木",
+      "words": [
+        {
+          "word": "树木",
+          "pinyin": "shù mù"
+        },
+        {
+          "word": "木头",
+          "pinyin": "mù tou"
+        },
+        {
+          "word": "木马",
+          "pinyin": "mù mǎ"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "森林里有许多树木。",
+          "pinyin": "sēn lín lǐ yǒu xǔ duō shù mù"
+        }
+      ]
+    },
+    {
+      "char": "田",
+      "words": [
+        {
+          "word": "田地",
+          "pinyin": "tián dì"
+        },
+        {
+          "word": "稻田",
+          "pinyin": "dào tián"
+        },
+        {
+          "word": "水田",
+          "pinyin": "shuǐ tián"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "稻田里稻子绿绿的。",
+          "pinyin": "dào tián lǐ dào zi lǜ lǜ de"
+        }
+      ]
+    },
+    {
+      "char": "爸",
+      "words": [
+        {
+          "word": "爸爸",
+          "pinyin": "bà ba"
+        },
+        {
+          "word": "爸妈",
+          "pinyin": "bà mā"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "爸爸带我去公园。",
+          "pinyin": "bà ba dài wǒ qù gōng yuán"
+        }
+      ]
+    },
+    {
+      "char": "妈",
+      "words": [
+        {
+          "word": "妈妈",
+          "pinyin": "mā ma"
+        },
+        {
+          "word": "爸妈",
+          "pinyin": "bà mā"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "妈妈给我讲故事。",
+          "pinyin": "mā ma gěi wǒ jiǎng gù shi"
+        }
+      ]
+    },
+    {
+      "char": "爷",
+      "words": [
+        {
+          "word": "爷爷",
+          "pinyin": "yé ye"
+        },
+        {
+          "word": "老爷",
+          "pinyin": "lǎo ye"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "爷爷在院子里下棋。",
+          "pinyin": "yé ye zài yuàn zi lǐ xià qí"
+        }
+      ]
+    },
+    {
+      "char": "奶",
+      "words": [
+        {
+          "word": "奶奶",
+          "pinyin": "nǎi nai"
+        },
+        {
+          "word": "牛奶",
+          "pinyin": "niú nǎi"
+        },
+        {
+          "word": "奶粉",
+          "pinyin": "nǎi fěn"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "奶奶给我煮了牛奶。",
+          "pinyin": "nǎi nai gěi wǒ zhǔ le niú nǎi"
+        }
+      ]
+    },
+    {
+      "char": "哥",
+      "words": [
+        {
+          "word": "哥哥",
+          "pinyin": "gē ge"
+        },
+        {
+          "word": "大哥",
+          "pinyin": "dà gē"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "哥哥教我写字。",
+          "pinyin": "gē ge jiāo wǒ xiě zì"
+        }
+      ]
+    },
+    {
+      "char": "姐",
+      "words": [
+        {
+          "word": "姐姐",
+          "pinyin": "jiě jie"
+        },
+        {
+          "word": "大姐",
+          "pinyin": "dà jiě"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "姐姐会弹钢琴。",
+          "pinyin": "jiě jie huì tán gāng qín"
+        }
+      ]
+    },
+    {
+      "char": "弟",
+      "words": [
+        {
+          "word": "弟弟",
+          "pinyin": "dì di"
+        },
+        {
+          "word": "兄弟",
+          "pinyin": "xiōng dì"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "弟弟在搭积木。",
+          "pinyin": "dì di zài dā jī mù"
+        }
+      ]
+    },
+    {
+      "char": "妹",
+      "words": [
+        {
+          "word": "妹妹",
+          "pinyin": "mèi mei"
+        },
+        {
+          "word": "姐妹",
+          "pinyin": "jiě mèi"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "妹妹笑得真甜。",
+          "pinyin": "mèi mei xiào de zhēn tián"
+        }
+      ]
+    },
+    {
+      "char": "家",
+      "words": [
+        {
+          "word": "回家",
+          "pinyin": "huí jiā"
+        },
+        {
+          "word": "家人",
+          "pinyin": "jiā ren"
+        },
+        {
+          "word": "家乡",
+          "pinyin": "jiā xiāng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我们一起回家吧。",
+          "pinyin": "wǒ men yī qǐ huí jiā ba"
+        }
+      ]
+    },
+    {
+      "char": "子",
+      "words": [
+        {
+          "word": "孩子",
+          "pinyin": "hái zi"
+        },
+        {
+          "word": "儿子",
+          "pinyin": "ér zi"
+        },
+        {
+          "word": "子弹",
+          "pinyin": "zǐ dàn"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "孩子在外面玩耍。",
+          "pinyin": "hái zi zài wài miàn wán shuǎ"
+        }
+      ]
+    },
+    {
+      "char": "女",
+      "words": [
+        {
+          "word": "女孩",
+          "pinyin": "nǚ hái"
+        },
+        {
+          "word": "女儿",
+          "pinyin": "nǚ ér"
+        },
+        {
+          "word": "女生",
+          "pinyin": "nǚ shēng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "小女孩在跳舞。",
+          "pinyin": "xiǎo nǚ hái zài tiào wǔ"
+        }
+      ]
+    },
+    {
+      "char": "心",
+      "words": [
+        {
+          "word": "开心",
+          "pinyin": "kāi xīn"
+        },
+        {
+          "word": "爱心",
+          "pinyin": "ài xīn"
+        },
+        {
+          "word": "小心",
+          "pinyin": "xiǎo xīn"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "今天我过得很开心。",
+          "pinyin": "jīn tiān wǒ guò de hěn kāi xīn"
+        }
+      ]
+    },
+    {
+      "char": "爱",
+      "words": [
+        {
+          "word": "爱心",
+          "pinyin": "ài xīn"
+        },
+        {
+          "word": "可爱",
+          "pinyin": "kě ài"
+        },
+        {
+          "word": "热爱",
+          "pinyin": "rè ài"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我爱我的家。",
+          "pinyin": "wǒ ài wǒ de jiā"
+        }
+      ]
+    },
+    {
+      "char": "书",
+      "words": [
+        {
+          "word": "看书",
+          "pinyin": "kàn shū"
+        },
+        {
+          "word": "书本",
+          "pinyin": "shū běn"
+        },
+        {
+          "word": "读书",
+          "pinyin": "dú shū"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我喜欢看图画书。",
+          "pinyin": "wǒ xǐ huan kàn tú huà shū"
+        }
+      ]
+    },
+    {
+      "char": "本",
+      "words": [
+        {
+          "word": "书本",
+          "pinyin": "shū běn"
+        },
+        {
+          "word": "本来",
+          "pinyin": "běn lái"
+        },
+        {
+          "word": "本子",
+          "pinyin": "běn zi"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我有一本新本子。",
+          "pinyin": "wǒ yǒu yì běn xīn běn zi"
+        }
+      ]
+    },
+    {
+      "char": "笔",
+      "words": [
+        {
+          "word": "铅笔",
+          "pinyin": "qiān bǐ"
+        },
+        {
+          "word": "画笔",
+          "pinyin": "huà bǐ"
+        },
+        {
+          "word": "毛笔",
+          "pinyin": "máo bǐ"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我用铅笔写字。",
+          "pinyin": "wǒ yòng qiān bǐ xiě zì"
+        }
+      ]
+    },
+    {
+      "char": "校",
+      "words": [
+        {
+          "word": "学校",
+          "pinyin": "xué xiào"
+        },
+        {
+          "word": "校园",
+          "pinyin": "xiào yuán"
+        },
+        {
+          "word": "校长",
+          "pinyin": "xiào zhǎng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我在学校学写字。",
+          "pinyin": "wǒ zài xué xiào xué xiě zì"
+        }
+      ]
+    },
+    {
+      "char": "学",
+      "words": [
+        {
+          "word": "学习",
+          "pinyin": "xué xí"
+        },
+        {
+          "word": "学生",
+          "pinyin": "xué sheng"
+        },
+        {
+          "word": "学校",
+          "pinyin": "xué xiào"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我要好好学习。",
+          "pinyin": "wǒ yào hǎo hǎo xué xí"
+        }
+      ]
+    },
+    {
+      "char": "友",
+      "words": [
+        {
+          "word": "朋友",
+          "pinyin": "péng yǒu"
+        },
+        {
+          "word": "好友",
+          "pinyin": "hǎo yǒu"
+        },
+        {
+          "word": "友谊",
+          "pinyin": "yǒu yì"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "他是我的好朋友。",
+          "pinyin": "tā shì wǒ de hǎo péng yǒu"
+        }
+      ]
+    },
+    {
+      "char": "吃",
+      "words": [
+        {
+          "word": "吃饭",
+          "pinyin": "chī fàn"
+        },
+        {
+          "word": "好吃",
+          "pinyin": "hǎo chī"
+        },
+        {
+          "word": "吃东西",
+          "pinyin": "chī dōng xi"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "到吃饭时间了。",
+          "pinyin": "dào chī fàn shí jiān le"
+        }
+      ]
+    },
+    {
+      "char": "喝",
+      "words": [
+        {
+          "word": "喝水",
+          "pinyin": "hē shuǐ"
+        },
+        {
+          "word": "喝茶",
+          "pinyin": "hē chá"
+        },
+        {
+          "word": "喝奶",
+          "pinyin": "hē nǎi"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "小朋友要常喝水。",
+          "pinyin": "xiǎo péng yǒu yào cháng hē shuǐ"
+        }
+      ]
+    },
+    {
+      "char": "玩",
+      "words": [
+        {
+          "word": "玩具",
+          "pinyin": "wán jù"
+        },
+        {
+          "word": "玩耍",
+          "pinyin": "wán shuǎ"
+        },
+        {
+          "word": "游玩",
+          "pinyin": "yóu wán"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我们在公园里玩耍。",
+          "pinyin": "wǒ men zài gōng yuán lǐ wán shuǎ"
+        }
+      ]
+    },
+    {
+      "char": "乐",
+      "words": [
+        {
+          "word": "快乐",
+          "pinyin": "kuài lè"
+        },
+        {
+          "word": "音乐",
+          "pinyin": "yīn yuè"
+        },
+        {
+          "word": "欢乐",
+          "pinyin": "huān lè"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "祝你生日快乐! ",
+          "pinyin": "zhù nǐ shēng rì kuài lè"
+        }
+      ]
+    },
+    {
+      "char": "车",
+      "words": [
+        {
+          "word": "汽车",
+          "pinyin": "qì chē"
+        },
+        {
+          "word": "火车",
+          "pinyin": "huǒ chē"
+        },
+        {
+          "word": "小车",
+          "pinyin": "xiǎo chē"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "马路上车很多。",
+          "pinyin": "mǎ lù shàng chē hěn duō"
+        }
+      ]
+    },
+    {
+      "char": "马",
+      "words": [
+        {
+          "word": "小马",
+          "pinyin": "xiǎo mǎ"
+        },
+        {
+          "word": "马车",
+          "pinyin": "mǎ chē"
+        },
+        {
+          "word": "骑马",
+          "pinyin": "qí mǎ"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我最喜欢小马。",
+          "pinyin": "wǒ zuì xǐ huan xiǎo mǎ"
+        }
+      ]
+    },
+    {
+      "char": "牛",
+      "words": [
+        {
+          "word": "小牛",
+          "pinyin": "xiǎo niú"
+        },
+        {
+          "word": "牛奶",
+          "pinyin": "niú nǎi"
+        },
+        {
+          "word": "黄牛",
+          "pinyin": "huáng niú"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "小牛在草地上吃草。",
+          "pinyin": "xiǎo niú zài cǎo dì shàng chī cǎo"
+        }
+      ]
+    },
+    {
+      "char": "羊",
+      "words": [
+        {
+          "word": "小羊",
+          "pinyin": "xiǎo yáng"
+        },
+        {
+          "word": "山羊",
+          "pinyin": "shān yáng"
+        },
+        {
+          "word": "绵羊",
+          "pinyin": "mián yáng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "小白羊在山坡上。",
+          "pinyin": "xiǎo bái yáng zài shān pō shàng"
+        }
+      ]
+    },
+    {
+      "char": "乙"
+    },
+    {
+      "char": "了"
+    },
+    {
+      "char": "力"
+    },
+    {
+      "char": "又"
+    },
+    {
+      "char": "儿",
+      "words": [
+        {
+          "word": "儿子",
+          "pinyin": "ér zi"
+        },
+        {
+          "word": "儿童",
+          "pinyin": "ér tóng"
+        },
+        {
+          "word": "女儿",
+          "pinyin": "nǚ ér"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我是妈妈的儿子。",
+          "pinyin": "wǒ shì mā ma de ér zi"
+        }
+      ]
+    },
+    {
+      "char": "入"
+    },
+    {
+      "char": "几"
+    },
+    {
+      "char": "厂"
+    },
+    {
+      "char": "刀"
+    },
+    {
+      "char": "乃"
+    },
+    {
+      "char": "丁"
+    },
+    {
+      "char": "卜"
+    },
+    {
+      "char": "个"
+    },
+    {
+      "char": "上",
+      "words": [
+        {
+          "word": "上学",
+          "pinyin": "shàng xué"
+        },
+        {
+          "word": "上来",
+          "pinyin": "shàng lái"
+        },
+        {
+          "word": "上面",
+          "pinyin": "shàng miàn"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我高高兴兴去上学。",
+          "pinyin": "wǒ gāo gāo xìng xìng qù shàng xué"
+        }
+      ]
+    },
+    {
+      "char": "大",
+      "words": [
+        {
+          "word": "大象",
+          "pinyin": "dà xiàng"
+        },
+        {
+          "word": "大人",
+          "pinyin": "dà ren"
+        },
+        {
+          "word": "大家",
+          "pinyin": "dà jiā"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "大象有长长的鼻子。",
+          "pinyin": "dà xiàng yǒu cháng cháng de bí zi"
+        }
+      ]
+    },
+    {
+      "char": "也"
+    },
+    {
+      "char": "于"
+    },
+    {
+      "char": "下",
+      "words": [
+        {
+          "word": "下来",
+          "pinyin": "xià lái"
+        },
+        {
+          "word": "下雨",
+          "pinyin": "xià yǔ"
+        },
+        {
+          "word": "下面",
+          "pinyin": "xià miàn"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "今天下午会下雨。",
+          "pinyin": "jīn tiān xià wǔ huì xià yǔ"
+        }
+      ]
+    },
+    {
+      "char": "之"
+    },
+    {
+      "char": "么"
+    },
+    {
+      "char": "小",
+      "words": [
+        {
+          "word": "小猫",
+          "pinyin": "xiǎo māo"
+        },
+        {
+          "word": "小朋友",
+          "pinyin": "xiǎo péng yǒu"
+        },
+        {
+          "word": "小鸟",
+          "pinyin": "xiǎo niǎo"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我家养了一只小猫。",
+          "pinyin": "wǒ jiā yǎng le yì zhī xiǎo māo"
+        }
+      ]
+    },
+    {
+      "char": "与"
+    },
+    {
+      "char": "已"
+    },
+    {
+      "char": "工"
+    },
+    {
+      "char": "己"
+    },
+    {
+      "char": "门"
+    },
+    {
+      "char": "及"
+    },
+    {
+      "char": "义"
+    },
+    {
+      "char": "才"
+    },
+    {
+      "char": "万"
+    },
+    {
+      "char": "飞",
+      "words": [
+        {
+          "word": "飞机",
+          "pinyin": "fēi jī"
+        },
+        {
+          "word": "飞翔",
+          "pinyin": "fēi xiáng"
+        },
+        {
+          "word": "起飞",
+          "pinyin": "qǐ fēi"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "小鸟在天上飞。",
+          "pinyin": "xiǎo niǎo zài tiān shàng fēi"
+        }
+      ]
+    },
+    {
+      "char": "干"
+    },
+    {
+      "char": "士"
+    },
+    {
+      "char": "广"
+    },
+    {
+      "char": "土"
+    },
+    {
+      "char": "千"
+    },
+    {
+      "char": "久"
+    },
+    {
+      "char": "卫"
+    },
+    {
+      "char": "习"
+    },
+    {
+      "char": "乡"
+    },
+    {
+      "char": "亡"
+    },
+    {
+      "char": "凡"
+    },
+    {
+      "char": "亿"
+    },
+    {
+      "char": "川"
+    },
+    {
+      "char": "丈"
+    },
+    {
+      "char": "尸"
+    },
+    {
+      "char": "亏"
+    },
+    {
+      "char": "寸"
+    },
+    {
+      "char": "夕"
+    },
+    {
+      "char": "弓"
+    },
     "叉",
     "巾",
     "乞",
