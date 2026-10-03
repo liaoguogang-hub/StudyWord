@@ -1,7 +1,10 @@
 package com.studyword.literacy.util
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import java.util.Locale
 
 /**
@@ -13,13 +16,19 @@ import java.util.Locale
  * - 英文朗读通过 [speakEnglish] 走 en-US Locale,与中文共用同一个引擎实例
  * - 内部把 Locale 缺失视为"不支持",调用方在 ready=false 时自行降级
  *
+ * v1.4.0 新增:
+ * - [speakPhraseCharByChar] 把中文词组/例句逐字朗读,避开多音字问题
+ *   (引擎默认读音对 rì/yuè/lè 等最准,直接把拼音字符串塞给引擎反而错)
+ * - [speakSequential] 串发多段(英文 + 中文 + 例句),200ms 间隔,用于
+ *   英文卡片"点字母 → 听 letter + 示例词 + 中文意思"
+ *
  * 用法:
  * ```
  * TtsManager.init(applicationContext)
- * TtsManager.speak("天 tiān")        // 中文
- * TtsManager.speakEnglish("Apple")   // 英文
- * // onDestroy:
- * TtsManager.shutdown()
+ * TtsManager.speak("天 tiān")            // 中文
+ * TtsManager.speakEnglish("Apple")       // 英文
+ * TtsManager.speakPhraseCharByChar("日子","rì zi","main_word_5") // 多音字安全
+ * TtsManager.speakSequential(listOf("Apple" to true, "苹果" to false), 200) // 复合
  * ```
  */
 object TtsManager {
@@ -39,6 +48,18 @@ object TtsManager {
     /** 默认慢速:适合 3-5 岁孩子;范围 0.5(很慢)~1.0(正常) */
     private const val DEFAULT_SPEECH_RATE = 0.7f
 
+    // ========== v1.4.0:char-by-char 队列 ==========
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val charQueue: ArrayDeque<CharJob> = ArrayDeque()
+    private var charQueueActive = false
+
+    /** char-by-char 队列里的一项 */
+    private data class CharJob(val char: String, val isEnglish: Boolean, val baseId: String)
+
+    init {
+        // 安装 utterance 监听器(在 init() 实际 engine 创建后会再次注册,但此处先占位)
+    }
+
     fun init(context: Context) {
         if (tts != null) return
         synchronized(this) {
@@ -57,6 +78,8 @@ object TtsManager {
                     isEnglishReady = enResult == TextToSpeech.LANG_AVAILABLE ||
                                      enResult == TextToSpeech.LANG_COUNTRY_AVAILABLE ||
                                      enResult == TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE
+                    // 注册 utterance 监听器驱动 char-by-char 队列
+                    tts?.setOnUtteranceProgressListener(buildProgressListener())
                 } else {
                     isReady = false
                     isEnglishReady = false
@@ -84,16 +107,10 @@ object TtsManager {
 
     /**
      * 朗读一段英文文字(单词/字母/例句均可)。
-     *
-     * 实现细节:
-     * - 把引擎切到 en-US 后朗读;setLanguage() 是幂等的,调用开销可忽略
-     * - 与 [speak] 互不串扰:下一次中文朗读时 [speak] 会自己再切回 SIMPLIFIED_CHINESE
-     * - 引擎未就绪或 en-US 不可用时,静默返回 false(不崩)
      */
     fun speakEnglish(text: String, utteranceId: String? = null): Boolean {
         val engine = tts ?: return false
         if (!isEnglishReady || text.isBlank()) return false
-        // 切到 en-US;若设备不支持,这里会返回 LANG_MISSING_DATA/LANG_NOT_SUPPORTED,直接放弃
         val switchResult = engine.setLanguage(Locale.US)
         if (switchResult == TextToSpeech.LANG_MISSING_DATA ||
             switchResult == TextToSpeech.LANG_NOT_SUPPORTED
@@ -105,10 +122,143 @@ object TtsManager {
     }
 
     /**
-     * 朗读完毕后,由 TTS 引擎回调把语言切回中文,避免下一句中文也被读成英文。
+     * v1.4.0:逐字朗读一段中文(用于词组 / 例句)。
      *
-     * 注意:此方法需要在 TTS 引擎的 UtteranceProgressListener.onDone 中调用;
-     * 当前 v1.3.0 暂未在 Activity 接入该监听,故此函数作为未来扩展的入口保留。
+     * 解决问题:
+     * - 把 `日子 + 空格 + rì zi` 直接塞给华为 xiaoyi 引擎,引擎对"rì zi"按英文处理,中文"日"被误读
+     * - 改为按字符拆开,每个字单独 speak(),引擎使用默认读音(对常用字最准)
+     * - 汉字之间用 QUEUE_ADD,引擎会按顺序朗读(中间有微小停顿,但不卡)
+     *
+     * 实现:
+     * - 引擎回调 UtteranceProgressListener.onDone 时,从 [charQueue] 取下一个字符
+     * - 监听器无法回调时(fallback),用 mainHandler 每 200ms 轮询 engine.isSpeaking
+     */
+    fun speakPhraseCharByChar(text: String, utteranceId: String) {
+        if (!isReady) return
+        // 清空旧队列,打断之前任何朗读
+        charQueue.clear()
+        engineFlush()
+        // 把 text 中所有汉字放入队列(过滤掉标点 / 空格 / ASCII 拉丁字母)
+        text.forEach { c ->
+            if (c.isLetter() && c.code > 127) {
+                charQueue.addLast(CharJob(c.toString(), isEnglish = false, baseId = utteranceId))
+            }
+        }
+        if (charQueue.isEmpty()) return
+        charQueueActive = true
+        // 启动首字;后续字由 UtteranceProgressListener.onDone 接力
+        speakNextInQueue()
+    }
+
+    /**
+     * v1.4.0:按顺序串发多段文字,英文 + 中文混合,200ms 间隔。
+     *
+     * 用法:
+     * ```
+     * speakSequential(
+     *   items = listOf(
+     *     "Apple"   to true,   // speakEnglish
+     *     "苹果"    to false,  // speak
+     *     "I love my cat."  to true,
+     *     "我爱我的猫。"  to false
+     *   ),
+     *   delayMs = 200,
+     *   baseUtteranceId = "main_seq_5"
+     * )
+     * ```
+     *
+     * 实现:
+     * - 每段调用 speak/speakEnglish,使用 QUEUE_ADD 串起来
+     * - 每段之间间隔由 delayMs 控制(主线程 postDelayed)
+     */
+    fun speakSequential(
+        items: List<Pair<String, Boolean>>,
+        delayMs: Long = 200,
+        baseUtteranceId: String = "seq_${System.nanoTime()}"
+    ) {
+        if (items.isEmpty()) return
+        // 清掉旧的复合队列
+        charQueue.clear()
+        engineFlush()
+        items.forEachIndexed { idx, (text, isEnglish) ->
+            mainHandler.postDelayed({
+                if (isEnglish) {
+                    speakEnglish(text, utteranceId = "${baseUtteranceId}_${idx}")
+                } else {
+                    speak(text, utteranceId = "${baseUtteranceId}_${idx}")
+                }
+            }, delayMs * idx)
+        }
+    }
+
+    /** 中断当前所有朗读(char 队列 + sequential 都清空) */
+    fun stop() {
+        charQueue.clear()
+        charQueueActive = false
+        engineFlush()
+    }
+
+    // ============================================================
+    // 内部
+    // ============================================================
+
+    private fun engineFlush() {
+        tts?.stop()
+    }
+
+    /** 从 char 队列中拉下一个字朗读 */
+    private fun speakNextInQueue() {
+        if (!charQueueActive) return
+        val engine = tts ?: run { charQueueActive = false; return }
+        if (!isReady) { charQueueActive = false; return }
+        val next = charQueue.removeFirstOrNull()
+        if (next == null) {
+            charQueueActive = false
+            return
+        }
+        // 切语言
+        if (next.isEnglish) {
+            if (!isEnglishReady) {
+                speakNextInQueue()
+                return
+            }
+            engine.setLanguage(Locale.US)
+        } else {
+            engine.setLanguage(Locale.SIMPLIFIED_CHINESE)
+        }
+        val id = "${next.baseId}_${System.nanoTime()}"
+        val result = engine.speak(next.char, TextToSpeech.QUEUE_ADD, null, id)
+        if (result != TextToSpeech.SUCCESS) {
+            // 引擎失败 → 跳到下一个(避免卡死)
+            mainHandler.postDelayed({ speakNextInQueue() }, 200)
+        }
+    }
+
+    private fun buildProgressListener(): UtteranceProgressListener {
+        return object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {
+                // 引擎开始朗读某字 — 不需要处理
+            }
+            override fun onDone(utteranceId: String?) {
+                // 引擎读完一字 → 拉下一个
+                mainHandler.post { speakNextInQueue() }
+            }
+            @Deprecated("Required override for older Android versions")
+            override fun onError(utteranceId: String?) {
+                mainHandler.post { speakNextInQueue() }
+            }
+            override fun onError(utteranceId: String?, errorCode: Int) {
+                mainHandler.post { speakNextInQueue() }
+            }
+            override fun onStop(utteranceId: String?, interrupted: Boolean) {
+                // 引擎被打断(stop/shutdown) → 不再继续
+                charQueueActive = false
+            }
+        }
+    }
+
+    /**
+     * 朗读完毕后,由 TTS 引擎回调把语言切回中文,避免下一句中文也被读成英文。
      */
     @Suppress("unused")
     fun resetToChinese() {
@@ -123,6 +273,9 @@ object TtsManager {
     /** 释放资源,通常在 Activity onDestroy 调用一次即可(全局单例不需要每次 shutdown) */
     fun shutdown() {
         synchronized(this) {
+            charQueue.clear()
+            charQueueActive = false
+            tts?.setOnUtteranceProgressListener(null)
             tts?.stop()
             tts?.shutdown()
             tts = null

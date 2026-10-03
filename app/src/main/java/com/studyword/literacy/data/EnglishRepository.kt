@@ -1,6 +1,7 @@
 package com.studyword.literacy.data
 
 import android.content.Context
+import com.studyword.literacy.model.Difficulty
 import com.studyword.literacy.model.EnglishCategory
 import com.studyword.literacy.model.EnglishLetter
 import com.studyword.literacy.model.EnglishWord
@@ -16,19 +17,17 @@ import java.io.IOException
  * - 数据来源:assets/english_sets.json,内含 letters(26)+ words(30)两个数组
  * - 同时维护字母与单词两个 [List],并按 [EnglishCategory] 分组,便于 UI / 题池直接过滤
  *
- * 用法:
- * ```
- * val repo = EnglishRepository(applicationContext)
- * repo.letters()        // List<EnglishLetter>
- * repo.words()          // List<EnglishWord>
- * repo.byCategory(EnglishCategory.WORDS)
- * ```
+ * v1.4.0:
+ * - 单词分难(EASY/MEDIUM/HARD)
+ * - 新增 [byCategoryAndDifficulty] API
  */
 class EnglishRepository(context: Context) {
 
     private val allLetters: List<EnglishLetter>
     private val allWords: List<EnglishWord>
     private val grouped: Map<EnglishCategory, List<Any>>
+    /** 单词按难度分组的缓存,key = Difficulty,value = 该难度的单词列表 */
+    private val wordsByDifficulty: Map<Difficulty, List<EnglishWord>>
 
     init {
         ensureData(context.applicationContext)
@@ -38,6 +37,7 @@ class EnglishRepository(context: Context) {
             EnglishCategory.LETTERS to (cachedLetters ?: emptyList<EnglishLetter>()),
             EnglishCategory.WORDS to (cachedWords ?: emptyList<EnglishWord>())
         )
+        wordsByDifficulty = allWords.groupBy { it.difficulty }
     }
 
     /** 返回所有英文字母(A-Z,26 个,按字母表顺序) */
@@ -52,6 +52,19 @@ class EnglishRepository(context: Context) {
     /** 按 [EnglishCategory] 过滤;c=LETTERS 返回 [EnglishLetter],c=WORDS 返回 [EnglishWord](类型擦除为 Any) */
     fun byCategory(category: EnglishCategory): List<Any> = grouped[category] ?: emptyList()
 
+    /**
+     * v1.4.0:按类别 + 难度组合过滤。
+     *
+     * - LETTERS:返回所有字母(字母不分难度,difficulty 参数被忽略)
+     * - WORDS:返回指定难度的单词;若该难度无内容则返回空列表
+     */
+    fun byCategoryAndDifficulty(category: EnglishCategory, difficulty: Difficulty): List<Any> {
+        return when (category) {
+            EnglishCategory.LETTERS -> allLetters
+            EnglishCategory.WORDS -> wordsByDifficulty[difficulty] ?: emptyList()
+        }
+    }
+
     /** 字母数量(应为 26) */
     fun letterCount(): Int = allLetters.size
 
@@ -63,9 +76,6 @@ class EnglishRepository(context: Context) {
 
     /**
      * 按大写字母查找 [EnglishLetter](O(1) 哈希查询)。
-     *
-     * - 命中:[EnglishLetter]
-     * - 未命中或输入不合法:null
      */
     fun findByLetter(letter: String): EnglishLetter? {
         if (letter.isBlank()) return null
@@ -75,9 +85,6 @@ class EnglishRepository(context: Context) {
 
     /**
      * 按小写单词查找 [EnglishWord](O(1) 哈希查询,大小写不敏感)。
-     *
-     * - 命中:[EnglishWord]
-     * - 未命中或输入不合法:null
      */
     fun findByWord(word: String): EnglishWord? {
         if (word.isBlank()) return null
@@ -95,8 +102,6 @@ class EnglishRepository(context: Context) {
 
     /**
      * 按单词 id 查找(内部已加 [WORD_ID_OFFSET] 偏移)。
-     * 调用方传原始 id(单词下标 0~29,经 offset 后落到 1000~1029);
-     * 命中返回对应单词,未命中返回 null。
      */
     fun findByWordById(id: Int): EnglishWord? {
         if (id < WORD_ID_OFFSET) return null
@@ -108,7 +113,6 @@ class EnglishRepository(context: Context) {
 
         /**
          * 单词 id 偏移量。字母 id 范围 [0, 25],单词 id 范围 [WORD_ID_OFFSET, WORD_ID_OFFSET + wordCount - 1]。
-         * 引入偏移是为了让字母与单词 id 在 englishKnownIds / englishUnknownIds Set 中不冲突。
          */
         const val WORD_ID_OFFSET = 1000
 
@@ -129,21 +133,6 @@ class EnglishRepository(context: Context) {
             }
         }
 
-        /**
-         * 从 assets 一次性读入 letters + words。
-         *
-         * JSON 结构(根对象):
-         * ```
-         * {
-         *   "letters": [ { "letter":"A", "uppercase":"A", "lowercase":"a", "phonetic":"/eɪ/", "exampleWord":"Apple" } ],
-         *   "words":   [ { "word":"cat", "phonetic":"/kæt/", "chineseMeaning":"猫", "exampleSentence":"I love my cat." } ]
-         * }
-         * ```
-         *
-         * 解析容错:
-         * - 任意一项缺关键字段(letter/word)则跳过,不抛异常
-         * - 顶层缺少 letters 或 words 键时,对应列表视为空(便于后续扩展,例如只加 LETTERS)
-         */
         private fun loadAll(context: Context): Pair<List<EnglishLetter>, List<EnglishWord>> {
             val jsonText = try {
                 context.assets.open(ASSET_FILE).bufferedReader(Charsets.UTF_8).use { it.readText() }
@@ -167,13 +156,15 @@ class EnglishRepository(context: Context) {
                 val lower = obj.optString("lowercase", letter.lowercase()).trim().ifEmpty { letter.lowercase() }
                 val phonetic = obj.optString("phonetic", "").trim()
                 val example = obj.optString("exampleWord", "").trim()
+                val exampleChinese = obj.optString("exampleWordChinese", "").trim()
                 result += EnglishLetter(
                     id = result.size,
                     letter = upper,
                     uppercase = upper,
                     lowercase = lower,
                     phonetic = phonetic,
-                    exampleWord = example
+                    exampleWord = example,
+                    exampleWordChinese = exampleChinese
                 )
             }
             return result
@@ -189,15 +180,27 @@ class EnglishRepository(context: Context) {
                 val phonetic = obj.optString("phonetic", "").trim()
                 val meaning = obj.optString("chineseMeaning", "").trim()
                 val sentence = obj.optString("exampleSentence", "").trim()
+                val translation = obj.optString("exampleSentenceTranslation", "").trim()
+                val difficulty = parseDifficulty(obj.optString("difficulty", "EASY"))
                 result += EnglishWord(
                     id = WORD_ID_OFFSET + result.size,
                     word = word,
                     phonetic = phonetic,
                     chineseMeaning = meaning,
-                    exampleSentence = sentence
+                    exampleSentence = sentence,
+                    exampleSentenceTranslation = translation,
+                    difficulty = difficulty
                 )
             }
             return result
+        }
+
+        /** 把 JSON 字符串映射到 Difficulty 枚举,容错:无法识别默认 EASY */
+        private fun parseDifficulty(s: String): Difficulty = when (s.uppercase()) {
+            "EASY", "简单" -> Difficulty.EASY
+            "MEDIUM", "中等" -> Difficulty.MEDIUM
+            "HARD", "困难" -> Difficulty.HARD
+            else -> Difficulty.EASY
         }
     }
 }
