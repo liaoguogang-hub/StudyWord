@@ -3,6 +3,55 @@
 本项目版本号遵循 [语义化版本 2.0](https://semver.org/lang/zh-CN/) 规范。
 格式参考 [Keep a Changelog 1.1](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.4.0] - 2026-10-03
+
+### 新增
+- 📂 **右滑抽屉** — 主页右上角新增汉堡菜单,点击打开右侧 DrawerLayout(280dp 宽)
+  - 抽屉内容:语言切换 chip、难度切换 chip、3 个导航按钮(学习进度 / 字库 / 更多设置)
+  - 主页一屏完整可见卡片 + 4 个底部 emoji 按钮,顶部不再被多个 chip 占据
+- 🗣️ **点击卡片发音** — 删除原"听一听"按钮,改为点击卡片任意位置触发 `speakCurrentItem()`
+  - 中文:整字/词组/例句按上下文路由到 char-by-char 队列发音
+  - 英文 letter / word / 例句分别按规则串发(详见下方)
+- ✨ **底部 4 个 emoji 按钮** — 认识(😊)、不认识(😢)、游戏(🎮)、下一个(➡️),每个按钮点击后有中文 Toast 提示
+  - 认识啦! / 没关系,下次记住! / 来玩游戏吧! / 下一个!
+- 🌐 **英语子模式细分** — 英文 mode 顶部加 chip `[字母][单词]`,单词 mode 加难度 chip `[简单][中等][困难]`
+  - 字母模式用 `EnglishRepository.letters()`(26 个均匀分布)
+  - 单词模式按当前难度从 `byCategoryAndDifficulty(category, difficulty)` 取子集
+- 🔊 **英文复合串发音**
+  - 点 letter:`uppercase`(英文) + `exampleWord`(英文) + `exampleWordChinese`(中文)三段串发,200ms 间隔
+  - 点 word:`word`(英文) + `chineseMeaning`(中文)两段串发
+  - 点 word 例句:`exampleSentence`(英文) + `exampleSentenceTranslation`(中文)两段串发
+- 📊 **进度页可跳转** — ProgressActivity 上"认识汉字 / 待巩固汉字 / 英文 known / 英文 review"四个 chip 全部可点
+  - 点击 → `setResult(EXTRA_SELECTED_ID, EXTRA_SELECTED_LANG)` + `finish()`,MainActivity 通过 `registerForActivityResult` 接住并 `loadItemById`
+  - 跳转过程中自动切换语言(中 → 英 / 英 → 中)
+- 📚 **字库页可跳转** — CharacterLibraryActivity 短按 item → 跳回主页对应卡片;长按 item → 弹状态对话框(原行为)
+- 🎮 **游戏改进**
+  - 字母选项 split view:大写 60sp 在左、小写 36sp 在右(SpannableString AbsoluteSizeSpan,中间 4 空格拉开)
+  - 长单词自动缩字:`setAutoSizeTextTypeUniformWithConfiguration(14, 44, 1, SP)`,溢出按钮内不换行
+  - 答错反馈三件套:背景变红 + 按钮左右抖动 380ms (ObjectAnimator translationX) + 短震动 80ms (Vibrator / VibratorManager + VibrationEffect)
+- 🌅 **开机启动页** — SplashActivity 5 张 splash_*.xml 自动翻页
+  - 每张停留 600ms,共 3 秒后启动 MainActivity
+  - drawable/splash_1..5.xml 当前是占位纯色(用户将提供 PNG 替换,无需改代码)
+  - AndroidManifest LAUNCHER intent-filter 已从 MainActivity 移到 SplashActivity
+  - 新增 `VIBRATE` 权限供游戏答错震动使用
+
+### 修复
+- 🐛 **中文多音字 TTS bug** — 词组 / 例句第二遍读时把"日子"的"日"读错音
+  - 原因:之前的 `toPinyin("日") = "rì"` 加 `_pinyin` 拼接后,引擎在 `QUEUE_FLUSH` 重发时偶然解析为别的音
+  - 方案:`TtsManager.speakPhraseCharByChar(text)` 按字拆,逐字 `QUEUE_ADD`,引擎走默认发音(对常用字最准)
+  - 同步加 `PinyinConverter` overrides 表修正已知坏 case:`了→le`、`地→dì`、`么→me`、`还→hái`、`便→pián` 等
+- 英文单词发音增加 200ms 间隔,避免连读成一团
+
+### 数据
+- 26 字母每个新增 `exampleWordChinese`(Apple→苹果、Bus→公交车 等)
+- 30 单词每个新增 `difficulty`(EASY / MEDIUM / HARD,各 10 个)与 `exampleSentenceTranslation`(中文翻译)
+- `EnglishRepository.byCategoryAndDifficulty(category, difficulty)` API 新增
+
+### 兼容性
+- `versionCode 5 → 6`,`versionName 1.3.0 → 1.4.0`
+- ProgressStore / SharedPreferences 完全兼容 v1.3.0 数据,新增字段不影响历史记录
+- 字库 / 进度页 RecyclerView adapter 增加可选 `onItemLongClicked` 参数(v1.3.0 的 `AllCharactersAdapter` / `AllEnglishItemsAdapter` 调用代码不受影响)
+
 ## [1.3.0] - 2026-10-03
 
 ### 新增
