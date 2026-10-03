@@ -370,8 +370,12 @@ class MainActivity : AppCompatActivity() {
     /**
      * 从 ProgressActivity / CharacterLibraryActivity 跳转回主页指定卡片。
      *
-     * - 如果语言不同,先切语言(切完会 rebuildQueue,然后再把 id 推到队首)
-     * - 如果 id 找不到(已删除/不在当前池),保留当前卡片不动
+     * - 如果语言不同,切语言
+     * - 如果是英文 id,自动切子模式(letter / word)和难度,保证跳转目标一定在 pool 内
+     *   - id < EnglishRepository.WORD_ID_OFFSET (1000):字母 → 子模式 LETTERS
+     *   - id >= 1000:单词 → 子模式 WORDS + 该单词的 difficulty
+     * - 把 id 推到队首,loadNextItem 拉出来显示
+     * - 如果 id 不在当前 pool(理论上不应发生),静默忽略
      */
     private fun loadItemById(id: Int, lang: String) {
         val targetMode = StudyMode.fromName(lang)
@@ -380,6 +384,28 @@ class MainActivity : AppCompatActivity() {
             progressStore.saveLanguage(targetMode.name)
             applyModeUi()
         }
+
+        // v1.4.1:英文 id → 同步切子模式 + 难度,避免跳转后 id 不在 pool 静默失败
+        if (targetMode == StudyMode.ENGLISH) {
+            if (id >= EnglishRepository.WORD_ID_OFFSET) {
+                englishSubMode = EnglishSubMode.WORDS
+                binding.chipSubWords.isChecked = true
+                // 从仓库反查单词的难度
+                val word = englishRepository.findByWordById(id)
+                if (word != null) {
+                    currentDifficulty = word.difficulty
+                    when (currentDifficulty) {
+                        Difficulty.EASY -> binding.chipEasy.isChecked = true
+                        Difficulty.MEDIUM -> binding.chipMedium.isChecked = true
+                        Difficulty.HARD -> binding.chipHard.isChecked = true
+                    }
+                }
+            } else {
+                englishSubMode = EnglishSubMode.LETTERS
+                binding.chipSubLetters.isChecked = true
+            }
+        }
+
         rebuildQueue()
         // 把 id 推到队首(ArrayDeque 没有 removeAt,改用 toList+重建)
         val matchIdx = pendingItems.indexOfFirst { it.id == id }
@@ -387,13 +413,20 @@ class MainActivity : AppCompatActivity() {
             val all = pendingItems.toList()
             pendingItems.clear()
             val found = all[matchIdx]
-            pendingItems.addLast(found)
-            all.forEachIndexed { i, it -> if (i != matchIdx) pendingItems.addLast(it) }
+            pendingQueueAddFirst(found, all, matchIdx)
         } else if (matchIdx < 0) {
             // 不在当前 pool — 静默忽略(避免误跳导致空卡)
             return
         }
         loadNextItem()
+    }
+
+    /**
+     * 把 all[matchIdx] 推到队首,其余顺序保持
+     */
+    private fun pendingQueueAddFirst(found: StudyItem, all: List<StudyItem>, matchIdx: Int) {
+        pendingItems.addLast(found)
+        all.forEachIndexed { i, it -> if (i != matchIdx) pendingItems.addLast(it) }
     }
 
     // ============================================================
