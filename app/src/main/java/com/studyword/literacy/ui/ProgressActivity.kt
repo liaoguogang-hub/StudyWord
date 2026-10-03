@@ -4,6 +4,8 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -34,6 +36,7 @@ import com.studyword.literacy.model.StudyMode
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
@@ -63,7 +66,46 @@ class ProgressActivity : AppCompatActivity() {
         binding.topBar.setNavigationOnClickListener { finish() }
 
         setupTrendRangeToggle()
+        setupSwipeBack()
         renderProgress()
+    }
+
+    /**
+     * v1.4.1:从屏幕左边缘向右滑动 → finish()
+     * 与 CharacterLibraryActivity 共用同一套阈值,体感一致。
+     */
+    private var swipeBackDetector: GestureDetector? = null
+
+    private fun setupSwipeBack() {
+        val density = resources.displayMetrics.density
+        val edgePx = EDGE_THRESHOLD_DP * density
+        val distancePx = SWIPE_DISTANCE_THRESHOLD_DP * density
+        swipeBackDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (e1 == null) return false
+                val dx = e2.x - e1.x
+                val dy = e2.y - e1.y
+                val startsAtLeftEdge = e1.x <= edgePx
+                val longEnough = dx >= distancePx
+                val mostlyHorizontal = abs(dx) > abs(dy) * 2
+                val fastEnough = velocityX > SWIPE_VELOCITY_THRESHOLD
+                if (startsAtLeftEdge && longEnough && mostlyHorizontal && fastEnough) {
+                    finish()
+                    return true
+                }
+                return false
+            }
+        })
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        swipeBackDetector?.onTouchEvent(ev)
+        return super.dispatchTouchEvent(ev)
     }
 
     private fun renderProgress() {
@@ -415,6 +457,10 @@ class ProgressActivity : AppCompatActivity() {
         private const val DAYS_7 = 7L * 24 * 60 * 60 * 1000
         private const val DAYS_30 = 30L * 24 * 60 * 60 * 1000
         private const val DAYS_365 = 365L * 24 * 60 * 60 * 1000
+        // v1.4.1:边滑返回阈值
+        private const val EDGE_THRESHOLD_DP = 24f
+        private const val SWIPE_DISTANCE_THRESHOLD_DP = 120f
+        private const val SWIPE_VELOCITY_THRESHOLD = 400f
     }
 
     private enum class TrendRange {

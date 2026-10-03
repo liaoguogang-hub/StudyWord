@@ -2,6 +2,8 @@ package com.studyword.literacy.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +21,7 @@ import com.studyword.literacy.model.EnglishLetterItem
 import com.studyword.literacy.model.EnglishWordItem
 import com.studyword.literacy.model.StudyItem
 import com.studyword.literacy.model.StudyMode
+import kotlin.math.abs
 
 /**
  * 字库浏览(v1.4.0):
@@ -72,6 +75,7 @@ class CharacterLibraryActivity : AppCompatActivity() {
         englishUnknownIds = progressStore.loadEnglishUnknown()
 
         setupToolbar()
+        setupSwipeBack()
         setupRecycler()
         setupLanguageToggle()
         setupFilters()
@@ -80,6 +84,44 @@ class CharacterLibraryActivity : AppCompatActivity() {
 
     private fun setupToolbar() {
         binding.topBar.setNavigationOnClickListener { finish() }
+    }
+
+    /**
+     * v1.4.1:从屏幕左边缘向右滑动超过 120dp 且横向速度 > 纵向速度 2 倍 → finish()
+     * 不影响 RecyclerView 上下滚动、chip 点击等其他手势。
+     */
+    private fun setupSwipeBack() {
+        val density = resources.displayMetrics.density
+        val edgePx = EDGE_THRESHOLD_DP * density
+        val distancePx = SWIPE_DISTANCE_THRESHOLD_DP * density
+        swipeBackDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (e1 == null) return false
+                val dx = e2.x - e1.x
+                val dy = e2.y - e1.y
+                val startsAtLeftEdge = e1.x <= edgePx
+                val longEnough = dx >= distancePx
+                val mostlyHorizontal = abs(dx) > abs(dy) * 2
+                val fastEnough = velocityX > SWIPE_VELOCITY_THRESHOLD
+                if (startsAtLeftEdge && longEnough && mostlyHorizontal && fastEnough) {
+                    finish()
+                    return true
+                }
+                return false
+            }
+        })
+    }
+
+    private var swipeBackDetector: GestureDetector? = null
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        swipeBackDetector?.onTouchEvent(ev)
+        return super.dispatchTouchEvent(ev)
     }
 
     private fun setupLanguageToggle() {
@@ -343,5 +385,14 @@ class CharacterLibraryActivity : AppCompatActivity() {
 
     private enum class DifficultyFilter {
         ALL, EASY, MEDIUM, HARD
+    }
+
+    companion object {
+        /** 边缘触发区宽度(dp) */
+        private const val EDGE_THRESHOLD_DP = 24f
+        /** 最小滑动距离(dp) */
+        private const val SWIPE_DISTANCE_THRESHOLD_DP = 120f
+        /** 最小横向速度(px/s) */
+        private const val SWIPE_VELOCITY_THRESHOLD = 400f
     }
 }
