@@ -29,6 +29,7 @@
     <string name="game_empty_emoji">📖</string>
     <string name="game_empty_title">还没有学过的字</string>
     <string name="game_empty_message">先去主页学习几个汉字,再来玩吧!</string>
+    <string name="game_empty_message_en">Learn some letters or words on home first!</string>
 
     <!-- 词组与例句 v1.2.0 -->
     <string name="words_label">🧩 词组</string>
@@ -36,4 +37,24 @@
     <string name="example_click_hint">(点我朗读)</string>
     <string name="words_chip_cd">词组</string>
     <string name="example_chip_cd">例句</string>
+
+    <!-- v1.3.0 英文学习 -->
+    <string name="language_label">选择语言</string>
+    <string name="language_chinese">中文</string>
+    <string name="language_english">ENGLISH</string>
+    <string name="category_letters">字母</string>
+    <string name="category_words">单词</string>
+    <string name="game_listen_letter_label">🔤 听字母</string>
+    <string name="game_listen_word_label">📚 听单词</string>
+    <string name="game_hint_listen_letter">Listen and pick the letter</string>
+    <string name="game_hint_listen_word">Listen and pick the word</string>
+    <string name="words_label_en">🌟 示例词</string>
+    <string name="examples_label_en">📖 Example</string>
+    <string name="library_all_label">浏览全部字词</string>
+    <string name="export_button_label">导出学习进度（中英）</string>
+    <string name="reset_chinese_label">重置中文进度</string>
+    <string name="reset_english_label">Reset English Progress</string>
+    <string name="reset_chinese_done">中文进度已重置</string>
+    <string name="reset_english_done">English progress reset</string>
+    <string name="english_status_updated">Status updated</string>
 </resources>
