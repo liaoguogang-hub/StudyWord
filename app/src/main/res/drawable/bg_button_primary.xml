@@ -1,33 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    v1.4.1:3D 糖果主按钮(认识/游戏)
-    layer-list:
-      [0] 主渐变(天蓝顶 → 深蓝中 → 橘黄底)270° — 主体糖果色
-      [1] 顶部 16dp 半透明白高光 — 立体反光感
-    配合 MaterialButton elevation=4dp。
+    v1.4.3 升级:3D 糖果主按钮(认识/游戏/导出)
+    - 去掉顶部 31% 白色高光(白字看不清)
+    - 渐变改成 deep_blue 顶部 → deep_blue 中部 → tangerine 底部
+    - 顶部 deep_blue 一致,确保白色文字有清晰对比
 -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="24dp" />
             <gradient
-                android:startColor="@color/sky_blue"
+                android:startColor="@color/deep_blue"
                 android:centerColor="@color/deep_blue"
                 android:endColor="@color/tangerine"
                 android:angle="270"
                 android:type="linear" />
             <padding android:left="16dp" android:top="12dp" android:right="16dp" android:bottom="12dp" />
-        </shape>
-    </item>
-    <item android:top="0dp" android:left="0dp" android:right="0dp" android:bottom="32dp">
-        <shape android:shape="rectangle">
-            <corners android:topLeftRadius="24dp" android:topRightRadius="24dp" />
-            <gradient
-                android:startColor="#50FFFFFF"
-                android:centerColor="#20FFFFFF"
-                android:endColor="#00FFFFFF"
-                android:angle="270"
-                android:type="linear" />
         </shape>
     </item>
 </layer-list>

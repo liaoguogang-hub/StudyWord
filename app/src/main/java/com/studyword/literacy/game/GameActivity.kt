@@ -284,7 +284,9 @@ class GameActivity : AppCompatActivity() {
                 binding.speakPromptButton.isVisible = true
                 binding.speakPromptHint.isVisible = true
                 binding.pinyinPrompt.isVisible = false
-                speakCurrentPrompt()  // 自动读一次
+                binding.speakPromptHint.text = "听一听,再选"
+                // v1.4.3:0.7s 延迟后才发音,让用户先看清楚当前界面再听
+                binding.root.postDelayed({ speakCurrentPrompt() }, 700L)
             }
             GameMode.PINYIN -> {
                 binding.speakPromptButton.isVisible = false
@@ -297,14 +299,14 @@ class GameActivity : AppCompatActivity() {
                 binding.speakPromptHint.isVisible = true
                 binding.pinyinPrompt.isVisible = false
                 binding.speakPromptHint.text = "Listen and pick the letter"
-                speakCurrentPrompt()
+                binding.root.postDelayed({ speakCurrentPrompt() }, 700L)
             }
             GameMode.LISTEN_WORD -> {
                 binding.speakPromptButton.isVisible = true
                 binding.speakPromptHint.isVisible = true
                 binding.pinyinPrompt.isVisible = false
                 binding.speakPromptHint.text = "Listen and pick the word"
-                speakCurrentPrompt()
+                binding.root.postDelayed({ speakCurrentPrompt() }, 700L)
             }
         }
 
@@ -386,10 +388,8 @@ class GameActivity : AppCompatActivity() {
         val q = round?.currentQuestion ?: return
         when (q.correct) {
             is ChineseStudyItem -> {
-                val hanzi = q.correct.character.hanzi
-                val pinyin = q.correct.character.pinyin
-                val text = if (pinyin.isNotBlank()) "$hanzi   $pinyin" else hanzi
-                TtsManager.speak(text, utteranceId = "game_q_${q.correct.id}")
+                // v1.4.3:只读汉字,不再 append 拼音(会被 TTS 读成"日 rì")
+                TtsManager.speak(q.correct.character.hanzi, utteranceId = "game_q_${q.correct.id}")
             }
             is EnglishLetterItem -> {
                 TtsManager.speakEnglish(q.correct.letter.uppercase, utteranceId = "game_q_en_${q.correct.id}")

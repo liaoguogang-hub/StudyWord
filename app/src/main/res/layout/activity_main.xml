@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    v1.4.2 主页根布局 — 顶栏只留右上角汉堡按钮(打开抽屉),其余 chrome 全移入抽屉
-    - 删 titleText / subtitle(用户反馈"左上角内容太多,卡片首屏可见")
-    - 删 englishSubModeGroup 顶部 margin,卡片直接贴在 NestedScrollView 顶部
-    - 顶部加 backJumpButton(返回上一页)— 仅跳转来源 = 进度/字库时显示
-    - 抽屉重设计:问候卡 + 语言/难度合并卡 + 3 张大入口卡(每张图+标题+副标题)
+    v1.4.3 主页根布局:
+    - 主页顶部只留 topLabel("🇨🇳 中文 · 难度 简单" 纯文本),不再有 chip
+    - 英文 mode 也显示 topLabel,中英文卡片位置永远一致
+    - englishSubModeGroup(字母/单词)搬到抽屉"学习设置"卡内,与语言/难度 chip 风格统一
+    - 字卡内删 currentDifficulty TextView(已在 topLabel 显示)
+    - backJumpButton 仅在 jumpSource != null 时显示,top|start,不会与 chip 重叠
 -->
 <androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -39,45 +40,25 @@
                 android:layout_height="wrap_content">
 
                 <!--
-                    v1.4.2:英文 mode 时显示"字母 / 单词"子模式切换。
-                    marginTop 0(原 6dp)— 标题已删除,直接紧贴顶部
+                    v1.4.3:顶部 label 显示"当前语言 · 难度"。纯文本,不 clickable。
+                    中英文 mode 都显示,保证卡片起点位置永远一致。
                 -->
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/englishSubModeGroup"
+                <TextView
+                    android:id="@+id/topLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
-                    android:visibility="gone"
+                    android:text="🇨🇳 中文 · 难度 简单"
+                    android:textColor="@color/deep_blue"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:selectionRequired="true"
-                    app:singleLine="true"
-                    app:singleSelection="true">
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipSubLetters"
-                        style="@style/Widget.StudyWord.DifficultyChip"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🔤 字母" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipSubWords"
-                        style="@style/Widget.StudyWord.DifficultyChip"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📚 单词" />
-                </com.google.android.material.chip.ChipGroup>
-
-                <!--
-                    字卡:点击整张卡片用 v1.4.0 触发 speakCurrentItem()
-                    v1.4.2:卡片本身不再 clickable,改由内部 letterContainer + 示例词 chip 单独响应
-                -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/currentCharacterCard"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="14dp"
                     android:clickable="false"
                     android:focusable="false"
                     app:cardBackgroundColor="@android:color/transparent"
@@ -85,14 +66,14 @@
                     app:cardElevation="8dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/englishSubModeGroup">
+                    app:layout_constraintTop_toBottomOf="@id/topLabel">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
                         android:orientation="vertical"
-                        android:padding="24dp"
+                        android:padding="22dp"
                         android:background="@drawable/bg_card_playful"
                         android:clickable="true"
                         android:focusable="true"
@@ -103,7 +84,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="🎯"
-                            android:textSize="48sp" />
+                            android:textSize="44sp" />
 
                         <TextView
                             android:id="@+id/currentCharacter"
@@ -160,26 +141,15 @@
                             android:id="@+id/currentPinyin"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
+                            android:layout_marginTop="8dp"
                             android:text="hàn"
                             android:textColor="@color/gray_dark"
                             android:textSize="28sp"
                             android:textStyle="bold" />
 
-                        <TextView
-                            android:id="@+id/currentDifficulty"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:background="@drawable/difficulty_chip_background"
-                            android:paddingStart="16dp"
-                            android:paddingTop="6dp"
-                            android:paddingEnd="16dp"
-                            android:paddingBottom="6dp"
-                            android:text="简单"
-                            android:textColor="@color/deep_blue"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                        <!--
+                            v1.4.3:删 currentDifficulty TextView(已搬到 topLabel)
+                        -->
 
                         <View
                             android:id="@+id/wordsDivider"
@@ -333,10 +303,7 @@
             android:clickable="false"
             android:focusable="false" />
 
-        <!--
-            v1.4.2:顶部"返回上一页"按钮 — 仅当 jumpSource != null 时显示
-            平时 gone,不占位
-        -->
+        <!-- v1.4.2/v1.4.3:返回上一页按钮 — 仅 jumpSource != null 时可见 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/backJumpButton"
             android:layout_width="wrap_content"
@@ -360,9 +327,7 @@
             app:cornerRadius="24dp"
             app:elevation="6dp" />
 
-        <!--
-            v1.4.1 右上角汉堡按钮 — 永久显示,打开抽屉
-        -->
+        <!-- v1.4.3:右上角汉堡按钮 — 永远显示 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/menuButton"
             android:layout_width="56dp"
@@ -385,7 +350,7 @@
     </FrameLayout>
 
     <!-- ======================================================== -->
-    <!-- v1.4.2 抽屉重设计 — 顶部问候 + 语言/难度合并 + 3 张大入口卡 -->
+    <!-- v1.4.3 抽屉:问候 + 学习设置(3 chip) + 浏览(3 大入口卡) -->
     <!-- ======================================================== -->
     <LinearLayout
         android:layout_width="320dp"
@@ -396,7 +361,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- 顶部问候卡 — 立体 3D 糖果风 -->
+        <!-- 问候卡 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -442,7 +407,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 语言 + 难度合并卡 -->
+        <!-- v1.4.3:学习设置卡 — 语言 / 难度 / 子模式 3 组 chip,大小完全一致 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -465,7 +430,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="语言"
+                android:text="🗣 语言"
                 android:textColor="@color/gray_dark"
                 android:textSize="12sp" />
 
@@ -497,8 +462,8 @@
                 android:id="@+id/difficultyLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="难度"
+                android:layout_marginTop="10dp"
+                android:text="🎯 难度"
                 android:textColor="@color/gray_dark"
                 android:textSize="12sp" />
 
@@ -532,9 +497,42 @@
                     android:layout_height="wrap_content"
                     android:text="困难" />
             </com.google.android.material.chip.ChipGroup>
+
+            <!-- v1.4.3:英文 mode 才显示,中文 mode 隐藏 -->
+            <TextView
+                android:id="@+id/englishSubModeLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="📚 子模式"
+                android:textColor="@color/gray_dark"
+                android:textSize="12sp" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/englishSubModeGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSubLetters"
+                    style="@style/Widget.StudyWord.DifficultyChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🔤 字母" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSubWords"
+                    style="@style/Widget.StudyWord.DifficultyChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📖 单词" />
+            </com.google.android.material.chip.ChipGroup>
         </LinearLayout>
 
-        <!-- 浏览 section 标题 -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -545,7 +543,6 @@
             android:textSize="13sp"
             android:textStyle="bold" />
 
-        <!-- 入口卡:学习进度 — 蓝紫渐变 -->
         <LinearLayout
             android:id="@+id/drawerProgressCard"
             android:layout_width="match_parent"
@@ -599,7 +596,6 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- 入口卡:字库浏览 — 粉橘渐变 -->
         <LinearLayout
             android:id="@+id/drawerLibraryCard"
             android:layout_width="match_parent"
@@ -654,7 +650,6 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- 入口卡:更多设置 — 薄荷渐变 -->
         <LinearLayout
             android:id="@+id/drawerSettingsCard"
             android:layout_width="match_parent"

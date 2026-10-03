@@ -133,7 +133,8 @@ class CharacterLibraryActivity : AppCompatActivity() {
                 else -> StudyMode.CHINESE
             }
             swapAdapterForLanguage()
-            binding.difficultyFilterGroup.isVisible = currentLanguage == StudyMode.CHINESE
+            // v1.4.3:难度 filter 始终显示 — 英文 mode 下按 word 难度过滤(letter 始终展示)
+            binding.difficultyFilterGroup.isVisible = true
             statusFilter = StatusFilter.ALL
             binding.chipFilterAll.isChecked = true
             renderList()
@@ -142,7 +143,7 @@ class CharacterLibraryActivity : AppCompatActivity() {
             StudyMode.CHINESE -> binding.chipLanguageChinese.isChecked = true
             StudyMode.ENGLISH -> binding.chipLanguageEnglish.isChecked = true
         }
-        binding.difficultyFilterGroup.isVisible = currentLanguage == StudyMode.CHINESE
+        binding.difficultyFilterGroup.isVisible = true
     }
 
     private fun swapAdapterForLanguage() {
@@ -237,8 +238,9 @@ class CharacterLibraryActivity : AppCompatActivity() {
                 chineseAdapter.submitList(filtered)
             }
             StudyMode.ENGLISH -> {
+                // v1.4.3:难度 filter 也应用到英文 — letter 不过滤(始终),word 按 difficulty 过滤
                 val filtered = allEnglishItems.filter { item ->
-                    matchesStatusEnglish(item)
+                    matchesDifficultyEnglish(item) && matchesStatusEnglish(item)
                 }
                 englishAdapter.submitList(filtered)
             }
@@ -252,6 +254,25 @@ class CharacterLibraryActivity : AppCompatActivity() {
             DifficultyFilter.EASY -> item.character.difficulty == Difficulty.EASY
             DifficultyFilter.MEDIUM -> item.character.difficulty == Difficulty.MEDIUM
             DifficultyFilter.HARD -> item.character.difficulty == Difficulty.HARD
+        }
+    }
+
+    /**
+     * v1.4.3:难度 filter 也用于英文 mode。
+     * - EnglishLetterItem:letter 始终显示(难度对它无意义)
+     * - EnglishWordItem:按 word.difficulty 过滤
+     * - 其他(理论不应出现):全量通过
+     */
+    private fun matchesDifficultyEnglish(item: StudyItem): Boolean {
+        return when (item) {
+            is EnglishLetterItem -> true
+            is EnglishWordItem -> when (difficultyFilter) {
+                DifficultyFilter.ALL -> true
+                DifficultyFilter.EASY -> item.word.difficulty == Difficulty.EASY
+                DifficultyFilter.MEDIUM -> item.word.difficulty == Difficulty.MEDIUM
+                DifficultyFilter.HARD -> item.word.difficulty == Difficulty.HARD
+            }
+            else -> true
         }
     }
 

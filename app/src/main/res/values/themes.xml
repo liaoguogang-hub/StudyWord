@@ -18,34 +18,50 @@
     </style>
 
     <!--
-        v1.4.1:统一改用 UnelevatedButton 父样式。
-        原 Widget.MaterialComponents.Button 自带阴影 + 默认 app:backgroundTint=colorPrimary,
-        即便设置 backgroundTint=@android:color/transparent 也会在 drawable 之外再叠 tint,造成
-        "按钮底色中间一条白条,周围是浅灰(其他 primary 蓝)" 的视觉问题。
-        UnelevatedButton 无阴影,且 backgroundTint 直接作用于 drawable,色彩表现干净。
+        v1.4.3 关键修复:MaterialButton 必须同时显式声明
+          - app:backgroundTint="@null" (Material 命名空间,关键)
+          - android:backgroundTint="@null" (Android 命名空间,关键)
+          - stateListAnimator="@null" (关键:否则点击时按钮会被 elevation 动画吃掉)
+        才能正确显示自定义 layer-list 并接收点击事件。
+
+        历史调试:
+        - v1.4.1 方案 android:background=... + backgroundTint=transparent → 按钮完全透明(白字看不清)
+        - v1.4.3a 方案 UnelevatedButton 父样式 + backgroundTint=@null → 按钮显示正常但点击无反应
+          (InputTransport detect abnormal consume, count is 0)
+        - v1.4.3b 方案 UnelevatedButton 父样式 + stateListAnimator=@null → 修复点击
     -->
     <style name="Widget.StudyWord.PrimaryButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="android:background">@drawable/bg_button_primary</item>
         <item name="android:textColor">@color/white</item>
-        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:backgroundTint">@null</item>
+        <item name="android:stateListAnimator">@null</item>
         <item name="android:insetLeft">0dp</item>
         <item name="android:insetRight">0dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:elevation">0dp</item>
     </style>
 
     <style name="Widget.StudyWord.SecondaryButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="android:background">@drawable/bg_button_secondary</item>
         <item name="android:textColor">@color/deep_blue</item>
-        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:backgroundTint">@null</item>
+        <item name="android:stateListAnimator">@null</item>
         <item name="android:insetLeft">0dp</item>
         <item name="android:insetRight">0dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:elevation">0dp</item>
     </style>
 
     <style name="Widget.StudyWord.DifficultyChip" parent="Widget.MaterialComponents.Chip.Choice">
@@ -62,26 +78,36 @@
     <style name="Widget.StudyWord.UnknownButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="android:background">@drawable/bg_button_unknown</item>
         <item name="android:textColor">@color/white</item>
-        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:backgroundTint">@null</item>
+        <item name="android:stateListAnimator">@null</item>
         <item name="android:insetLeft">0dp</item>
         <item name="android:insetRight">0dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:elevation">0dp</item>
     </style>
 
     <!-- 游戏页 4 选 1 大字选项按钮 -->
     <style name="Widget.StudyWord.OptionButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="android:background">@drawable/bg_option_default</item>
         <item name="android:textColor">@color/deep_blue</item>
-        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:backgroundTint">@null</item>
+        <item name="android:stateListAnimator">@null</item>
         <item name="android:insetLeft">0dp</item>
         <item name="android:insetRight">0dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:elevation">0dp</item>
     </style>
 
     <!-- 词组 chip(v1.2.0):用于主页字卡下方展示该字组成的词组,点击即朗读 -->

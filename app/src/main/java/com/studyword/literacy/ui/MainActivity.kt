@@ -258,7 +258,9 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * v1.4.2:从进度 / 字库跳转回来后,显示"← 返回进度"或"← 返回字库"按钮。
-     * 点击 → 重启源 Activity + 关闭主页。
+     * v1.4.3 修复:点 → 重启源 Activity 时不再 finish() 主页,保留主页在后台。
+     * 栈顺序: [主页, 源页]。源页左上角箭头 finish() 时会自然回到主页,
+     * 不会再因为主页已 finish 而直接退出 app。
      */
     private fun setupBackJumpButton() {
         binding.backJumpButton.setOnClickListener {
@@ -268,8 +270,8 @@ class MainActivity : AppCompatActivity() {
                 else -> null
             }
             if (intent != null) {
+                // v1.4.3:不 finish,主页继续驻留在任务栈底部
                 startActivity(intent)
-                finish()
             }
         }
     }
@@ -278,14 +280,16 @@ class MainActivity : AppCompatActivity() {
         val source = jumpSource
         if (source == null) {
             binding.backJumpButton.visibility = View.GONE
-            return
+        } else {
+            binding.backJumpButton.visibility = View.VISIBLE
+            binding.backJumpButton.text = when (source) {
+                SOURCE_PROGRESS -> "← 返回进度"
+                SOURCE_LIBRARY -> "← 返回字库"
+                else -> "← 返回"
+            }
         }
-        binding.backJumpButton.visibility = View.VISIBLE
-        binding.backJumpButton.text = when (source) {
-            SOURCE_PROGRESS -> "← 返回进度"
-            SOURCE_LIBRARY -> "← 返回字库"
-            else -> "← 返回"
-        }
+        // v1.4.3:按钮可见状态变了,刷新 topLabel 的 margin 让位
+        refreshTopLabel()
     }
 
     /**
@@ -326,14 +330,41 @@ class MainActivity : AppCompatActivity() {
         val isEnglish = currentMode == StudyMode.ENGLISH
         binding.difficultyLabel.isVisible = true
         binding.difficultyChipGroup.isVisible = true
+        // v1.4.3:englishSubModeGroup 已搬到抽屉"学习设置"卡内
         binding.englishSubModeGroup.isVisible = isEnglish
-        // v1.4.2:删 subtitle TextView,问候文案移到抽屉 greeting 区
+        binding.englishSubModeLabel.isVisible = isEnglish
+        refreshTopLabel()
         // 英文默认选中 letters
         if (isEnglish && !binding.chipSubLetters.isChecked && !binding.chipSubWords.isChecked) {
             binding.chipSubLetters.isChecked = true
             englishSubMode = EnglishSubMode.LETTERS
         }
     }
+
+    /**
+     * v1.4.3:顶部 label 显示"当前语言 · 难度"。
+     * 中英文 mode 都显示,保证字卡起点位置永远一致。
+     * 当前"卡片"内不再显示难度 chip,避免重复。
+     * 当"← 返回"按钮可见时,把 topLabel 推到按钮右侧,避免重叠。
+     */
+    private fun refreshTopLabel() {
+        val langLabel = when (currentMode) {
+            StudyMode.CHINESE -> "🇨🇳 中文"
+            StudyMode.ENGLISH -> "🇬🇧 ENGLISH"
+        }
+        val difficultyLabel = when (currentDifficulty) {
+            Difficulty.EASY -> "难度 简单"
+            Difficulty.MEDIUM -> "难度 中等"
+            Difficulty.HARD -> "难度 困难"
+        }
+        binding.topLabel.text = "$langLabel · $difficultyLabel"
+        // v1.4.3:返回按钮可见时,topLabel 加 56dp+12dp margin 让位
+        val params = binding.topLabel.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+        params.marginStart = if (jumpSource == null) 0 else dp(140)
+        binding.topLabel.layoutParams = params
+    }
+
+    private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
     private fun setupDifficultyToggle() {
         binding.difficultyChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
@@ -344,6 +375,8 @@ class MainActivity : AppCompatActivity() {
                 binding.chipHard.id -> Difficulty.HARD
                 else -> Difficulty.EASY
             }
+            // v1.4.3:刷新顶部 label,显示新难度
+            refreshTopLabel()
             pendingItems.clear()
             currentItem = null
             rebuildQueue()
@@ -635,7 +668,7 @@ class MainActivity : AppCompatActivity() {
             binding.wordMeaning.isVisible = false
             binding.wordMeaning.text = ""
             binding.currentPinyin.text = ""
-            binding.currentDifficulty.isVisible = false
+            // v1.4.3:卡片内不再显示难度 chip(已在 topLabel 显示),避免重复
             binding.remainingHint.text = when (currentMode) {
                 StudyMode.CHINESE -> "暂无可测汉字,请调整难度或重置进度"
                 StudyMode.ENGLISH -> "暂无可测内容"
@@ -664,9 +697,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.currentPinyin.text = item.secondaryText.ifBlank { "--" }
-
-        binding.currentDifficulty.text = item.category
-        binding.currentDifficulty.isVisible = true
 
         binding.cardEmoji.text = if (item is EnglishWordItem) "🔤" else mascotFaces[random.nextInt(mascotFaces.size)]
 

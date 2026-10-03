@@ -38,6 +38,69 @@
 - `EXTRA_SOURCE_PAGE` 是 result intent 新增 extra,旧接收方忽略无副作用
 - 数据层完全兼容 v1.4.1,无任何数据迁移
 
+## [1.4.3] - 2026-10-04
+
+本版本针对 v1.4.2 之后的 8 项用户反馈继续打磨 UI 细节、修复 MaterialButton 关键 bug、补齐缺失的英文功能。
+
+### 新增
+- 🇨🇳🇬🇧 **主页顶部语言 · 难度 标签** — 替换 v1.4.2 英文 mode 时压在卡片上方的"字母/单词"子模式 chip
+  - `topLabel` TextView 位于 ConstraintLayout 左上角,显示 `🇨🇳 中文 · 难度 简单` / `🇬🇧 ENGLISH · 难度 简单`
+  - 中英文 mode 卡片位置完全一致(因为子模式 chip 不再顶在卡片上方)
+  - `refreshTopLabel()` 在语言 / 难度切换、`jumpSource` 变化时刷新文本 + 动态 marginStart(避免和"← 返回"按钮重叠)
+- 📚 **抽屉"子模式"chip 组** — 英文 mode 子模式 chip 从主页搬入抽屉"学习设置"卡
+  - 3 组 chip(语言 / 难度 / 子模式)用同一个 `Widget.StudyWord.DifficultyChip`,大小完全一致 40dp 高
+  - 英文 mode 才显示子模式;中文 mode 自动隐藏(`englishSubModeLabel.visibility = GONE`)
+  - 抽屉顶部 greeting 卡高度自适应,3 组 chip 不再溢出
+- 🎯 **字库英文难度过滤** — 字库总览英文 mode 现在按难度过滤 word(letter 不过滤)
+  - `difficultyFilterGroup` 在英文 mode 始终可见,不再仅显示"全部难度"
+  - 新增 `matchesDifficultyEnglish(item)`:letter 始终显示,word 按 `DifficultyFilter` 过滤
+  - "困难"只剩字母 + 困难单词(nose / mouth / hair / day / night / happy / love / red / blue / green)
+  - "简单"只剩字母 + 简单单词(cat / dog / apple / ball / sun / moon / star / fish / bird / milk)
+- 🎬 **游戏 0.7 秒延迟 + 中文只读一遍汉字**
+  - `showCurrentQuestion()` 中 LISTEN / LISTEN_LETTER / LISTEN_WORD 模式:
+    `binding.root.postDelayed({ speakCurrentPrompt() }, 700L)` — 给孩子一点准备时间再发音
+  - `speakCurrentPrompt()` 中文分支只读 `q.correct.character.hanzi`,不再 append 拼音
+    (v1.4.2 之前 "日 rì" 被 TTS 读两遍,体验不好)
+  - 英文 letter / word 走 `TtsManager.speakEnglish`,语速 1.0f
+- 🎨 **3D 糖果按钮** — 主页 / 设置 / 游戏页所有按钮统一升级为深色渐变 + 圆角 24dp
+  - `bg_button_primary`:`deep_blue → deep_blue → tangerine` 顶到底渐变,白字清晰
+  - `bg_button_unknown`:`#A8341F → tangerine → tangerine` 深红橘,白字清晰
+  - 去掉 v1.4.1 的天空蓝中段(白字看不清)
+  - `bg_button_secondary` 保留浅薄荷绿底 + 深蓝字
+- ✨ **整体 UI 提升** — 字号 / 间距 / 圆角统一梳理
+  - 字卡 padding 24dp,emoji 与字之间 margin 12dp,卡圆角 28dp
+  - 抽屉 greeting 卡 + 3 张入口卡 圆角统一 28dp
+  - 主页 4 emoji 按钮圆角 24dp,与卡片风格一致
+
+### 修复
+- 🔧 **MaterialButton 点击失效**(v1.4.1 → v1.4.2 遗留严重 bug)
+  - 现象:主页 😊/😢/➡️/🎮 4 个按钮、设置中心"导出学习进度"/"重置中文"/"重置英文" 3 个按钮显示正常但点击没反应
+  - 根因:`Widget.MaterialComponents.Button.TextButton` 父样式 + `app:backgroundTint="@null"` 时,
+    内部 `MaterialShapeDrawable` 拦截触摸事件,logcat 报 `InputTransport detect abnormal consume, count is 0`
+  - 修复:按钮样式改用 `Widget.MaterialComponents.Button.UnelevatedButton` 父样式,
+    同时显式声明 `backgroundTint=@null` / `android:backgroundTint=@null` / `stateListAnimator=@null` / `elevation=0dp`,
+    才能让 layer-list 背景生效并正常接收点击
+  - 影响:导出 CSV、重置进度、主页"换一个" / "进入游戏" 等按钮从 v1.4.3 起可点击
+- 🔙 **返回按钮布局** — 字库 / 进度跳转卡片后,主页左上角"← 返回"按钮与 topLabel 重叠
+  - `refreshTopLabel()` 根据 `jumpSource` 动态设置 `marginStart`:
+    `if (jumpSource == null) 0 else dp(140)`(140dp 留给返回按钮)
+- 🚪 **返回按钮导致退出 app** — 主页 finish() 后源页左上角箭头 finish() 会直接退出 app
+  - `setupBackJumpButton()` 去掉 `finish()`,主页留在背景
+  - 任务栈:`[主页, 源页]`,源页左上箭头 → 回到主页,主页 onResume → 仍可见,back 按钮仍可再跳
+
+### 文生图提示词(交付)
+- 2 张开机图 **中文详细版** prompt,用于 splash 真实图片上线:
+  - **Prompt 1 — 故事书主题**:3D 卡通熊猫坐在大打开的故事书上,周围漂浮 认 / 字 / 大 / 家 立体字块
+  - **Prompt 2 — 字母动物主题**:3D 兔子戴巫师帽挥出金色闪光,周围 A B C 字母块 + 天 字块
+  - 详见会话上下文(本次对话顶部)
+
+### 兼容
+- `versionCode 8 → 9`,`versionName 1.4.2 → 1.4.3`
+- `jumpSource` / `englishSubModeLabel` 是 MainActivity 新增字段,无外部依赖
+- `CharacterLibraryActivity.matchesDifficultyEnglish` 新增私有方法,无外部 API 变化
+- `GameActivity.speakCurrentPrompt` 行为变更(0.7s 延迟 + 中文只读汉字),无外部依赖
+- 数据层完全兼容 v1.4.2,无任何数据迁移
+
 ## [1.4.1] - 2026-10-03
 
 本版本是一次"体验打磨"补丁,针对 v1.4.0 的 8 个 UX 问题逐项处理。
