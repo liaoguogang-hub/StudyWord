@@ -359,10 +359,12 @@ class GameActivity : AppCompatActivity() {
     }
 
     /**
-     * 大写 60sp 在左、小写 36sp 在右,中间用 4 个空格拉开距离
+     * 大写 60sp 在左、小写 36sp 在右,中间用 2 个空格拉开距离。
+     * gap 太大(4 空格)时,某些宽字母(如 W、M)的 "Aa" 会越出按钮右沿,
+     * 所以使用紧凑的 2 空格,确保各种字母宽度都能容纳。
      */
     private fun buildLetterLabel(uppercase: String, lowercase: String): CharSequence {
-        val gap = "    "
+        val gap = "  "
         val text = "$uppercase$gap$lowercase"
         val spannable = SpannableString(text)
         spannable.setSpan(
