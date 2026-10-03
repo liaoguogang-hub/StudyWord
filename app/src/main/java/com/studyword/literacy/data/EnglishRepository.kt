@@ -85,8 +85,32 @@ class EnglishRepository(context: Context) {
         return wordIndex[key]
     }
 
+    /**
+     * 按字母 id 查找(0~25)。v1.3.0 用于进度页:把 englishKnownIds 还原回字母实例。
+     */
+    fun findByLetterById(id: Int): EnglishLetter? {
+        if (id < 0 || id >= WORD_ID_OFFSET) return null
+        return allLetters.getOrNull(id)
+    }
+
+    /**
+     * 按单词 id 查找(内部已加 [WORD_ID_OFFSET] 偏移)。
+     * 调用方传原始 id(单词下标 0~29,经 offset 后落到 1000~1029);
+     * 命中返回对应单词,未命中返回 null。
+     */
+    fun findByWordById(id: Int): EnglishWord? {
+        if (id < WORD_ID_OFFSET) return null
+        return allWords.getOrNull(id - WORD_ID_OFFSET)
+    }
+
     companion object {
         private const val ASSET_FILE = "english_sets.json"
+
+        /**
+         * 单词 id 偏移量。字母 id 范围 [0, 25],单词 id 范围 [WORD_ID_OFFSET, WORD_ID_OFFSET + wordCount - 1]。
+         * 引入偏移是为了让字母与单词 id 在 englishKnownIds / englishUnknownIds Set 中不冲突。
+         */
+        const val WORD_ID_OFFSET = 1000
 
         @Volatile private var cachedLetters: List<EnglishLetter>? = null
         @Volatile private var cachedWords: List<EnglishWord>? = null
@@ -166,7 +190,7 @@ class EnglishRepository(context: Context) {
                 val meaning = obj.optString("chineseMeaning", "").trim()
                 val sentence = obj.optString("exampleSentence", "").trim()
                 result += EnglishWord(
-                    id = result.size,
+                    id = WORD_ID_OFFSET + result.size,
                     word = word,
                     phonetic = phonetic,
                     chineseMeaning = meaning,

@@ -80,6 +80,18 @@ class ProgressStore(context: Context) {
     /** 返回已知或学过的英文 id 集合(known + unknown,等价于已接触过的项) */
     fun studiedEnglishIds(): Set<Int> = loadEnglishKnown() + loadEnglishUnknown()
 
+    // ========================= 当前学习语种 =========================
+
+    /**
+     * Phase 2:用户上次使用的语言模式(中文 / 英文)。
+     * Activity 在 onCreate 读取,语言切换时调用 [saveLanguage] 写回。
+     */
+    fun loadLanguage(): String = prefs.getString(KEY_LANGUAGE, null) ?: "CHINESE"
+
+    fun saveLanguage(mode: String) {
+        prefs.edit().putString(KEY_LANGUAGE, mode).apply()
+    }
+
     // ========================= 通用重置 =========================
 
     /**
@@ -156,6 +168,8 @@ class ProgressStore(context: Context) {
         // 英文维度 key(独立,与中文不冲突)
         private const val KEY_KNOWN_EN = "known_english_ids"
         private const val KEY_UNKNOWN_EN = "unknown_english_ids"
+        // 当前学习语种
+        private const val KEY_LANGUAGE = "current_language"
         private const val HISTORY_DELIMITER = "|"
         private const val ENTRY_DELIMITER = ","
         private const val MAX_HISTORY_SIZE = 60
