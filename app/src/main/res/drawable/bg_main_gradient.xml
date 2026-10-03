@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    v1.4.1:3D 糖果风主页背景
+    - 3-stop 渐变(蓝 → 紫 → 桃),135° 对角,营造柔和童趣氛围
+    - 替代之前 sky_blue → lavender 的两段平淡渐变
+-->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
     <gradient
         android:startColor="@color/sky_blue"
-        android:endColor="@color/lavender"
-        android:angle="45" />
+        android:centerColor="@color/lavender"
+        android:endColor="@color/peach"
+        android:angle="135"
+        android:type="linear" />
 </shape>
