@@ -107,12 +107,12 @@ class ProgressActivity : AppCompatActivity() {
 
         // 渲染英文 known / unknown chip 列表(letter 显示 Aa,word 显示单词 + 中文释义)
         val knownItems = enKnownIds.mapNotNull { id ->
-            englishRepository.findByLetterById(id)
-                ?: englishRepository.findByWordById(id)
+            englishRepository.findByLetterById(id)?.let { EnglishLetterItem(it) }
+                ?: englishRepository.findByWordById(id)?.let { EnglishWordItem(it) }
         }
         val unknownItems = enUnknownIds.mapNotNull { id ->
-            englishRepository.findByLetterById(id)
-                ?: englishRepository.findByWordById(id)
+            englishRepository.findByLetterById(id)?.let { EnglishLetterItem(it) }
+                ?: englishRepository.findByWordById(id)?.let { EnglishWordItem(it) }
         }
         populateChipGroup(
             binding.enKnownChipGroup,

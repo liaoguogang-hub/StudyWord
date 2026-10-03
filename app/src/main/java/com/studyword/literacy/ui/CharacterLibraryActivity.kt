@@ -3,6 +3,7 @@ package com.studyword.literacy.ui
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.studyword.literacy.R
@@ -63,9 +64,9 @@ class CharacterLibraryActivity : AppCompatActivity() {
         englishUnknownIds = progressStore.loadEnglishUnknown()
 
         setupToolbar()
+        setupRecycler()
         setupLanguageToggle()
         setupFilters()
-        setupRecycler()
         renderList()
     }
 

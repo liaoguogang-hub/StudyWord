@@ -462,7 +462,7 @@ class MainActivity : AppCompatActivity() {
             examplesLabel.text = if (isEnglish) "📖 Example" else "📖 例句"
             val first = examples.first()
             // 英文 word 拼接中文释义(显示在例句下方),点击只朗读英文例句
-            val displayText = if (isEnglish && item.exampleTranslation.isNotBlank()) {
+            val displayText = if (isEnglish && item?.exampleTranslation?.isNotBlank() == true) {
                 "${first.sentence}\n— ${item.exampleTranslation}"
             } else {
                 examples.joinToString(separator = "\n") { it.sentence }
