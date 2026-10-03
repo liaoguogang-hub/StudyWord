@@ -39,6 +39,10 @@
             android:name="com.studyword.literacy.ui.CharacterLibraryActivity"
             android:exported="false" />
 
+        <activity
+            android:name="com.studyword.literacy.game.GameActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

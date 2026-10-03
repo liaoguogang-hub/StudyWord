@@ -18,6 +18,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.studyword.literacy.data.CharacterRepository
 import com.studyword.literacy.data.ProgressStore
 import com.studyword.literacy.databinding.ActivityMainBinding
+import com.studyword.literacy.game.GameActivity
+import com.studyword.literacy.game.GameMode
 import com.studyword.literacy.model.Difficulty
 import com.studyword.literacy.model.LearningCharacter
 import com.studyword.literacy.util.TtsManager
@@ -107,6 +109,13 @@ class MainActivity : AppCompatActivity() {
         }
         binding.settingsButton.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
+        }
+        binding.playGameButton.setOnClickListener {
+            val intent = Intent(this, GameActivity::class.java).apply {
+                putExtra(GameActivity.EXTRA_MODE, GameMode.LISTEN.name)
+                putExtra(GameActivity.EXTRA_DIFFICULTY, currentDifficulty.name)
+            }
+            startActivity(intent)
         }
     }
 
