@@ -57,4 +57,7 @@
     <string name="reset_chinese_done">中文进度已重置</string>
     <string name="reset_english_done">English progress reset</string>
     <string name="english_status_updated">Status updated</string>
+
+    <!-- v1.4.0:开机图 -->
+    <string name="splash_title">识字小帮手</string>
 </resources>

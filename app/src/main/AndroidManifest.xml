@@ -21,14 +21,20 @@
         android:theme="@style/Theme.StudyWord"
         tools:targetApi="31">
 
+        <!-- v1.4.0:开机页(launcher) -->
         <activity
-            android:name="com.studyword.literacy.ui.MainActivity"
-            android:exported="true">
+            android:name="com.studyword.literacy.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.StudyWord">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.studyword.literacy.ui.MainActivity"
+            android:exported="true" />
 
         <activity
             android:name="com.studyword.literacy.ui.ProgressActivity"

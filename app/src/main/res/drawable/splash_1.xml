@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  v1.4.0:开机占位图 1/5
+  用户将提供 PNG/JPG 真实图片替换这些 drawable 文件(splash_1..5)
+  当前为纯色占位,确保 app 在没有真实图时也能跑起来
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/sunshine" />
+</shape>
