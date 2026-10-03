@@ -81,7 +81,7 @@
         android:id="@+id/currentCharacterCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="20dp"
         android:foregroundGravity="center"
         app:cardBackgroundColor="@android:color/transparent"
         app:cardCornerRadius="26dp"
@@ -95,7 +95,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:padding="28dp"
+            android:padding="24dp"
             android:background="@drawable/bg_card_playful">
 
             <TextView
@@ -118,7 +118,7 @@
                 android:id="@+id/currentPinyin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 android:text="hàn"
                 android:textColor="@color/gray_dark"
                 android:textSize="20sp"
@@ -128,7 +128,7 @@
                 android:id="@+id/currentDifficulty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/difficulty_chip_background"
                 android:paddingStart="16dp"
                 android:paddingTop="6dp"
@@ -138,6 +138,65 @@
                 android:textColor="@color/deep_blue"
                 android:textSize="15sp"
                 android:textStyle="bold" />
+
+            <!-- 词组 + 例句(v1.2.0 新增),默认隐藏,数据存在时才显示 -->
+            <View
+                android:id="@+id/wordsDivider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="12dp"
+                android:background="@color/sky_blue"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/wordsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🧩 词组"
+                android:textColor="@color/deep_blue"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/wordsChipGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                app:chipSpacingHorizontal="6dp"
+                app:chipSpacingVertical="2dp"
+                app:singleLine="false"
+                app:singleSelection="false"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/examplesLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="📖 例句"
+                android:textColor="@color/deep_blue"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/exampleSentence"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:text=""
+                android:textColor="@color/deep_blue"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

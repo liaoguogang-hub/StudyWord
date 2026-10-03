@@ -29,4 +29,11 @@
     <string name="game_empty_emoji">📖</string>
     <string name="game_empty_title">还没有学过的字</string>
     <string name="game_empty_message">先去主页学习几个汉字,再来玩吧!</string>
+
+    <!-- 词组与例句 v1.2.0 -->
+    <string name="words_label">🧩 词组</string>
+    <string name="examples_label">📖 例句</string>
+    <string name="example_click_hint">(点我朗读)</string>
+    <string name="words_chip_cd">词组</string>
+    <string name="example_chip_cd">例句</string>
 </resources>
