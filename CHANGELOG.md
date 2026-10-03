@@ -40,6 +40,9 @@
   - 原因:之前的 `toPinyin("日") = "rì"` 加 `_pinyin` 拼接后,引擎在 `QUEUE_FLUSH` 重发时偶然解析为别的音
   - 方案:`TtsManager.speakPhraseCharByChar(text)` 按字拆,逐字 `QUEUE_ADD`,引擎走默认发音(对常用字最准)
   - 同步加 `PinyinConverter` overrides 表修正已知坏 case:`了→le`、`地→dì`、`么→me`、`还→hái`、`便→pián` 等
+- 🐛 **跳转回主页失效 bug** — 点 ProgressActivity / CharacterLibraryActivity 上的字 / 字母 / 单词,跳回主页后显示的不是被点击的那一项
+  - 原因:`MainActivity.onResume` 无条件调用 `loadNextItem()`,把 `loadItemById` 设置的 currentItem 替换成队列的下一项
+  - 修复:仅当 `currentItem == null`(进程被回收 / 首次启动)时才在 onResume 里 `rebuildQueue + loadNextItem`
 - 英文单词发音增加 200ms 间隔,避免连读成一团
 
 ### 数据
