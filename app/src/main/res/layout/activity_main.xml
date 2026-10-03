@@ -2,10 +2,11 @@
 <!--
     主页根布局:FrameLayout > NestedScrollView > ConstraintLayout(wrap_content) + confettiOverlay
 
-    v1.2.0 修复:加词组/例句后字卡增高,底部 4 个按钮(actionRow / ttsRow / bottomActions / playGameButton)
-    被约束链挤出屏幕。改成 NestedScrollView 包裹 ConstraintLayout(layout_height=wrap_content),
-    内容自然撑高,溢出时可滚动;playGameButton 不再锚定 parent.bottom,改为锚定 bottomActions.bottom。
-    confettiOverlay 从 ConstraintLayout 内移到 FrameLayout 同级,撒花动画仍可全屏覆盖。
+    v1.2.0 修复:加词组/例句后字卡增高,底部 4 个按钮被挤出屏幕,改用 NestedScrollView。
+    v1.3.0 新增:
+      - 顶部"中文 / ENGLISH"语言切换 chip(languageChipGroup),持久化到 ProgressStore
+      - 字卡内英文 letter 模式新增 uppercaseText + lowercaseText 两个 TextView
+        (中文与英文 word 模式隐藏,英文 letter 模式显示 "Aa")
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -52,22 +53,60 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/titleText" />
 
+            <!-- v1.3.0 新增:语言切换 chip group,中文 / ENGLISH 二选一 -->
+            <TextView
+                android:id="@+id/languageLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="选择语言"
+                android:textColor="@color/gray_dark"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/subtitle" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/languageChipGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/languageLabel"
+                app:selectionRequired="true"
+                app:singleLine="false"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipLanguageChinese"
+                    style="@style/Widget.StudyWord.DifficultyChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="中文" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipLanguageEnglish"
+                    style="@style/Widget.StudyWord.DifficultyChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ENGLISH" />
+            </com.google.android.material.chip.ChipGroup>
+
             <TextView
                 android:id="@+id/difficultyLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="16dp"
                 android:text="选择任务难度"
                 android:textColor="@color/gray_dark"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/subtitle" />
+                app:layout_constraintTop_toBottomOf="@id/languageChipGroup" />
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/difficultyChipGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/difficultyLabel"
                 app:selectionRequired="true"
@@ -100,7 +139,7 @@
                 android:id="@+id/currentCharacterCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="16dp"
                 android:foregroundGravity="center"
                 app:cardBackgroundColor="@android:color/transparent"
                 app:cardCornerRadius="26dp"
@@ -124,6 +163,10 @@
                         android:text="🎯"
                         android:textSize="32sp" />
 
+                    <!--
+                        currentCharacter:中文汉字 / 英文单词 显示此 TextView(60sp 大字)
+                        英文 letter 模式隐藏,改用 uppercaseText + lowercaseText 双行
+                    -->
                     <TextView
                         android:id="@+id/currentCharacter"
                         android:layout_width="wrap_content"
@@ -133,6 +176,32 @@
                         android:textSize="60sp"
                         android:textStyle="bold" />
 
+                    <!-- v1.3.0:英文 letter 模式显示大写 -->
+                    <TextView
+                        android:id="@+id/uppercaseText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="A"
+                        android:textColor="@color/deep_blue"
+                        android:textSize="60sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                    <!-- v1.3.0:英文 letter 模式显示小写(单独一行,小字号) -->
+                    <TextView
+                        android:id="@+id/lowercaseText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="a"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                    <!--
+                        拼音 / 音标共用此 TextView(中英文渲染相同字段 secondaryText)
+                    -->
                     <TextView
                         android:id="@+id/currentPinyin"
                         android:layout_width="wrap_content"
@@ -158,7 +227,7 @@
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
-                    <!-- 词组 + 例句(v1.2.0 新增),默认隐藏,数据存在时才显示 -->
+                    <!-- 词组 + 例句(v1.2.0 新增),数据存在时才显示 -->
                     <View
                         android:id="@+id/wordsDivider"
                         android:layout_width="match_parent"
@@ -343,7 +412,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- 撒花动画覆盖层,在 ScrollView 外保证全屏覆盖 -->
     <FrameLayout
         android:id="@+id/confettiOverlay"
         android:layout_width="match_parent"
