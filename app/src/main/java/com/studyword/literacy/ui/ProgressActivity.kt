@@ -1,5 +1,6 @@
 package com.studyword.literacy.ui
 
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -18,6 +19,7 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.studyword.literacy.R
 import com.studyword.literacy.data.CharacterRepository
 import com.studyword.literacy.data.EnglishRepository
@@ -28,12 +30,19 @@ import com.studyword.literacy.model.Difficulty
 import com.studyword.literacy.model.EnglishLetterItem
 import com.studyword.literacy.model.EnglishWordItem
 import com.studyword.literacy.model.StudyItem
+import com.studyword.literacy.model.StudyMode
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 
+/**
+ * v1.4.0:
+ * - 学习进度页"认识汉字 / 待巩固汉字 / 英文 known / 英文 review"四组的 chip 全部可点
+ * 点 - 点击 → setResult(EXTRA_SELECTED_ID, EXTRA_SELECTED_LANG) + finish,
+ *    MainActivity 通过 pageResultLauncher 接住,loadItemById 跳转到对应卡片
+ */
 class ProgressActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProgressBinding
@@ -76,15 +85,15 @@ class ProgressActivity : AppCompatActivity() {
         binding.unknownCountLabel.text = "待巩固：$unknown"
         binding.masteryRateLabel.text = String.format("掌握率：%.1f%%", masteryRate)
 
-        populateChipGroup(
+        populateChineseChipGroup(
             binding.knownChipGroup,
             binding.knownEmptyHint,
-            knownIds.mapNotNull { characters[it]?.hanzi }
+            knownIds.mapNotNull { characters[it] }
         )
-        populateChipGroup(
+        populateChineseChipGroup(
             binding.unknownChipGroup,
             binding.unknownEmptyHint,
-            unknownIds.mapNotNull { characters[it]?.hanzi }
+            unknownIds.mapNotNull { characters[it] }
         )
 
         renderTrendChart(filteredHistory, total, formatter)
@@ -105,7 +114,6 @@ class ProgressActivity : AppCompatActivity() {
         binding.enUnknownLabel.text = "Review: $enUnknown"
         binding.enMasteryLabel.text = String.format("Mastery: %.1f%%", enMastery)
 
-        // 渲染英文 known / unknown chip 列表(letter 显示 Aa,word 显示单词 + 中文释义)
         val knownItems = enKnownIds.mapNotNull { id ->
             englishRepository.findByLetterById(id)?.let { EnglishLetterItem(it) }
                 ?: englishRepository.findByWordById(id)?.let { EnglishWordItem(it) }
@@ -114,28 +122,25 @@ class ProgressActivity : AppCompatActivity() {
             englishRepository.findByLetterById(id)?.let { EnglishLetterItem(it) }
                 ?: englishRepository.findByWordById(id)?.let { EnglishWordItem(it) }
         }
-        populateChipGroup(
+        populateEnglishChipGroup(
             binding.enKnownChipGroup,
             binding.enKnownEmptyHint,
-            knownItems.map { renderEnglishLabel(it) }
+            knownItems
         )
-        populateChipGroup(
+        populateEnglishChipGroup(
             binding.enUnknownChipGroup,
             binding.enUnknownEmptyHint,
-            unknownItems.map { renderEnglishLabel(it) }
+            unknownItems
         )
     }
 
-    private fun renderEnglishLabel(item: StudyItem): String = when (item) {
-        is EnglishLetterItem -> "${item.letter.uppercase}${item.letter.lowercase}"
-        is EnglishWordItem -> "${item.word.word}·${item.word.chineseMeaning}"
-        else -> item.primaryText
-    }
-
-    private fun populateChipGroup(
-        group: com.google.android.material.chip.ChipGroup,
+    /**
+     * 渲染中文 chip 列表 + 把每个 chip 设为可点(点 → setResult + finish)
+     */
+    private fun populateChineseChipGroup(
+        group: ChipGroup,
         emptyHint: View,
-        data: List<String>
+        data: List<com.studyword.literacy.model.LearningCharacter>
     ) {
         group.removeAllViews()
         if (data.isEmpty()) {
@@ -145,16 +150,62 @@ class ProgressActivity : AppCompatActivity() {
         }
         emptyHint.isVisible = false
         group.isVisible = true
-
-        data.sorted().forEach { text ->
-            group.addView(createChip(text))
+        data.sortedBy { it.hanzi }.forEach { character ->
+            val chip = createChip(character.hanzi)
+            chip.setOnClickListener {
+                jumpBackToHome(character.id, StudyMode.CHINESE.name)
+            }
+            group.addView(chip)
         }
+    }
+
+    /**
+     * 渲染英文 chip 列表(letter 显示 Aa,word 显示 单词·中文释义)+ 可点
+     */
+    private fun populateEnglishChipGroup(
+        group: ChipGroup,
+        emptyHint: View,
+        data: List<StudyItem>
+    ) {
+        group.removeAllViews()
+        if (data.isEmpty()) {
+            emptyHint.isVisible = true
+            group.isVisible = false
+            return
+        }
+        emptyHint.isVisible = false
+        group.isVisible = true
+        data.sortedBy { renderEnglishLabel(it) }.forEach { item ->
+            val chip = createChip(renderEnglishLabel(item))
+            chip.setOnClickListener {
+                jumpBackToHome(item.id, StudyMode.ENGLISH.name)
+            }
+            group.addView(chip)
+        }
+    }
+
+    private fun renderEnglishLabel(item: StudyItem): String = when (item) {
+        is EnglishLetterItem -> "${item.letter.uppercase}${item.letter.lowercase}"
+        is EnglishWordItem -> "${item.word.word}·${item.word.chineseMeaning}"
+        else -> item.primaryText
+    }
+
+    /**
+     * v1.4.0:跳转回主页特定卡片
+     */
+    private fun jumpBackToHome(itemId: Int, lang: String) {
+        val data = Intent().apply {
+            putExtra(MainActivity.EXTRA_SELECTED_ID, itemId)
+            putExtra(MainActivity.EXTRA_SELECTED_LANG, lang)
+        }
+        setResult(RESULT_OK, data)
+        finish()
     }
 
     private fun createChip(text: String): Chip = Chip(this).apply {
         this.text = text
         isCheckable = false
-        isClickable = false
+        isClickable = true   // v1.4.0:改为可点
         isCloseIconVisible = false
         setEnsureMinTouchTargetSize(false)
         chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(this@ProgressActivity, R.color.bubble_pink))

@@ -1,6 +1,8 @@
 package com.studyword.literacy.ui
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -18,6 +20,12 @@ import com.studyword.literacy.model.EnglishWordItem
 import com.studyword.literacy.model.StudyItem
 import com.studyword.literacy.model.StudyMode
 
+/**
+ * 字库浏览(v1.4.0):
+ * - 短按 item → setResult(selectedId, lang) + finish,跳回主页对应卡片
+ * - 长按 item → 弹状态对话框(原行为,标记 known/unknown/unseen)
+ * - 通过 pageResultLauncher(在 MainActivity 中)接住跳转回值
+ */
 class CharacterLibraryActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLibraryBinding
@@ -82,11 +90,8 @@ class CharacterLibraryActivity : AppCompatActivity() {
                 binding.chipLanguageEnglish.id -> StudyMode.ENGLISH
                 else -> StudyMode.CHINESE
             }
-            // 切换 RecyclerView adapter
             swapAdapterForLanguage()
-            // 中文模式下显示难度筛选,英文模式隐藏
             binding.difficultyFilterGroup.isVisible = currentLanguage == StudyMode.CHINESE
-            // 切语言后默认回到"全部"
             statusFilter = StatusFilter.ALL
             binding.chipFilterAll.isChecked = true
             renderList()
@@ -138,14 +143,41 @@ class CharacterLibraryActivity : AppCompatActivity() {
     private fun setupRecycler() {
         chineseAdapter = AllCharactersAdapter(
             statusProvider = { character -> chineseStatusOf(character.id) },
-            onItemClicked = { character -> showChineseStatusDialog(ChineseStudyItem(character)) }
+            onItemClicked = { character -> jumpBackToHome(ChineseStudyItem(character)) },
+            onItemLongClicked = { character -> showLongPressDialog(ChineseStudyItem(character)) }
         )
         englishAdapter = AllEnglishItemsAdapter(
             statusProvider = { englishStatusOf(it) },
-            onItemClicked = { item -> showEnglishStatusDialog(item) }
+            onItemClicked = { item -> jumpBackToHome(item) },
+            onItemLongClicked = { item -> showLongPressDialog(item) }
         )
-        // 初始按当前语言装载 adapter
         swapAdapterForLanguage()
+    }
+
+    /**
+     * v1.4.0:短按 item → setResult + finish,跳回主页对应卡片
+     */
+    private fun jumpBackToHome(item: StudyItem) {
+        val lang = when (item) {
+            is ChineseStudyItem -> StudyMode.CHINESE.name
+            is EnglishLetterItem, is EnglishWordItem -> StudyMode.ENGLISH.name
+        }
+        val data = Intent().apply {
+            putExtra(MainActivity.EXTRA_SELECTED_ID, item.id)
+            putExtra(MainActivity.EXTRA_SELECTED_LANG, lang)
+        }
+        setResult(RESULT_OK, data)
+        finish()
+    }
+
+    /**
+     * 长按 item → 弹状态对话框
+     */
+    private fun showLongPressDialog(item: StudyItem) {
+        when (item) {
+            is ChineseStudyItem -> showChineseStatusDialog(item)
+            else -> showEnglishStatusDialog(item)
+        }
     }
 
     // ============================================================
@@ -214,7 +246,7 @@ class CharacterLibraryActivity : AppCompatActivity() {
     }
 
     // ============================================================
-    // 状态变更 Dialog
+    // 状态变更 Dialog(长按)
     // ============================================================
 
     private fun showChineseStatusDialog(item: ChineseStudyItem) {
@@ -224,7 +256,7 @@ class CharacterLibraryActivity : AppCompatActivity() {
             getString(R.string.status_unseen)
         )
         MaterialAlertDialogBuilder(this)
-            .setTitle("修改状态：${item.character.hanzi}")
+            .setTitle("修改状态:${item.character.hanzi}")
             .setItems(options) { dialog, which ->
                 val status = when (which) {
                     0 -> CharacterStatus.KNOWN

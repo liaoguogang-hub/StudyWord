@@ -20,7 +20,9 @@ import com.studyword.literacy.model.StudyItem
  */
 class AllEnglishItemsAdapter(
     private val statusProvider: (StudyItem) -> CharacterStatus,
-    private val onItemClicked: (StudyItem) -> Unit
+    private val onItemClicked: (StudyItem) -> Unit,
+    /** v1.4.0:长按回调(可选);长按时若调,需 push 状态对话框 */
+    private val onItemLongClicked: ((StudyItem) -> Unit)? = null
 ) : ListAdapter<StudyItem, AllEnglishItemsAdapter.EnglishViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EnglishViewHolder {
@@ -54,6 +56,12 @@ class AllEnglishItemsAdapter(
             )
 
             binding.root.setOnClickListener { onItemClicked(item) }
+            onItemLongClicked?.let { longHandler ->
+                    binding.root.setOnLongClickListener {
+                        longHandler(item)
+                        true
+                    }
+                }
         }
     }
 
