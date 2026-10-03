@@ -2,8 +2,18 @@ package com.studyword.literacy.game
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.AbsoluteSizeSpan
+import android.util.TypedValue
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
@@ -54,6 +64,16 @@ class GameActivity : AppCompatActivity() {
     private val random = Random(System.currentTimeMillis())
     private val optionButtons: List<MaterialButton> by lazy {
         listOf(binding.optionA, binding.optionB, binding.optionC, binding.optionD)
+    }
+
+    /** v1.4.0:答错时短震动反馈(API 31+ 用 VibratorManager) */
+    private val vibrator: Vibrator? by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager)?.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -296,6 +316,7 @@ class GameActivity : AppCompatActivity() {
             } else {
                 btn.isVisible = true
                 btn.text = renderOptionLabel(opt)
+                applyOptionAutoSize(btn, opt)
                 btn.background = ContextCompat.getDrawable(this, R.drawable.bg_option_default)
                 btn.isEnabled = true
             }
@@ -303,15 +324,60 @@ class GameActivity : AppCompatActivity() {
     }
 
     /**
-     * 渲染选项按钮文字:
-     * - 中文:汉字
-     * - 英文 letter:"Aa"(大小写同行)
-     * - 英文 word:单词
+     * v1.4.0:根据 item 类型给选项按钮启用合适的字号策略
+     * - 中文:固定 44sp(单字刚好)
+     * - 英文 letter:由 renderOptionLabel 的 SpannableString 控制,关闭 auto-size
+     * - 英文 word:启用 auto-size 14-44sp,长单词自动缩字
      */
-    private fun renderOptionLabel(item: StudyItem): String = when (item) {
+    private fun applyOptionAutoSize(btn: MaterialButton, item: StudyItem) {
+        when (item) {
+            is EnglishWordItem -> {
+                btn.setAutoSizeTextTypeUniformWithConfiguration(
+                    14, 44, 1, TypedValue.COMPLEX_UNIT_SP
+                )
+                btn.maxLines = 1
+                btn.ellipsize = null
+            }
+            else -> {
+                btn.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_NONE)
+                btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 44f)
+                btn.maxLines = 1
+            }
+        }
+    }
+
+    /**
+     * 渲染选项按钮文字:
+     * - 中文:汉字(44sp)
+     * - 英文 letter:uppercase 60sp + 间隔 + lowercase 36sp(SpannableString 左右分开)
+     * - 英文 word:单词(由 auto-size 处理)
+     */
+    private fun renderOptionLabel(item: StudyItem): CharSequence = when (item) {
         is ChineseStudyItem -> item.character.hanzi
-        is EnglishLetterItem -> "${item.letter.uppercase}${item.letter.lowercase}"
+        is EnglishLetterItem -> buildLetterLabel(item.letter.uppercase, item.letter.lowercase)
         is EnglishWordItem -> item.word.word
+    }
+
+    /**
+     * 大写 60sp 在左、小写 36sp 在右,中间用 4 个空格拉开距离
+     */
+    private fun buildLetterLabel(uppercase: String, lowercase: String): CharSequence {
+        val gap = "    "
+        val text = "$uppercase$gap$lowercase"
+        val spannable = SpannableString(text)
+        spannable.setSpan(
+            AbsoluteSizeSpan(60, true),
+            0,
+            1,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        spannable.setSpan(
+            AbsoluteSizeSpan(36, true),
+            uppercase.length + gap.length,
+            text.length,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        return spannable
     }
 
     private fun speakCurrentPrompt() {
@@ -353,6 +419,8 @@ class GameActivity : AppCompatActivity() {
             showMiniConfetti()
         } else {
             btn.background = ContextCompat.getDrawable(this, R.drawable.bg_option_wrong)
+            shakeButton(btn)
+            vibrateWrong()
             // 高亮正确答案 1.5 秒
             val correctBtn = optionButtons.firstOrNull {
                 q.options.getOrNull(optionButtons.indexOf(it))?.id == q.correct.id
@@ -428,6 +496,33 @@ class GameActivity : AppCompatActivity() {
     // ============================================================
     // 撒花动画(简化版,独立实现避免与 MainActivity 强耦合)
     // ============================================================
+
+    /**
+     * v1.4.0:答错时按钮左右抖动
+     */
+    private fun shakeButton(btn: View) {
+        ObjectAnimator.ofFloat(
+            btn, "translationX",
+            0f, -24f, 24f, -18f, 18f, -10f, 10f, 0f
+        ).apply {
+            duration = 380L
+            start()
+        }
+    }
+
+    /**
+     * v1.4.0:答错时短震动(80ms,Android 8+ 用 VibrationEffect,旧版本 fallback long)
+     */
+    private fun vibrateWrong() {
+        val v = vibrator ?: return
+        if (!v.hasVibrator()) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(80L, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            v.vibrate(80L)
+        }
+    }
 
     private fun showMiniConfetti() {
         val overlay = binding.confettiOverlay
