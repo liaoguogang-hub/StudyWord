@@ -22,68 +22,146 @@
         app:title="设置中心"
         app:titleTextColor="@color/deep_blue" />
 
-    <LinearLayout
-        android:id="@+id/cardLayout"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/bg_card_playful"
-        android:orientation="vertical"
-        android:padding="20dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:layout_marginTop="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/topBar">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="✨ 数据与进度"
-            android:textColor="@color/deep_blue"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="导出当前识字记录或重置进度，重新开启冒险。"
-            android:textColor="@color/gray_dark"
-            android:textSize="13sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/libraryButton"
-                style="@style/Widget.StudyWord.SecondaryButton"
+            <!-- 数据与进度卡片 -->
+            <LinearLayout
+                android:id="@+id/cardLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="浏览全部汉字" />
+                android:background="@drawable/bg_card_playful"
+                android:orientation="vertical"
+                android:padding="20dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/exportButton"
-                style="@style/Widget.StudyWord.PrimaryButton"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✨ 数据与进度"
+                    android:textColor="@color/deep_blue"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="导出当前学习记录（中英文）或重置进度，重新开启冒险。"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/libraryButton"
+                    style="@style/Widget.StudyWord.SecondaryButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="浏览全部字词" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/exportButton"
+                    style="@style/Widget.StudyWord.PrimaryButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="导出学习进度（中英）" />
+
+                <!-- v1.3.0:重置按钮拆为两个,中文 / 英文独立重置 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/resetChineseButton"
+                    style="@style/Widget.StudyWord.UnknownButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="重置中文进度" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/resetEnglishButton"
+                    style="@style/Widget.StudyWord.UnknownButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Reset English Progress" />
+            </LinearLayout>
+
+            <!-- v1.3.0 新增:字库总览(中英分别) -->
+            <LinearLayout
+                android:id="@+id/cardOverview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-            android:text="导出识字数据" />
+                android:background="@drawable/bg_card_playful"
+                android:orientation="vertical"
+                android:padding="20dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/resetButton"
-            style="@style/Widget.StudyWord.UnknownButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="重置全部记录" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📚 字库总览"
+                    android:textColor="@color/deep_blue"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/overviewChinese"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="中文 0 字"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="14sp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="更多功能敬请期待..."
-        android:textColor="@color/gray_dark"
-        android:textSize="13sp"
-        app:layout_constraintStart_toStartOf="@id/cardLayout"
-        app:layout_constraintTop_toBottomOf="@id/cardLayout" />
+                <TextView
+                    android:id="@+id/overviewEnglish"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="English: 26 letters · 30 words"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/overviewChineseProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="中文已学: 0 · 待巩固: 0"
+                    android:textColor="@color/deep_blue"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/overviewEnglishProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="English: Known 0 · Review 0"
+                    android:textColor="@color/deep_blue"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="更多功能敬请期待..."
+                android:textColor="@color/gray_dark"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

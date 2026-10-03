@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.studyword.literacy.data.CharacterRepository
+import com.studyword.literacy.data.EnglishRepository
 import com.studyword.literacy.data.ProgressStore
 import com.studyword.literacy.databinding.ActivitySettingsBinding
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var progressStore: ProgressStore
     private lateinit var repository: CharacterRepository
+    private lateinit var englishRepository: EnglishRepository
 
     private val exportLauncher = registerForActivityResult(
         ActivityResultContracts.CreateDocument("text/csv")
@@ -35,6 +37,7 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         repository = CharacterRepository(this)
+        englishRepository = EnglishRepository(this)
         progressStore = ProgressStore(this)
 
         binding.topBar.setNavigationOnClickListener { finish() }
@@ -45,29 +48,70 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.exportButton.setOnClickListener {
             val date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-            exportLauncher.launch("识字进度_$date.csv")
+            exportLauncher.launch("StudyWord_$date.csv")
         }
 
-        binding.resetButton.setOnClickListener {
-            progressStore.reset()
+        // 重置中文进度
+        binding.resetChineseButton.setOnClickListener {
+            progressStore.save(emptySet(), emptySet())
             progressStore.recordSnapshot(0, 0)
-            Snackbar.make(binding.root, "进度已重置，回到首页即可重新开始", Snackbar.LENGTH_LONG).show()
+            Snackbar.make(binding.root, "中文进度已重置", Snackbar.LENGTH_LONG).show()
+            refreshOverview()
         }
+
+        // 重置英文进度(保留中文)
+        binding.resetEnglishButton.setOnClickListener {
+            progressStore.resetEnglish()
+            Snackbar.make(binding.root, "English progress reset", Snackbar.LENGTH_LONG).show()
+            refreshOverview()
+        }
+
+        refreshOverview()
     }
 
+    /**
+     * 刷新字库总览卡片(中英分别)
+     */
+    private fun refreshOverview() {
+        val chineseTotal = repository.count()
+        val chineseKnown = progressStore.loadKnown().size
+        val chineseUnknown = progressStore.loadUnknown().size
+        binding.overviewChinese.text = "中文 $chineseTotal 字"
+        binding.overviewChineseProgress.text =
+            "中文已学: $chineseKnown · 待巩固: $chineseUnknown"
+
+        val letterCount = englishRepository.letterCount()
+        val wordCount = englishRepository.wordCount()
+        val englishKnown = progressStore.loadEnglishKnown().size
+        val englishUnknown = progressStore.loadEnglishUnknown().size
+        binding.overviewEnglish.text =
+            "English: $letterCount letters · $wordCount words"
+        binding.overviewEnglishProgress.text =
+            "English: Known $englishKnown · Review $englishUnknown"
+    }
+
+    /**
+     * 导出 CSV,中英两段拼成同一文件:
+     * 段 1:中文 known/unknown 表(兼容 v1.2.1 列)
+     * 段 2:English letters + words
+     */
     private fun exportProgress(uri: Uri) {
         lifecycleScope.launch {
             try {
                 withContext(Dispatchers.IO) {
-                    val known = progressStore.loadKnown()
-                    val unknown = progressStore.loadUnknown()
+                    val chineseKnown = progressStore.loadKnown()
+                    val chineseUnknown = progressStore.loadUnknown()
+                    val englishKnown = progressStore.loadEnglishKnown()
+                    val englishUnknown = progressStore.loadEnglishUnknown()
                     contentResolver.openOutputStream(uri)?.use { stream ->
                         OutputStreamWriter(stream, Charsets.UTF_8).use { writer ->
+                            // ====== 段 1:中文 ======
+                            writer.appendLine("# Chinese characters")
                             writer.appendLine("汉字,拼音,难度,掌握情况")
                             repository.all().forEach { character ->
                                 val status = when {
-                                    known.contains(character.id) -> "认识"
-                                    unknown.contains(character.id) -> "不认识"
+                                    chineseKnown.contains(character.id) -> "认识"
+                                    chineseUnknown.contains(character.id) -> "不认识"
                                     else -> "未测试"
                                 }
                                 writer.appendLine(
@@ -75,6 +119,52 @@ class SettingsActivity : AppCompatActivity() {
                                         "${character.pinyin}," +
                                         "${character.difficulty.label}," +
                                         status
+                                )
+                            }
+                            writer.appendLine()
+
+                            // ====== 段 2:English letters ======
+                            writer.appendLine("# English letters")
+                            writer.appendLine("Letter,Uppercase,Lowercase,Phonetic,Example,Status")
+                            val letterCount = englishRepository.letterCount()
+                            englishRepository.letters().forEach { letter ->
+                                // id 范围 [0, letterCount-1]
+                                val status = when {
+                                    englishKnown.contains(letter.id) -> "known"
+                                    englishUnknown.contains(letter.id) -> "review"
+                                    else -> "new"
+                                }
+                                writer.appendLine(
+                                    listOf(
+                                        letter.letter,
+                                        letter.uppercase,
+                                        letter.lowercase,
+                                        letter.phonetic,
+                                        letter.exampleWord,
+                                        status
+                                    ).joinToString(",")
+                                )
+                            }
+                            writer.appendLine()
+
+                            // ====== 段 3:English words ======
+                            writer.appendLine("# English words")
+                            writer.appendLine("Word,Phonetic,ChineseMeaning,ExampleSentence,Status")
+                            englishRepository.words().forEach { word ->
+                                // word.id = EnglishRepository 中的序号 (0~wordCount-1)
+                                val status = when {
+                                    englishKnown.contains(word.id) -> "known"
+                                    englishUnknown.contains(word.id) -> "review"
+                                    else -> "new"
+                                }
+                                writer.appendLine(
+                                    listOf(
+                                        word.word,
+                                        word.phonetic,
+                                        word.chineseMeaning,
+                                        word.exampleSentence,
+                                        status
+                                    ).joinToString(",")
                                 )
                             }
                         }
