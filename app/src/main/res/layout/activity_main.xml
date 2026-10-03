@@ -36,22 +36,27 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:fillViewport="true"
-            android:paddingStart="24dp"
-            android:paddingTop="32dp"
-            android:paddingEnd="24dp"
+            android:paddingStart="20dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="20dp"
             android:paddingBottom="24dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+                <!--
+                    v1.4.1:头部压缩 — 标题 22sp,去掉独立 subtitle 行,
+                    把 welcome 语并入 englishSubModeGroup 同一行(英文 mode)。
+                    节省纵向 ~50dp,卡片在 720dp 屏幕上首屏即可见 ~75% 内容。
+                -->
                 <TextView
                     android:id="@+id/titleText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="🌈 识字小帮手"
                     android:textColor="@color/black"
-                    android:textSize="28sp"
+                    android:textSize="22sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -60,25 +65,25 @@
                     android:id="@+id/subtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginStart="10dp"
                     android:text="一起开启有趣的识字冒险！"
                     android:textColor="@color/gray_dark"
-                    android:textSize="14sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/titleText" />
+                    android:textSize="12sp"
+                    app:layout_constraintBaseline_toBaselineOf="@id/titleText"
+                    app:layout_constraintStart_toEndOf="@id/titleText" />
 
                 <!--
-                    v1.4.0:英文 mode 时显示"字母 / 单词"子模式切换(放在主页而不是抽屉,
-                    因为切换频率高);中文 mode 时整体隐藏
+                    v1.4.0/v1.4.1:英文 mode 时显示"字母 / 单词"子模式切换。
+                    v1.4.1 marginTop 12→6dp,贴近标题行;中文 mode 时整体隐藏。
                 -->
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/englishSubModeGroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="6dp"
                     android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/subtitle"
+                    app:layout_constraintTop_toBottomOf="@id/titleText"
                     app:selectionRequired="true"
                     app:singleLine="true"
                     app:singleSelection="true">
@@ -106,7 +111,7 @@
                     android:id="@+id/currentCharacterCard"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="10dp"
                     android:clickable="false"
                     android:focusable="false"
                     app:cardBackgroundColor="@android:color/transparent"
