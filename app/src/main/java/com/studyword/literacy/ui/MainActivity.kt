@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
@@ -132,9 +133,11 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * 朗读当前学习项。点卡片触发。
+     * v1.4.1:letter 模式只读字母名(用户需求);word 模式读 EN + 中文意思(带停顿)
+     *
      * - 中文字 → speak(汉字 + 拼音)— 拼音由 PinyinConverter 算得
-     * - 英文 letter → speakSequential(letter, exampleWord, exampleWordChinese)
-     * - 英文 word → speakSequential(word, chineseMeaning)
+     * - 英文 letter → speakEnglish(uppercase),只读字母名(示例词由 chip 单独触发)
+     * - 英文 word → speakSequential(word, chineseMeaning) 500ms 停顿
      */
     private fun speakCurrentItem() {
         val item = currentItem ?: return
@@ -145,16 +148,7 @@ class MainActivity : AppCompatActivity() {
                 TtsManager.speak(text, utteranceId = "main_char_${item.id}")
             }
             is EnglishLetterItem -> {
-                val letter = item.letter
-                TtsManager.speakSequential(
-                    items = buildList {
-                        add(letter.uppercase to true)
-                        if (letter.exampleWord.isNotBlank()) add(letter.exampleWord to true)
-                        if (letter.exampleWordChinese.isNotBlank()) add(letter.exampleWordChinese to false)
-                    },
-                    delayMs = 250,
-                    baseUtteranceId = "main_letter_${item.id}"
-                )
+                TtsManager.speakEnglish(item.letter.uppercase, utteranceId = "main_letter_${item.id}")
             }
             is EnglishWordItem -> {
                 val word = item.word
@@ -163,11 +157,19 @@ class MainActivity : AppCompatActivity() {
                         add(word.word to true)
                         if (word.chineseMeaning.isNotBlank()) add(word.chineseMeaning to false)
                     },
-                    delayMs = 250,
+                    delayMs = 500,
                     baseUtteranceId = "main_word_${item.id}"
                 )
             }
         }
+    }
+
+    /**
+     * v1.4.1:点击字母行(letterContainer)只读字母,行为同 letter 分支。
+     */
+    private fun speakLetterOnly() {
+        val letter = (currentItem as? EnglishLetterItem)?.letter ?: return
+        TtsManager.speakEnglish(letter.uppercase, utteranceId = "main_letter_only_${letter.id}")
     }
 
     /**
@@ -195,7 +197,7 @@ class MainActivity : AppCompatActivity() {
                     sentence to true,
                     item.word.exampleSentenceTranslation to false
                 ),
-                delayMs = 300,
+                delayMs = 500,
                 baseUtteranceId = utteranceId
             )
         } else if (item is EnglishLetterItem) {
@@ -338,9 +340,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** 字卡点击 → speakCurrentItem() */
+    /**
+     * v1.4.1 字卡点击逻辑:
+     * - 卡片整体(内部 LinearLayout)→ speakCurrentItem()
+     *   - letter 模式:只读字母名
+     *   - word 模式:读 EN + 中文意思(500ms 停顿)
+     *   - 中文模式:读汉字 + 拼音
+     * - letterContainer(字母行 Aa)→ speakLetterOnly(),覆盖卡片整体事件
+     *   行为同 letter 分支,但确保即使在 card 整体被 clickable 时点击字母行也只读字母
+     *
+     * 注意:card 的 MaterialCardView 本体 clickable=false,真正的点击事件源是
+     * 内部的 LinearLayout(android:foreground="?attr/selectableItemBackground")。
+     */
     private fun setupCardClick() {
-        binding.currentCharacterCard.setOnClickListener { speakCurrentItem() }
+        val cardContent = (binding.currentCharacterCard.getChildAt(0) as? LinearLayout)
+            ?: binding.currentCharacterCard
+        cardContent.setOnClickListener { speakCurrentItem() }
+        binding.letterContainer.setOnClickListener { speakLetterOnly() }
     }
 
     private fun toast(text: String) {
@@ -522,8 +538,11 @@ class MainActivity : AppCompatActivity() {
     private fun updateCurrentItemView(item: StudyItem?) {
         if (item == null) {
             binding.currentCharacter.isVisible = false
-            binding.uppercaseText.isVisible = false
-            binding.lowercaseText.isVisible = false
+            binding.letterContainer.isVisible = false
+            binding.uppercaseText.text = ""
+            binding.lowercaseText.text = ""
+            binding.wordMeaning.isVisible = false
+            binding.wordMeaning.text = ""
             binding.currentPinyin.text = ""
             binding.currentDifficulty.isVisible = false
             binding.remainingHint.text = when (currentMode) {
@@ -537,15 +556,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         val isLetter = item is EnglishLetterItem
+        val isWord = item is EnglishWordItem
         binding.currentCharacter.isVisible = !isLetter
-        binding.uppercaseText.isVisible = isLetter
-        binding.lowercaseText.isVisible = isLetter
+        binding.letterContainer.isVisible = isLetter
+        binding.wordMeaning.isVisible = isWord
         if (isLetter) {
             val letter = (item as EnglishLetterItem).letter
             binding.uppercaseText.text = letter.uppercase
             binding.lowercaseText.text = letter.lowercase
         } else {
             binding.currentCharacter.text = item.primaryText
+            if (isWord) {
+                // 单词模式下显示中文意思,字号比 currentPinyin 略大,作为显眼释义
+                binding.wordMeaning.text = (item as EnglishWordItem).word.chineseMeaning
+            }
         }
 
         binding.currentPinyin.text = item.secondaryText.ifBlank { "--" }
@@ -599,12 +623,27 @@ class MainActivity : AppCompatActivity() {
                 val chip = inflater.inflate(R.layout.item_word_chip, wordsGroup, false) as Chip
                 chip.text = entry.word
                 chip.setOnClickListener {
-                    speakWordOrSentence(
-                        text = entry.word,
-                        pinyin = entry.pinyin,
-                        utteranceId = "main_word_${item?.id ?: 0}_$index",
-                        isEnglish = isEnglish
-                    )
+                    // v1.4.1:letter 模式下示例词 chip 点 → 英文示例词 + 中文意思(500ms 停顿)
+                    // 其他情况保持原行为(英文 speakEnglish / 中文 char-by-char)
+                    if (item is EnglishLetterItem && item.letter.exampleWord.isNotBlank()) {
+                        TtsManager.speakSequential(
+                            items = buildList {
+                                add(entry.word to true)
+                                if (item.letter.exampleWordChinese.isNotBlank()) {
+                                    add(item.letter.exampleWordChinese to false)
+                                }
+                            },
+                            delayMs = 500,
+                            baseUtteranceId = "main_letter_example_${item.id}"
+                        )
+                    } else {
+                        speakWordOrSentence(
+                            text = entry.word,
+                            pinyin = entry.pinyin,
+                            utteranceId = "main_word_${item?.id ?: 0}_$index",
+                            isEnglish = isEnglish
+                        )
+                    }
                 }
                 wordsGroup.addView(chip)
             }

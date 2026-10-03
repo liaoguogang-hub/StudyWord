@@ -100,16 +100,15 @@
 
                 <!--
                     字卡:点击整张卡片用 v1.4.0 触发 speakCurrentItem()
+                    v1.4.1:卡片本身不再 clickable,改由内部 letterContainer(字母行) + 示例词 chip 单独响应
                 -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/currentCharacterCard"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    android:foregroundGravity="center"
+                    android:clickable="false"
+                    android:focusable="false"
                     app:cardBackgroundColor="@android:color/transparent"
                     app:cardCornerRadius="26dp"
                     app:cardElevation="0dp"
@@ -123,7 +122,10 @@
                         android:gravity="center_horizontal"
                         android:orientation="vertical"
                         android:padding="24dp"
-                        android:background="@drawable/bg_card_playful">
+                        android:background="@drawable/bg_card_playful"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
 
                         <TextView
                             android:id="@+id/cardEmoji"
@@ -145,25 +147,48 @@
                             android:textSize="80sp"
                             android:textStyle="bold" />
 
-                        <!-- v1.3.0/v1.4.0:英文 letter 模式显示大写 + 小写 -->
-                        <TextView
-                            android:id="@+id/uppercaseText"
+                        <!-- v1.3.0/v1.4.0/v1.4.1:英文 letter 模式显示大写 + 小写在一行
+                            整个 letterContainer 可点击 → 只朗读字母名(uppercase) -->
+                        <LinearLayout
+                            android:id="@+id/letterContainer"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="A"
-                            android:textColor="@color/deep_blue"
-                            android:textSize="80sp"
-                            android:textStyle="bold"
-                            android:visibility="gone" />
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackground"
+                            android:visibility="gone">
 
+                            <TextView
+                                android:id="@+id/uppercaseText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="A"
+                                android:textColor="@color/deep_blue"
+                                android:textSize="80sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/lowercaseText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:text="a"
+                                android:textColor="@color/gray_dark"
+                                android:textSize="44sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- v1.4.1:英文 word 模式下显示中文意思(单词释义),与字母卡的中文 hint 对齐 -->
                         <TextView
-                            android:id="@+id/lowercaseText"
+                            android:id="@+id/wordMeaning"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="a"
+                            android:layout_marginTop="6dp"
+                            android:text=""
                             android:textColor="@color/gray_dark"
-                            android:textSize="38sp"
+                            android:textSize="24sp"
                             android:textStyle="bold"
                             android:visibility="gone" />
 
