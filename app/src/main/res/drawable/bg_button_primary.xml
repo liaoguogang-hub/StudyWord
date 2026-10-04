@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    v1.4.3 升级:3D 糖果主按钮(认识/游戏/导出)
-    - 去掉顶部 31% 白色高光(白字看不清)
-    - 渐变改成 deep_blue 顶部 → deep_blue 中部 → tangerine 底部
-    - 顶部 deep_blue 一致,确保白色文字有清晰对比
+    v1.4.4:UI 简约化 — 主按钮(认识/游戏)回退到 v1.4.0 风格
+    单层 deep_blue → tangerine 0° 水平渐变,白字清晰
 -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <corners android:radius="24dp" />
-            <gradient
-                android:startColor="@color/deep_blue"
-                android:centerColor="@color/deep_blue"
-                android:endColor="@color/tangerine"
-                android:angle="270"
-                android:type="linear" />
-            <padding android:left="16dp" android:top="12dp" android:right="16dp" android:bottom="12dp" />
-        </shape>
-    </item>
-</layer-list>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="24dp" />
+    <gradient
+        android:startColor="@color/deep_blue"
+        android:endColor="@color/tangerine"
+        android:angle="0" />
+    <padding
+        android:left="16dp"
+        android:top="12dp"
+        android:right="16dp"
+        android:bottom="12dp" />
+</shape>

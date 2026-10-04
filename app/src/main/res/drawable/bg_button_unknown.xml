@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    v1.4.3 升级:3D 糖果"不认识/重置"按钮
-    - 去掉顶部 31% 白色高光(白字看不清)
-    - 渐变从浅橙色起点改为深红色顶部 → 橘红底部
-    - 整体保持深色,白色文字有清晰对比度
+    v1.4.4:UI 简约化 — "不认识/重置"按钮回退到 v1.4.0 风格
+    deep_blue → sky_blue 90° 垂直渐变 + 1dp 深蓝描边,白字清晰
 -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <corners android:radius="24dp" />
-            <gradient
-                android:startColor="#A8341F"
-                android:centerColor="@color/tangerine"
-                android:endColor="@color/tangerine"
-                android:angle="270"
-                android:type="linear" />
-            <padding android:left="16dp" android:top="12dp" android:right="16dp" android:bottom="12dp" />
-        </shape>
-    </item>
-</layer-list>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="24dp" />
+    <gradient
+        android:startColor="@color/deep_blue"
+        android:endColor="@color/sky_blue"
+        android:angle="90" />
+    <stroke
+        android:width="1dp"
+        android:color="@color/deep_blue" />
+    <padding
+        android:left="18dp"
+        android:top="12dp"
+        android:right="18dp"
+        android:bottom="12dp" />
+</shape>

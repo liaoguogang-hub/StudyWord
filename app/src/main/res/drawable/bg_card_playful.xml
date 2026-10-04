@@ -1,39 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    v1.4.1:3D 糖果卡片
-    layer-list:
-      [0] 厚 2.5dp 描边(深蓝)— 提供糖果边缘感
-      [1] 主渐变(白 → 薄荷 → 浅粉)— 卡片底面
-      [2] 顶部高光带(20dp 半透明白)— 模拟糖果反光
-    配合 MaterialCardView cardElevation=6dp,获得 3D 立体感。
+    v1.4.4:UI 简约化 — 卡片背景回退到 v1.4.0 风格
+    单层 white → mint → white 90° 渐变,无描边无高光,清爽
 -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <corners android:radius="26dp" />
-            <solid android:color="@color/deep_blue" />
-        </shape>
-    </item>
-    <item android:top="2.5dp" android:left="2.5dp" android:right="2.5dp" android:bottom="2.5dp">
-        <shape android:shape="rectangle">
-            <corners android:radius="23.5dp" />
-            <gradient
-                android:startColor="@color/white"
-                android:centerColor="@color/mint"
-                android:endColor="@color/bubble_pink"
-                android:angle="135"
-                android:type="linear" />
-        </shape>
-    </item>
-    <item android:top="2.5dp" android:left="2.5dp" android:right="2.5dp" android:bottom="22dp">
-        <shape android:shape="rectangle">
-            <corners android:topLeftRadius="23.5dp" android:topRightRadius="23.5dp" />
-            <gradient
-                android:startColor="#60FFFFFF"
-                android:centerColor="#20FFFFFF"
-                android:endColor="#00FFFFFF"
-                android:angle="270"
-                android:type="linear" />
-        </shape>
-    </item>
-</layer-list>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="24dp" />
+    <gradient
+        android:startColor="@color/white"
+        android:centerColor="@color/mint"
+        android:endColor="@color/white"
+        android:angle="90" />
+    <padding
+        android:left="12dp"
+        android:top="12dp"
+        android:right="12dp"
+        android:bottom="12dp" />
+</shape>
