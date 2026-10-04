@@ -3,6 +3,54 @@
 本项目版本号遵循 [语义化版本 2.0](https://semver.org/lang/zh-CN/) 规范。
 格式参考 [Keep a Changelog 1.1](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.4.4] - 2026-10-04
+
+本版本针对 v1.4.3 之后的 5 项用户反馈做 UI 简约化回归、退出流程修复、导航栈清理。
+
+### 新增
+- ✋ **退出软件前确认对话框** — 在主页按系统返回键弹"退出识字小帮手?"对话框
+  - 确定 → `finish()` 退出 app
+  - 取消 / "再练一会儿" → 留在主页继续学习
+  - 抽屉打开时按返回键 → 先关闭抽屉,不弹退出对话框
+  - 通过 `OnBackPressedCallback` 实现,与 `MaterialAlertDialogBuilder` 配合
+- ⬅️ **抽屉左侧"← 返回主页"按钮** — `drawerBackButton` 在 drawerContainer 顶部左侧
+  - 透明背景,文字 32sp,与抽屉整体同高
+  - 点击关闭抽屉回主页(主页本来就在后台栈,不 finish 任何 Activity)
+  - 与右上角 `menuButton` 风格一致:透明背景 + ripple + deep_blue 文字
+
+### 改动
+- 🎨 **UI 回退到 v1.4.0 简约风**(用户反馈"UI 太难看了,恢复改动前的样子")
+  - `bg_main_gradient`:3 段 sky_blue→lavender→peach (135°) → 2 段 sky_blue→lavender (45°)
+  - `bg_card_playful`:3 层糖果(厚 2.5dp 描边 + 顶部高光)→ 单层 white→mint→white 90° 渐变
+  - `bg_button_primary`:3 层深蓝→深蓝→橘红糖果 → 单层 deep_blue→tangerine 0°
+  - `bg_button_unknown`:3 层深红橘糖果 → 2 层 deep_blue→sky_blue 90° + 1dp 深蓝描边
+  - `bg_button_secondary`:3 层糖果 → 单层白底 + 2dp 深蓝描边
+  - `currentCharacterCard`:cardCornerRadius 28dp → 26dp,cardElevation 8dp → 0dp,padding 22dp → 24dp
+  - 主页 padding 20dp/12dp → 24dp/32dp
+  - 所有按钮 `MaterialButton` 样式保留 v1.4.3 修的 `UnelevatedButton` 父样式 + `backgroundTint=@null` + `stateListAnimator=@null` + `elevation=0dp`(防点击 bug),但去掉 layer-list 多层糖果渐变,回到 v1.4.0 单层 shape background
+- 🍔 **右上角汉堡按钮改重设计** — "融入背景底色 + 缩小 + 与 topLabel 同高"(用户反馈)
+  - 56×56dp 白底圆圈 + elevation=6dp 阴影 → 40dp 高 + 完全透明背景 + elevation=0dp + ripple
+  - 与左上 `topLabel` 高度一致(40dp),无视觉重量
+- 🔙 **"← 返回"按钮同样融入背景** — 48dp 高 + 白底 + elevation=6dp → 40dp 高 + 透明 + elevation=0dp
+  - `refreshTopLabel()` 让位 margin 从 140dp → 110dp(按钮缩了)
+
+### 修复
+- 🧭 **返回栈清理** — 源页内 chip 主动跳转回主页后,主页不再显示"← 返回"按钮
+  - `ProgressActivity.jumpBackToHome()` / `CharacterLibraryActivity.jumpBackToHome()` 新增 `EXTRA_CLEAR_SOURCE=true` 标记
+  - `MainActivity.pageResultLauncher` 收到后 `jumpSource = null`,刷新 topLabel marginStart 为 0
+  - 工具栏箭头 `finish()` 路径不变(仍显示"← 返回"),用户可一键回溯
+- 行为对齐:
+  - 主页 + `jumpSource` != null + 系统返回键 → finish 主页回到源页(单步返回,不弹退出)
+  - 主页 + `jumpSource` == null + 系统返回键 → 弹退出确认
+  - 抽屉打开 + 系统返回键 → 关闭抽屉
+
+### 兼容
+- `versionCode 9 → 10`,`versionName 1.4.3 → 1.4.4`
+- `EXTRA_CLEAR_SOURCE` 是 result intent 新增 extra,旧发送方不传时默认 false,行为不变
+- `OnBackPressedCallback` 在 onCreate 中 addCallback,与 super.onCreate() 不冲突
+- 数据层完全兼容 v1.4.3,无任何数据迁移
+- `drawerBackButton` 是新 view,旧 binding 不存在,需重新编译
+
 ## [1.4.2] - 2026-10-03
 
 本版本针对 v1.4.1 的 4 项遗留 UX 问题逐项处理 + 8 张文生图提示词。
