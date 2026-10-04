@@ -13,6 +13,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import com.google.android.material.chip.Chip
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.studyword.literacy.R
 import com.studyword.literacy.data.CharacterRepository
@@ -89,6 +91,9 @@ class MainActivity : AppCompatActivity() {
     /**
      * 从 ProgressActivity / CharacterLibraryActivity 接 selectedId + language + 来源页
      * 来源页用于显示"← 返回"按钮,让用户能从主页跳回去
+     *
+     * v1.4.4:接收 EXTRA_CLEAR_SOURCE — 源页内 chip 主动跳转时,主页清掉 jumpSource
+     * 不显示"← 返回"按钮(否则用户从 chip 跳回主页后又看到跳转按钮,体验割裂)
      */
     private val pageResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -98,10 +103,48 @@ class MainActivity : AppCompatActivity() {
         val selectedId = data.getIntExtra(EXTRA_SELECTED_ID, -1)
         val lang = data.getStringExtra(EXTRA_SELECTED_LANG) ?: return@registerForActivityResult
         if (selectedId < 0) return@registerForActivityResult
-        // v1.4.2:记录来源,显示"← 返回"按钮
-        jumpSource = data.getStringExtra(EXTRA_SOURCE_PAGE)
+        // v1.4.4:chip 主动跳转 → 清 jumpSource,不显示"← 返回"按钮
+        // 工具栏箭头 finish 回来 → 不带 EXTRA_CLEAR_SOURCE,保留 jumpSource 显示按钮
+        val clearSource = data.getBooleanExtra(EXTRA_CLEAR_SOURCE, false)
+        jumpSource = if (clearSource) null else data.getStringExtra(EXTRA_SOURCE_PAGE)
         refreshBackJumpButton()
         loadItemById(selectedId, lang)
+    }
+
+    /**
+     * v1.4.4:系统返回键处理
+     * - 抽屉打开时 → 关闭抽屉
+     * - 有跳转源(jumpSource != null) → 启动源 Activity + finish 主页(回到源页)
+     * - 正常主页态 → 弹"退出识字小帮手?"确认对话框
+     */
+    private val backCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if (binding.drawerLayout.isDrawerOpen(GravityCompat.END)) {
+                binding.drawerLayout.closeDrawer(GravityCompat.END)
+                return
+            }
+            // v1.4.4:有跳转源 → finish 主页回到源页(单步返回)
+            if (jumpSource != null) {
+                val intent = when (jumpSource) {
+                    SOURCE_PROGRESS -> Intent(this@MainActivity, ProgressActivity::class.java)
+                    SOURCE_LIBRARY -> Intent(this@MainActivity, CharacterLibraryActivity::class.java)
+                    else -> null
+                }
+                jumpSource = null
+                if (intent != null) {
+                    startActivity(intent)
+                    finish()
+                    return
+                }
+            }
+            // v1.4.4:正常退出确认
+            MaterialAlertDialogBuilder(this@MainActivity)
+                .setTitle("退出识字小帮手?")
+                .setMessage("今天的进度还没保存,确定要退出吗?")
+                .setPositiveButton("退出") { _, _ -> finish() }
+                .setNegativeButton("再练一会儿", null)
+                .show()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -129,6 +172,9 @@ class MainActivity : AppCompatActivity() {
         refreshDrawerGreeting()
         rebuildQueue()
         loadNextItem()
+
+        // v1.4.4:接管系统返回键 — 弹退出确认 / 关闭抽屉 / 回源页
+        onBackPressedDispatcher.addCallback(this, backCallback)
     }
 
     override fun onDestroy() {
@@ -254,6 +300,10 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.closeDrawer(GravityCompat.END)
             startActivity(Intent(this, SettingsActivity::class.java))
         }
+        // v1.4.4 新增:抽屉左侧"←"按钮 → 关闭抽屉回主页(主页本来就在后台栈,不需要 finish)
+        binding.drawerBackButton.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.END)
+        }
     }
 
     /**
@@ -342,10 +392,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * v1.4.3:顶部 label 显示"当前语言 · 难度"。
+     * v1.4.4:顶部 label 显示"当前语言 · 难度"。
      * 中英文 mode 都显示,保证字卡起点位置永远一致。
      * 当前"卡片"内不再显示难度 chip,避免重复。
      * 当"← 返回"按钮可见时,把 topLabel 推到按钮右侧,避免重叠。
+     *
+     * v1.4.4:按钮融入背景(透明)+ 高度从 48dp → 40dp,所以让位 margin 从 140dp → 110dp。
      */
     private fun refreshTopLabel() {
         val langLabel = when (currentMode) {
@@ -358,9 +410,9 @@ class MainActivity : AppCompatActivity() {
             Difficulty.HARD -> "难度 困难"
         }
         binding.topLabel.text = "$langLabel · $difficultyLabel"
-        // v1.4.3:返回按钮可见时,topLabel 加 56dp+12dp margin 让位
+        // v1.4.4:返回按钮可见时,topLabel 加 110dp margin 让位(按钮透明 + 高度 40dp)
         val params = binding.topLabel.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
-        params.marginStart = if (jumpSource == null) 0 else dp(140)
+        params.marginStart = if (jumpSource == null) 0 else dp(110)
         binding.topLabel.layoutParams = params
     }
 
@@ -1021,6 +1073,8 @@ class MainActivity : AppCompatActivity() {
         const val EXTRA_SELECTED_LANG = "selected_lang"  // "CHINESE" / "ENGLISH"
         /** v1.4.2:跳转来源 — 主页收到后可显示"← 返回"按钮跳回源 Activity */
         const val EXTRA_SOURCE_PAGE = "source_page"
+        /** v1.4.4:源页内 chip 主动 setResult + finish 时,主页清掉 jumpSource,不显示"← 返回"按钮 */
+        const val EXTRA_CLEAR_SOURCE = "clear_source"
         const val SOURCE_PROGRESS = "progress"
         const val SOURCE_LIBRARY = "library"
     }
