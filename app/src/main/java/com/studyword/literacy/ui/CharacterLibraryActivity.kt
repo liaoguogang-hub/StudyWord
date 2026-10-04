@@ -200,6 +200,8 @@ class CharacterLibraryActivity : AppCompatActivity() {
     /**
      * v1.4.0:短按 item → setResult + finish,跳回主页对应卡片
      * v1.4.2:同时把 source=library 发回去,主页可显示"← 返回字库"按钮
+     * v1.4.4:同时把 clear_source=true 发回去 — 这是用户主动从源页短按 chip 跳回主页,
+     * 主页接收后清掉 jumpSource,不显示"← 返回字库"按钮
      */
     private fun jumpBackToHome(item: StudyItem) {
         val lang = when (item) {
@@ -210,6 +212,7 @@ class CharacterLibraryActivity : AppCompatActivity() {
             putExtra(MainActivity.EXTRA_SELECTED_ID, item.id)
             putExtra(MainActivity.EXTRA_SELECTED_LANG, lang)
             putExtra(MainActivity.EXTRA_SOURCE_PAGE, MainActivity.SOURCE_LIBRARY)
+            putExtra(MainActivity.EXTRA_CLEAR_SOURCE, true)
         }
         setResult(RESULT_OK, data)
         finish()
