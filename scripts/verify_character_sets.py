@@ -58,7 +58,9 @@ NOT_FOR_TODDLERS = set(
     "毋弗奴囚弘死杀血伤执亦伦刑邦邪伪廷旨仲岂讼劣奸妄玑吁兆吏讽旬夷贞巩匈朽汝迄妃牟讳迂忖役歼劫坟妓扼怖隶"
     "乙乃兀尸亏歹乞亡士丈凡川亿弓刃丫已及夕史"
 )
-MIN_WORDS_COVERED = 1167  # 简单档全部字数(v1.6.0 起要求 100% 覆盖)
+MIN_WORDS_COVERED = 1167
+# 音频清单(由 scripts/generate_audio.py 生成)
+AUDIO_MANIFEST = ROOT / "scripts" / "audio_manifest.json"  # 简单档全部字数(v1.6.0 起要求 100% 覆盖)
 
 # 英文难度的下限规则(v1.6.0 起)
 #
@@ -229,6 +231,42 @@ def main() -> int:
         problems.append(
             f"「简单」档有 {len(easy_no_words)} 个字缺词组: {''.join(easy_no_words[:40])}"
         )
+
+    # ---- 5d. 内容字段不得有首尾空白 ----
+    # v1.6.0:音频 key 由文本拼成(如 "e:祝你生日快乐!"),生成脚本会 strip,
+    # 而 App 用原样字符串查 key —— 数据里多一个空格,这条音频就**永远播不出**,
+    # 且症状只是"某一句没声音",极难察觉。实测出现过 1 处(乐 的例句)。
+    ws_bad = []
+    for _lvl in ("easy", "medium", "hard"):
+        for _x in data.get(_lvl, []):
+            if not isinstance(_x, dict):
+                continue
+            for _w in (_x.get("words") or []):
+                for _f in ("word", "pinyin"):
+                    _v = _w.get(_f)
+                    if isinstance(_v, str) and _v != _v.strip():
+                        ws_bad.append(f"{_x.get('char')}.{_f}")
+            for _e in (_x.get("examples") or []):
+                for _f in ("sentence", "pinyin"):
+                    _v = _e.get(_f)
+                    if isinstance(_v, str) and _v != _v.strip():
+                        ws_bad.append(f"{_x.get('char')}.{_f}")
+    if ws_bad:
+        problems.append(f"以下字段带首尾空白,会导致音频 key 对不上: {ws_bad[:10]}")
+
+    # ---- 5c. 音频覆盖率 ----
+    # v1.6.0:这个缺口此前**没有任何工具会报** ——
+    # generate_audio.py 曾写死 CHAR_COVER=600,而简单档后来变成 1167 字,
+    # 结果后 567 个字完全没有发音。设备上没有 TTS 引擎时,这些字点下去是静音的。
+    if AUDIO_MANIFEST.exists():
+        manifest = json.loads(AUDIO_MANIFEST.read_text(encoding="utf-8"))
+        no_audio = [char_of(it) for it in easy if f"c:{char_of(it)}" not in manifest]
+        if no_audio:
+            problems.append(
+                f"「简单」档有 {len(no_audio)} 个字没有单字音频,在无 TTS 设备上会静音: "
+                f"{''.join(no_audio[:40])}"
+            )
+        print(f"简单档单字音频覆盖    : {len(easy) - len(no_audio)}/{len(easy)}")
 
     # ---- 6. 英文词库 ----
     en_path = ROOT / "app" / "src" / "main" / "assets" / "english_sets.json"

@@ -42,4 +42,21 @@ object AudioClipNaming {
 
     /** assets 下的相对路径,如 `audio/ke8693da9.ogg` */
     fun assetPath(key: String): String = "$DIR/${fileName(key)}"
+
+    /**
+     * 规整 key:`前缀 + 冒号 + 文本`,**只对文本部分**去首尾空白。
+     *
+     * 为什么必须与生成脚本一致
+     * ----------------------
+     * key 由文本拼成(如 `e:祝你生日快乐!`),生成脚本建 key 时会 strip。
+     * 数据里若混入一个首尾空格,两边 key 就对不上 —— 这条音频**永远播不出**,
+     * 而症状只是"某一句没声音",极难定位。
+     *
+     * 实测踩过一次:`乐` 的例句是 `"祝你生日快乐! "`(末尾多一个空格)。
+     * 数据已清理,这个函数作为兜底,保证 App 与脚本的算法严格对齐。
+     */
+    fun normalizeKey(key: String): String {
+        val i = key.indexOf(':')
+        return if (i < 0) key.trim() else key.substring(0, i + 1) + key.substring(i + 1).trim()
+    }
 }

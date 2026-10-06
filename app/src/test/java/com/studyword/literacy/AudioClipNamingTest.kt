@@ -81,4 +81,24 @@ class AudioClipNamingTest {
         // 句末标点参与哈希
         assertTrue(AudioClipNaming.fileName("s:Hi.") != AudioClipNaming.fileName("s:Hi"))
     }
+
+    @Test
+    fun `规整 key 时只去掉文本部分的首尾空白`() {
+        // 前缀部分不能被破坏
+        assertEquals("e:你好", AudioClipNaming.normalizeKey("e: 你好 "))
+        assertEquals("c:一", AudioClipNaming.normalizeKey("c:一"))
+        // 没有冒号时整体 trim
+        assertEquals("abc", AudioClipNaming.normalizeKey("  abc  "))
+        // 中间的空格必须保留(句子里的空格有意义)
+        assertEquals("s:I love my cat.", AudioClipNaming.normalizeKey("s: I love my cat. "))
+    }
+
+    @Test
+    fun `带空白的 key 与不带空白指向同一个文件`() {
+        // 这正是那个真实 bug:数据末尾多一个空格 -> key 对不上 -> 音频永远播不出
+        assertEquals(
+            AudioClipNaming.fileName("e:祝你生日快乐!"),
+            AudioClipNaming.fileName(AudioClipNaming.normalizeKey("e:祝你生日快乐! "))
+        )
+    }
 }

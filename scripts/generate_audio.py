@@ -84,8 +84,13 @@ RATE_ZH = "-8%"                     # 略慢一点,便于幼儿跟读
 RATE_EN = "-4%"
 MP3_BITRATE = "40k"
 
-CHAR_COVER = 600                    # 简单字覆盖前 N 个
-EN_WORD_DIFFICULTY = "EASY"         # 英文单词只做"简单"这一档
+# 覆盖范围:None = **整个简单档**。
+# 这里曾写死 600 —— 那是早期"只有前 600 字有词组"时的值,后来内容补到 1200 字、
+# 难度改档后简单档又变成 1167 字,写死的数字导致**后 567 个字完全没有发音**
+# (那台鸿蒙手机没有 TTS 引擎,这些字点下去是静音的)。改为动态,以后不会再漏。
+CHAR_COVER = None
+# 英文单词:None = 全部难度。原先只做 EASY,导致中等/困难共 100 个词没有发音。
+EN_WORD_DIFFICULTY = None
 
 LETTER_FIELDS = ["uppercase", "exampleWord", "exampleWordChinese"]
 
@@ -101,7 +106,7 @@ def build_items():
 
     # ---- 中文:简单字 1~600 的单字 / 词组 / 例句 ----
     data = json.loads(CHAR_FILE.read_text(encoding="utf-8"))
-    easy = data["easy"][:CHAR_COVER]
+    easy = data["easy"] if CHAR_COVER is None else data["easy"][:CHAR_COVER]
     for it in easy:
         if not isinstance(it, dict):
             continue  # 没有词组/例句的字(白名单)跳过
@@ -131,7 +136,7 @@ def build_items():
 
     # ---- 英文:简单单词(单词 + 中文意思 + 例句 + 翻译) ----
     for w in en["words"]:
-        if w.get("difficulty") != EN_WORD_DIFFICULTY:
+        if EN_WORD_DIFFICULTY is not None and w.get("difficulty") != EN_WORD_DIFFICULTY:
             continue
         word = (w.get("word") or "").strip()
         mean = (w.get("chineseMeaning") or "").strip()
@@ -164,15 +169,19 @@ def check_collisions(items):
 async def synth_one(sem, edge_tts, text, voice, rate, tmp_path, retries=3):
     """合成一条到 mp3(临时)。返回 True/False"""
     async with sem:
+        last_error = None
         for attempt in range(retries):
             try:
                 c = edge_tts.Communicate(text, voice, rate=rate)
                 await c.save(str(tmp_path))
                 if tmp_path.exists() and tmp_path.stat().st_size > 512:
                     return True
-            except Exception:
-                pass
+            except Exception as exc:
+                last_error = exc
             await asyncio.sleep(1.0 + attempt)
+        if last_error is not None:
+            print(f"  [warn] 合成失败 text={text[:12]!r}: "
+                  f"{type(last_error).__name__}: {last_error}", flush=True)
         return False
 
 
@@ -288,7 +297,12 @@ async def main() -> int:
                 async with lock:
                     failed.append(key)
                 return
-            if not transcode(ffmpeg, raw, dst):
+            # ⚠️ transcode 内部是 subprocess.run(同步阻塞)。
+            # 直接在协程里调用会**阻塞整个事件循环** —— 12 个 worker 中只要有 1 个在
+            # 转码,其余 11 个连网络请求都发不出去,实测吞吐从 114 条/分钟掉到 8 条/分钟。
+            # 丢进线程池后 ffmpeg 与网络才真正并行。
+            loop = asyncio.get_running_loop()
+            if not await loop.run_in_executor(None, transcode, ffmpeg, raw, dst):
                 async with lock:
                     failed.append(key)
                 return

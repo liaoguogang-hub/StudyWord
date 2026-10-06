@@ -87,22 +87,31 @@ object AudioClips {
     }
 
     /**
+     * 规整 key:与生成脚本的 strip 算法对齐,避免"数据末尾多一个空格 → 音频永远播不出"。
+     *
+     * 实现放在 [AudioClipNaming] —— 那里是纯函数且有跨语言契约测试,能被单测覆盖;
+     * 本类的其余部分依赖 MediaPlayer,无法在 JVM 上测试。
+     */
+    private fun normalize(key: String): String = AudioClipNaming.normalizeKey(key)
+
+    /**
      * key 对应的 asset 路径。
      * 规则见 [AudioClipNaming] —— 抽出去是为了有**跨语言契约测试**锁定,
      * 避免与 Python 生成脚本悄悄分叉(症状是"生成了却播不出声"且无报错)。
      */
-    private fun assetPath(key: String): String = AudioClipNaming.assetPath(key)
+    private fun assetPath(key: String): String = AudioClipNaming.assetPath(normalize(key))
 
     /** 是否存在该条音频(结果会被缓存) */
     fun has(key: String): Boolean {
         if (!enabled) return false
         val ctx = appContext ?: return false
-        if (missing.contains(key)) return false
-        val path = assetPath(key)
+        val k = normalize(key)
+        if (missing.contains(k)) return false
+        val path = assetPath(k)
         return try {
             ctx.assets.openFd(path).use { true }
         } catch (e: Exception) {
-            missing.add(key)
+            missing.add(k)
             false
         }
     }
@@ -114,12 +123,13 @@ object AudioClips {
     fun play(key: String): Boolean {
         if (!enabled) return false
         val ctx = appContext ?: return false
-        if (missing.contains(key)) return false
-        val path = assetPath(key)
+        val k = normalize(key)
+        if (missing.contains(k)) return false
+        val path = assetPath(k)
         val fd: AssetFileDescriptor = try {
             ctx.assets.openFd(path)
         } catch (e: Exception) {
-            missing.add(key)
+            missing.add(k)
             return false
         }
         return try {
@@ -185,7 +195,9 @@ object AudioClips {
         val ctx = appContext ?: return false
         if (keys.isEmpty()) return false
         // 先整体检查,避免播了一半才发现缺
-        val paths = keys.map { key ->
+        // (normalize:与生成脚本的 strip 对齐,详见 normalize 的说明)
+        val paths = keys.map { raw ->
+            val key = normalize(raw)
             if (missing.contains(key)) return false
             val p = assetPath(key)
             try {
