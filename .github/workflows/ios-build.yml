@@ -73,6 +73,15 @@ jobs:
           # 等模拟器系统就绪,否则 xcodebuild 会因 simctl 没准备好超时。
           xcrun simctl bootstatus "$UDID" -b
 
+      - name: List available schemes
+        run: |
+          cd iosApp
+          mkdir -p build
+          # 第一次跑(Build for simulator 步骤 mark ✓ 但实际失败、log 只 507 字节)
+          # 根因未知,先 list 出 XcodeGen 生成的 scheme 真实名字。
+          # 修对后这个调试步骤可以删。
+          xcodebuild -project StudyWord.xcodeproj -list 2>&1 | tee build/schemes.log
+
       - name: Build for simulator (unsigned)
         run: |
           cd iosApp
@@ -86,7 +95,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            build | tee build/xcodebuild.log
+            build 2>&1 | tee build/xcodebuild.log
 
       - name: Install & launch on simulator
         run: |
