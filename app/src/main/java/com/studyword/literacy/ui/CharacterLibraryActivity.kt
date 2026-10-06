@@ -2,11 +2,11 @@ package com.studyword.literacy.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doAfterTextChanged
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -19,9 +19,11 @@ import com.studyword.literacy.model.ChineseStudyItem
 import com.studyword.literacy.model.Difficulty
 import com.studyword.literacy.model.EnglishLetterItem
 import com.studyword.literacy.model.EnglishWordItem
+import com.studyword.literacy.model.LearnStatus
+import com.studyword.literacy.model.LibrarySearch
+import com.studyword.literacy.model.ProgressRules
 import com.studyword.literacy.model.StudyItem
 import com.studyword.literacy.model.StudyMode
-import kotlin.math.abs
 
 /**
  * 字库浏览(v1.4.0):
@@ -37,17 +39,21 @@ class CharacterLibraryActivity : AppCompatActivity() {
     private lateinit var progressStore: ProgressStore
 
     private var currentLanguage: StudyMode = StudyMode.CHINESE
+
+    /** v1.6.0:搜索关键词(汉字 / 拼音 / 单词 / 中文意思);空 = 不过滤 */
+    private var searchQuery: String = ""
+
     private var statusFilter: StatusFilter = StatusFilter.ALL
     private var difficultyFilter: DifficultyFilter = DifficultyFilter.ALL
 
-    // ====== 中文维度 ======
-    private var chineseKnownIds: MutableSet<Int> = mutableSetOf()
-    private var chineseUnknownIds: MutableSet<Int> = mutableSetOf()
+    // ====== 中文维度(v1.5.0:元素是汉字本身) ======
+    private var chineseKnownIds: MutableSet<String> = mutableSetOf()
+    private var chineseUnknownIds: MutableSet<String> = mutableSetOf()
     private lateinit var chineseAdapter: AllCharactersAdapter
 
-    // ====== 英文维度 ======
-    private var englishKnownIds: MutableSet<Int> = mutableSetOf()
-    private var englishUnknownIds: MutableSet<Int> = mutableSetOf()
+    // ====== 英文维度(v1.5.0:元素是 "L:A" / "W:apple") ======
+    private var englishKnownIds: MutableSet<String> = mutableSetOf()
+    private var englishUnknownIds: MutableSet<String> = mutableSetOf()
     private lateinit var englishAdapter: AllEnglishItemsAdapter
 
     private val allChineseItems: List<StudyItem> by lazy {
@@ -65,7 +71,7 @@ class CharacterLibraryActivity : AppCompatActivity() {
 
         repository = CharacterRepository(this)
         englishRepository = EnglishRepository(this)
-        progressStore = ProgressStore(this)
+        progressStore = ProgressStore.active(this)
 
         currentLanguage = StudyMode.fromName(progressStore.loadLanguage())
 
@@ -75,7 +81,6 @@ class CharacterLibraryActivity : AppCompatActivity() {
         englishUnknownIds = progressStore.loadEnglishUnknown()
 
         setupToolbar()
-        setupSwipeBack()
         setupRecycler()
         setupLanguageToggle()
         setupFilters()
@@ -89,38 +94,12 @@ class CharacterLibraryActivity : AppCompatActivity() {
     /**
      * v1.4.1:从屏幕左边缘向右滑动超过 120dp 且横向速度 > 纵向速度 2 倍 → finish()
      * 不影响 RecyclerView 上下滚动、chip 点击等其他手势。
+     * v1.5.0:实现抽到 [SwipeBackDelegate](与 ProgressActivity 共用)。
      */
-    private fun setupSwipeBack() {
-        val density = resources.displayMetrics.density
-        val edgePx = EDGE_THRESHOLD_DP * density
-        val distancePx = SWIPE_DISTANCE_THRESHOLD_DP * density
-        swipeBackDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onFling(
-                e1: MotionEvent?,
-                e2: MotionEvent,
-                velocityX: Float,
-                velocityY: Float
-            ): Boolean {
-                if (e1 == null) return false
-                val dx = e2.x - e1.x
-                val dy = e2.y - e1.y
-                val startsAtLeftEdge = e1.x <= edgePx
-                val longEnough = dx >= distancePx
-                val mostlyHorizontal = abs(dx) > abs(dy) * 2
-                val fastEnough = velocityX > SWIPE_VELOCITY_THRESHOLD
-                if (startsAtLeftEdge && longEnough && mostlyHorizontal && fastEnough) {
-                    finish()
-                    return true
-                }
-                return false
-            }
-        })
-    }
-
-    private var swipeBackDetector: GestureDetector? = null
+    private val swipeBack by lazy { SwipeBackDelegate(this) }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        swipeBackDetector?.onTouchEvent(ev)
+        swipeBack.onTouchEvent(ev)
         return super.dispatchTouchEvent(ev)
     }
 
@@ -160,6 +139,12 @@ class CharacterLibraryActivity : AppCompatActivity() {
     }
 
     private fun setupFilters() {
+        // v1.6.0:搜索框 —— 输入即过滤(字库最多 3000 条,实时过滤无压力)
+        binding.searchInput.doAfterTextChanged { text: android.text.Editable? ->
+            searchQuery = text?.toString().orEmpty()
+            renderList()
+        }
+
         binding.statusFilterGroup.setOnCheckedStateChangeListener { _, checkedIds ->
             when (checkedIds.firstOrNull()) {
                 binding.chipFilterKnown.id -> statusFilter = StatusFilter.KNOWN
@@ -185,12 +170,12 @@ class CharacterLibraryActivity : AppCompatActivity() {
 
     private fun setupRecycler() {
         chineseAdapter = AllCharactersAdapter(
-            statusProvider = { character -> chineseStatusOf(character.id) },
+            statusProvider = { character -> chineseStatusOf(character.hanzi) },
             onItemClicked = { character -> jumpBackToHome(ChineseStudyItem(character)) },
             onItemLongClicked = { character -> showLongPressDialog(ChineseStudyItem(character)) }
         )
         englishAdapter = AllEnglishItemsAdapter(
-            statusProvider = { englishStatusOf(it) },
+            statusProvider = { item -> englishStatusOf(item.progressKey) },
             onItemClicked = { item -> jumpBackToHome(item) },
             onItemLongClicked = { item -> showLongPressDialog(item) }
         )
@@ -211,8 +196,9 @@ class CharacterLibraryActivity : AppCompatActivity() {
         val data = Intent().apply {
             putExtra(MainActivity.EXTRA_SELECTED_ID, item.id)
             putExtra(MainActivity.EXTRA_SELECTED_LANG, lang)
+            // v1.6.0:不再发 CLEAR_SOURCE —— 那会让主页把 jumpSource 置空,
+            // 导致"← 返回字库"按钮永远不显示
             putExtra(MainActivity.EXTRA_SOURCE_PAGE, MainActivity.SOURCE_LIBRARY)
-            putExtra(MainActivity.EXTRA_CLEAR_SOURCE, true)
         }
         setResult(RESULT_OK, data)
         finish()
@@ -233,20 +219,81 @@ class CharacterLibraryActivity : AppCompatActivity() {
     // ============================================================
 
     private fun renderList() {
-        when (currentLanguage) {
+        // v1.6.0:把过滤后的**条数**显式带出来给结果提示用。
+        // 不能读 adapter.itemCount —— ListAdapter.submitList() 是异步的,
+        // 紧接着读到的还是上一轮的旧值(会出现"列表已空却显示找到 3000 条")。
+        val shown = when (currentLanguage) {
             StudyMode.CHINESE -> {
                 val filtered = allChineseItems
-                    .filter { item -> matchesDifficulty(item) && matchesStatus(item) }
+                    .filter { item ->
+                        matchesDifficulty(item) && matchesStatus(item) && matchesQueryChinese(item)
+                    }
                     .map { (it as ChineseStudyItem).character }
                 chineseAdapter.submitList(filtered)
+                filtered.size
             }
             StudyMode.ENGLISH -> {
                 // v1.4.3:难度 filter 也应用到英文 — letter 不过滤(始终),word 按 difficulty 过滤
                 val filtered = allEnglishItems.filter { item ->
-                    matchesDifficultyEnglish(item) && matchesStatusEnglish(item)
+                    matchesDifficultyEnglish(item) && matchesStatusEnglish(item) && matchesQueryEnglish(item)
                 }
                 englishAdapter.submitList(filtered)
+                filtered.size
             }
+        }
+        updateSearchSummary(shown)
+    }
+
+    /**
+     * v1.6.0:搜索框的关键词过滤。
+     *
+     * 中文支持**汉字或拼音**;拼音匹配会忽略声调,所以家长输入 `bi` 也能搜到「bǐ」。
+     */
+    private fun matchesQueryChinese(item: StudyItem): Boolean {
+        if (item !is ChineseStudyItem) return true
+        return LibrarySearch.matchesChinese(
+            hanzi = item.character.hanzi,
+            pinyin = item.character.pinyin,
+            query = searchQuery
+        )
+    }
+
+    /** 英文:字母大写/小写/单词/中文意思 任一命中即可 */
+    private fun matchesQueryEnglish(item: StudyItem): Boolean {
+        val fields = when (item) {
+            is EnglishLetterItem -> listOf(
+                item.letter.uppercase,
+                item.letter.lowercase,
+                item.letter.exampleWord,
+                item.letter.exampleWordChinese
+            )
+            is EnglishWordItem -> listOf(
+                item.word.word,
+                item.word.chineseMeaning,
+                item.word.phonetic
+            )
+            else -> return true
+        }
+        return LibrarySearch.matchesEnglish(fields, searchQuery)
+    }
+
+    /**
+     * 搜索时显示"找到 N 条";没有搜索词时不显示。
+     *
+     * [shown] 由 [renderList] 传入过滤后的实际条数 —— 不能读 adapter.itemCount,
+     * 因为 `submitList()` 是异步的,读到的会是上一轮的旧值。
+     */
+    private fun updateSearchSummary(shown: Int) {
+        if (LibrarySearch.isBlankQuery(searchQuery)) {
+            binding.searchSummary.visibility = View.GONE
+            return
+        }
+        val count = shown
+        binding.searchSummary.visibility = View.VISIBLE
+        binding.searchSummary.text = if (count == 0) {
+            getString(R.string.library_search_empty)
+        } else {
+            getString(R.string.library_search_count, count)
         }
     }
 
@@ -279,63 +326,68 @@ class CharacterLibraryActivity : AppCompatActivity() {
         }
     }
 
-    private fun matchesStatus(item: StudyItem): Boolean {
-        val isKnown = chineseKnownIds.contains(item.id)
-        val isUnknown = chineseUnknownIds.contains(item.id)
-        return when (statusFilter) {
-            StatusFilter.ALL -> true
-            StatusFilter.KNOWN -> isKnown
-            StatusFilter.UNKNOWN -> isUnknown
-            StatusFilter.UNSEEN -> !isKnown && !isUnknown
-        }
+    private fun matchesStatus(item: StudyItem): Boolean =
+        matchesStatusOf(ProgressRules.statusOf(chineseKnownIds, chineseUnknownIds, item.progressKey))
+
+    private fun matchesStatusEnglish(item: StudyItem): Boolean =
+        matchesStatusOf(ProgressRules.statusOf(englishKnownIds, englishUnknownIds, item.progressKey))
+
+    private fun matchesStatusOf(status: LearnStatus): Boolean = when (statusFilter) {
+        StatusFilter.ALL -> true
+        StatusFilter.KNOWN -> status == LearnStatus.KNOWN
+        StatusFilter.UNKNOWN -> status == LearnStatus.UNKNOWN
+        StatusFilter.UNSEEN -> status == LearnStatus.UNSEEN
     }
 
-    private fun matchesStatusEnglish(item: StudyItem): Boolean {
-        val isKnown = englishKnownIds.contains(item.id)
-        val isUnknown = englishUnknownIds.contains(item.id)
-        return when (statusFilter) {
-            StatusFilter.ALL -> true
-            StatusFilter.KNOWN -> isKnown
-            StatusFilter.UNKNOWN -> isUnknown
-            StatusFilter.UNSEEN -> !isKnown && !isUnknown
-        }
-    }
+    private fun chineseStatusOf(hanzi: String): CharacterStatus =
+        ProgressRules.statusOf(chineseKnownIds, chineseUnknownIds, hanzi).toCharacterStatus()
 
-    private fun chineseStatusOf(id: Int): CharacterStatus = when {
-        chineseKnownIds.contains(id) -> CharacterStatus.KNOWN
-        chineseUnknownIds.contains(id) -> CharacterStatus.UNKNOWN
-        else -> CharacterStatus.UNSEEN
-    }
+    private fun englishStatusOf(key: String): CharacterStatus =
+        ProgressRules.statusOf(englishKnownIds, englishUnknownIds, key).toCharacterStatus()
 
-    private fun englishStatusOf(item: StudyItem): CharacterStatus = when {
-        englishKnownIds.contains(item.id) -> CharacterStatus.KNOWN
-        englishUnknownIds.contains(item.id) -> CharacterStatus.UNKNOWN
-        else -> CharacterStatus.UNSEEN
+    /** v1.5.0:model 层状态 → UI 层状态 */
+    private fun LearnStatus.toCharacterStatus(): CharacterStatus = when (this) {
+        LearnStatus.KNOWN -> CharacterStatus.KNOWN
+        LearnStatus.UNKNOWN -> CharacterStatus.UNKNOWN
+        LearnStatus.UNSEEN -> CharacterStatus.UNSEEN
     }
 
     // ============================================================
     // 状态变更 Dialog(长按)
     // ============================================================
 
-    private fun showChineseStatusDialog(item: ChineseStudyItem) {
+    /**
+     * 状态选择对话框(已知 / 待巩固 / 未学习)。
+     *
+     * v1.5.0:中英文两个版本此前各写一份结构完全相同的 builder,收敛到这里,
+     * 差异只剩标题文案与回调。
+     */
+    private fun showStatusDialog(title: String, onChosen: (CharacterStatus) -> Unit) {
         val options = arrayOf(
             getString(R.string.status_known),
             getString(R.string.status_unknown),
             getString(R.string.status_unseen)
         )
         MaterialAlertDialogBuilder(this)
-            .setTitle("修改状态:${item.character.hanzi}")
+            .setTitle(title)
             .setItems(options) { dialog, which ->
-                val status = when (which) {
-                    0 -> CharacterStatus.KNOWN
-                    1 -> CharacterStatus.UNKNOWN
-                    else -> CharacterStatus.UNSEEN
-                }
-                updateChineseStatus(item, status)
+                onChosen(
+                    when (which) {
+                        0 -> CharacterStatus.KNOWN
+                        1 -> CharacterStatus.UNKNOWN
+                        else -> CharacterStatus.UNSEEN
+                    }
+                )
                 dialog.dismiss()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    private fun showChineseStatusDialog(item: ChineseStudyItem) {
+        showStatusDialog(getString(R.string.dialog_title_chinese, item.character.hanzi)) { status ->
+            updateChineseStatus(item, status)
+        }
     }
 
     private fun showEnglishStatusDialog(item: StudyItem) {
@@ -344,65 +396,46 @@ class CharacterLibraryActivity : AppCompatActivity() {
             is EnglishWordItem -> item.word.word
             else -> item.primaryText
         }
-        val options = arrayOf(
-            getString(R.string.status_known),
-            getString(R.string.status_unknown),
-            getString(R.string.status_unseen)
-        )
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Update: $label")
-            .setItems(options) { dialog, which ->
-                val status = when (which) {
-                    0 -> CharacterStatus.KNOWN
-                    1 -> CharacterStatus.UNKNOWN
-                    else -> CharacterStatus.UNSEEN
-                }
-                updateEnglishStatus(item.id, status)
-                dialog.dismiss()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        showStatusDialog(getString(R.string.dialog_title_english, label)) { status ->
+            updateEnglishStatus(item, status)
+        }
     }
 
     private fun updateChineseStatus(item: ChineseStudyItem, status: CharacterStatus) {
-        when (status) {
-            CharacterStatus.KNOWN -> {
-                chineseKnownIds.add(item.id)
-                chineseUnknownIds.remove(item.id)
-            }
-            CharacterStatus.UNKNOWN -> {
-                chineseUnknownIds.add(item.id)
-                chineseKnownIds.remove(item.id)
-            }
-            CharacterStatus.UNSEEN -> {
-                chineseKnownIds.remove(item.id)
-                chineseUnknownIds.remove(item.id)
-            }
-        }
+        // v1.5.0:统一走 ProgressRules(已知/待巩固/未学习 三态的互斥处理只写一份)
+        ProgressRules.setStatus(
+            chineseKnownIds,
+            chineseUnknownIds,
+            item.progressKey,
+            status.toKnownFlag()
+        )
         progressStore.save(chineseKnownIds, chineseUnknownIds)
         progressStore.recordSnapshot(chineseKnownIds.size, chineseUnknownIds.size)
-        Toast.makeText(this, "已更新 ${item.character.hanzi} 的状态", Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            this,
+            getString(R.string.toast_status_updated_chinese, item.character.hanzi),
+            Toast.LENGTH_SHORT
+        ).show()
         renderList()
     }
 
-    private fun updateEnglishStatus(id: Int, status: CharacterStatus) {
-        when (status) {
-            CharacterStatus.KNOWN -> {
-                englishKnownIds.add(id)
-                englishUnknownIds.remove(id)
-            }
-            CharacterStatus.UNKNOWN -> {
-                englishUnknownIds.add(id)
-                englishKnownIds.remove(id)
-            }
-            CharacterStatus.UNSEEN -> {
-                englishKnownIds.remove(id)
-                englishUnknownIds.remove(id)
-            }
-        }
+    private fun updateEnglishStatus(item: StudyItem, status: CharacterStatus) {
+        ProgressRules.setStatus(
+            englishKnownIds,
+            englishUnknownIds,
+            item.progressKey,
+            status.toKnownFlag()
+        )
         progressStore.saveEnglish(englishKnownIds, englishUnknownIds)
-        Toast.makeText(this, "Status updated", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.english_status_updated), Toast.LENGTH_SHORT).show()
         renderList()
+    }
+
+    /** KNOWN → true;UNKNOWN → false;UNSEEN → null(清除记录) */
+    private fun CharacterStatus.toKnownFlag(): Boolean? = when (this) {
+        CharacterStatus.KNOWN -> true
+        CharacterStatus.UNKNOWN -> false
+        CharacterStatus.UNSEEN -> null
     }
 
     private enum class StatusFilter {
@@ -414,11 +447,6 @@ class CharacterLibraryActivity : AppCompatActivity() {
     }
 
     companion object {
-        /** 边缘触发区宽度(dp) */
-        private const val EDGE_THRESHOLD_DP = 24f
-        /** 最小滑动距离(dp) */
-        private const val SWIPE_DISTANCE_THRESHOLD_DP = 120f
-        /** 最小横向速度(px/s) */
-        private const val SWIPE_VELOCITY_THRESHOLD = 400f
+        /** 边滑返回阈值已收敛到 [SwipeBackDelegate](v1.5.0) */
     }
 }

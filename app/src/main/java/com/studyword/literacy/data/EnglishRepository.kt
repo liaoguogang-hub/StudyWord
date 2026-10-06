@@ -5,6 +5,7 @@ import com.studyword.literacy.model.Difficulty
 import com.studyword.literacy.model.EnglishCategory
 import com.studyword.literacy.model.EnglishLetter
 import com.studyword.literacy.model.EnglishWord
+import com.studyword.literacy.model.ProgressKey
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
@@ -106,6 +107,18 @@ class EnglishRepository(context: Context) {
     fun findByWordById(id: Int): EnglishWord? {
         if (id < WORD_ID_OFFSET) return null
         return allWords.getOrNull(id - WORD_ID_OFFSET)
+    }
+
+    /**
+     * v1.5.0:按**进度键**查找,返回 [EnglishLetter] 或 [EnglishWord]。
+     * 用于把内容键进度("L:A" / "W:apple")还原成卡片。
+     */
+    fun findByProgressKey(key: String): Any? = when {
+        key.startsWith(ProgressKey.LETTER_PREFIX) ->
+            letterIndex[key.removePrefix(ProgressKey.LETTER_PREFIX)]
+        key.startsWith(ProgressKey.WORD_PREFIX) ->
+            wordIndex[key.removePrefix(ProgressKey.WORD_PREFIX)]
+        else -> null
     }
 
     companion object {

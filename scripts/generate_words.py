@@ -474,8 +474,15 @@ def build_entry(char: str) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="为 character_sets.json 的前 N 个常用字生成词组与例句")
-    parser.add_argument("--limit", type=int, default=100, help="覆盖前 N 个字(默认 100)")
+    parser = argparse.ArgumentParser(
+        description="为 character_sets.json 中**字典命中的**常用字生成词组与例句"
+    )
+    parser.add_argument(
+        "--limit", type=int, default=0,
+        help="最多处理多少个字(0 = 不限制,处理字典命中的全部)。"
+             "注意:v1.5.0 起不再按'前 N 个下标'切片 —— 那会导致字典命中的字被漏掉、"
+             "而字典外的字被写成没有内容的空对象。",
+    )
     parser.add_argument("--dry-run", action="store_true", help="仅打印前几个条目,不写文件")
     parser.add_argument("--path", type=Path, default=DEFAULT_JSON, help="字库文件路径")
     args = parser.parse_args()
@@ -492,23 +499,45 @@ def main() -> int:
         print("[ERROR] easy 字段不是数组", file=sys.stderr)
         return 1
 
-    converted = 0
-    skipped_string = 0
-    for i in range(min(args.limit, len(easy))):
-        item = easy[i]
+    limit = args.limit if args.limit and args.limit > 0 else None
+    converted = 0      # 由字符串/空对象补成完整条目
+    already = 0        # 已有词组,跳过
+    not_in_dict = 0    # 字典里没有 -> 保持原样(不再写空对象)
+
+    for i, item in enumerate(easy):
         if isinstance(item, str):
-            new_entry = build_entry(item)
-            easy[i] = new_entry
-            converted += 1
-        elif isinstance(item, dict) and "char" in item:
-            # 已经是对象形式,跳过(避免覆盖)
-            skipped_string += 1
+            ch = item.strip()
+        elif isinstance(item, dict):
+            ch = str(item.get("char", "")).strip()
         else:
             print(f"[WARN] 第 {i} 项格式异常: {item!r}", file=sys.stderr)
+            continue
+
+        if not ch:
+            continue
+
+        # 关键修复:字典里没有这个字就**原样保留**。
+        # 旧实现会把它写成 {"char": "X"}(无词组无例句)—— 既没内容,
+        # 又把原来的字符串格式改写了一遍,产生 44 个无意义的空对象。
+        if ch not in ENTRIES:
+            not_in_dict += 1
+            continue
+
+        if isinstance(item, dict) and item.get("words"):
+            already += 1
+            continue
+
+        if limit is not None and converted >= limit:
+            break
+
+        easy[i] = build_entry(ch)
+        converted += 1
 
     if args.dry_run:
-        print(f"[DRY-RUN] 应处理 {args.limit} 项,其中新增 {converted} 项,跳过已有 {skipped_string} 项")
-        print("示例前 3 项:")
+        print(
+            f"[DRY-RUN] 将补全 {converted} 项;已有词组跳过 {already} 项;"
+            f"字典未覆盖保持原样 {not_in_dict} 项"
+        )
         for item in easy[:3]:
             print(json.dumps(item, ensure_ascii=False, indent=2))
         return 0
@@ -518,7 +547,11 @@ def main() -> int:
         json.dump(data, fp, ensure_ascii=False, indent=2)
         fp.write("\n")
 
-    print(f"[OK] 处理 {converted} 项(跳过 {skipped_string} 项),文件已写回: {args.path}")
+    print(
+        f"[OK] 补全 {converted} 项;已有词组跳过 {already} 项;"
+        f"字典未覆盖保持原样 {not_in_dict} 项;文件已写回: {args.path}"
+    )
+    print("[提示] 校验字库完整性请运行: python scripts/verify_character_sets.py")
     return 0
 
 

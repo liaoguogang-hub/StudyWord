@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:navigationContentDescription="@string/back"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:title="学习进度"
+        app:title="@string/nav_progress_title"
         app:titleTextColor="@color/deep_blue" />
 
     <ScrollView
@@ -56,7 +56,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📊 中文统计"
+                        android:text="@string/progress_chinese_stats_title"
                         android:textColor="@color/deep_blue"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -66,7 +66,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="字库总数：0"
+                        android:text="@string/total_count_placeholder"
                         android:textColor="@color/gray_dark"
                         android:textSize="15sp" />
 
@@ -75,7 +75,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="认识：0"
+                        android:text="@string/known_count_placeholder"
                         android:textColor="@color/gray_dark"
                         android:textSize="15sp" />
 
@@ -84,7 +84,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="待巩固：0"
+                        android:text="@string/unknown_count_placeholder"
                         android:textColor="@color/gray_dark"
                         android:textSize="15sp" />
 
@@ -93,7 +93,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="掌握率：0%"
+                        android:text="@string/mastery_rate_placeholder"
                         android:textColor="@color/gray_dark"
                         android:textSize="15sp" />
                 </LinearLayout>
@@ -117,7 +117,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📈 掌握率趋势"
+                        android:text="@string/progress_trend_title"
                         android:textColor="@color/deep_blue"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -135,21 +135,21 @@
                             style="@style/Widget.StudyWord.DifficultyChip"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="近7天" />
+                            android:text="@string/range_week" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipRangeMonth"
                             style="@style/Widget.StudyWord.DifficultyChip"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="近30天" />
+                            android:text="@string/range_month" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipRangeYear"
                             style="@style/Widget.StudyWord.DifficultyChip"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="近一年" />
+                            android:text="@string/range_year" />
                     </com.google.android.material.chip.ChipGroup>
 
                     <TextView
@@ -157,7 +157,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="暂无历史记录"
+                        android:text="@string/progress_trend_empty"
                         android:textColor="@color/gray_dark"
                         android:textSize="13sp" />
 
@@ -187,7 +187,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🧩 难度掌握分布"
+                        android:text="@string/progress_pie_title"
                         android:textColor="@color/deep_blue"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -197,7 +197,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="暂未识记任何汉字"
+                        android:text="@string/progress_pie_empty"
                         android:textColor="@color/gray_dark"
                         android:textSize="13sp" />
 
@@ -227,7 +227,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🎉 当前认识的汉字"
+                        android:text="@string/progress_known_title"
                         android:textColor="@color/deep_blue"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -237,7 +237,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="还没有记录，快开始测一测吧"
+                        android:text="@string/progress_known_empty"
                         android:textColor="@color/gray_dark"
                         android:textSize="13sp" />
 
@@ -269,7 +269,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🧠 还需巩固的汉字"
+                        android:text="@string/progress_unknown_title"
                         android:textColor="@color/deep_blue"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -279,7 +279,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="暂时没有待巩固的汉字"
+                        android:text="@string/progress_unknown_empty"
                         android:textColor="@color/gray_dark"
                         android:textSize="13sp" />
 
@@ -312,7 +312,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📊 English Stats"
+                        android:text="@string/progress_en_stats_title"
                         android:textColor="@color/deep_blue"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -322,7 +322,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="Total: 26 letters · 30 words"
+                        android:text="@string/en_total_placeholder"
                         android:textColor="@color/gray_dark"
                         android:textSize="15sp" />
 
@@ -331,7 +331,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="Known: 0"
+                        android:text="@string/en_known_placeholder"
                         android:textColor="@color/gray_dark"
                         android:textSize="15sp" />
 
@@ -340,7 +340,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="Review: 0"
+                        android:text="@string/en_unknown_placeholder"
                         android:textColor="@color/gray_dark"
                         android:textSize="15sp" />
 
@@ -349,7 +349,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="Mastery: 0%"
+                        android:text="@string/en_mastery_placeholder"
                         android:textColor="@color/gray_dark"
                         android:textSize="15sp" />
                 </LinearLayout>
@@ -374,7 +374,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🎉 Known English Items"
+                        android:text="@string/progress_en_known_title"
                         android:textColor="@color/deep_blue"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -384,7 +384,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="No items known yet"
+                        android:text="@string/progress_en_known_empty"
                         android:textColor="@color/gray_dark"
                         android:textSize="13sp" />
 
@@ -400,7 +400,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="🧠 Items To Review"
+                        android:text="@string/progress_en_unknown_title"
                         android:textColor="@color/deep_blue"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -410,7 +410,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="No items to review"
+                        android:text="@string/progress_en_unknown_empty"
                         android:textColor="@color/gray_dark"
                         android:textSize="13sp" />
 

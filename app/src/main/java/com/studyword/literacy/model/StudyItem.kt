@@ -10,6 +10,11 @@ package com.studyword.literacy.model
  */
 sealed interface StudyItem {
     val id: Int
+    /**
+     * v1.5.0:进度主键 —— 与字库顺序无关的稳定标识。
+     * 中文为汉字本身,英文为 "L:字母" / "W:单词"。持久化与查表一律用它。
+     */
+    val progressKey: String
     val primaryText: String
     val secondaryText: String
     val tertiaryText: String
@@ -29,6 +34,7 @@ sealed interface StudyItem {
 /** 中文汉字 */
 data class ChineseStudyItem(val character: LearningCharacter) : StudyItem {
     override val id: Int get() = character.id
+    override val progressKey: String get() = ProgressKey.chinese(character.hanzi)
     override val primaryText: String get() = character.hanzi
     override val secondaryText: String get() = character.pinyin
     override val tertiaryText: String get() = ""
@@ -42,6 +48,7 @@ data class ChineseStudyItem(val character: LearningCharacter) : StudyItem {
 /** 英文字母 A-Z */
 data class EnglishLetterItem(val letter: EnglishLetter) : StudyItem {
     override val id: Int get() = letter.id
+    override val progressKey: String get() = ProgressKey.letter(letter.uppercase)
     override val primaryText: String get() = letter.uppercase
     override val secondaryText: String get() = letter.phonetic
     override val tertiaryText: String get() = letter.lowercase
@@ -59,6 +66,7 @@ data class EnglishLetterItem(val letter: EnglishLetter) : StudyItem {
 /** 英文单词 */
 data class EnglishWordItem(val word: EnglishWord) : StudyItem {
     override val id: Int get() = word.id
+    override val progressKey: String get() = ProgressKey.word(word.word)
     override val primaryText: String get() = word.word
     override val secondaryText: String get() = word.phonetic
     override val tertiaryText: String get() = ""
@@ -72,4 +80,14 @@ data class EnglishWordItem(val word: EnglishWord) : StudyItem {
     override val ttsLocale: String get() = "en"
     override val englishExtra: String get() = word.exampleSentenceTranslation
     override val englishDifficulty: Difficulty get() = word.difficulty
+}
+
+/**
+ * v1.5.0:把 [EnglishRepository.findByProgressKey] 的返回值(EnglishLetter / EnglishWord)
+ * 统一包装成 [StudyItem],供进度页 / 字库页等按内容键还原卡片时复用。
+ */
+fun Any?.toStudyItem(): StudyItem? = when (this) {
+    is EnglishLetter -> EnglishLetterItem(this)
+    is EnglishWord -> EnglishWordItem(this)
+    else -> null
 }

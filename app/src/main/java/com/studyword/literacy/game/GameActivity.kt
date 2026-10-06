@@ -1,9 +1,6 @@
 package com.studyword.literacy.game
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
-import android.animation.ValueAnimator
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -15,12 +12,11 @@ import android.text.Spanned
 import android.text.style.AbsoluteSizeSpan
 import android.util.TypedValue
 import android.view.View
-import android.view.animation.DecelerateInterpolator
-import android.widget.FrameLayout
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.widget.TextViewCompat
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.studyword.literacy.R
@@ -32,8 +28,12 @@ import com.studyword.literacy.model.ChineseStudyItem
 import com.studyword.literacy.model.Difficulty
 import com.studyword.literacy.model.EnglishLetterItem
 import com.studyword.literacy.model.EnglishWordItem
+import com.studyword.literacy.model.ProgressKey
+import com.studyword.literacy.model.ProgressRules
 import com.studyword.literacy.model.StudyItem
 import com.studyword.literacy.model.StudyMode
+import com.studyword.literacy.ui.ConfettiOverlayView
+import com.studyword.literacy.ui.GameViewModel
 import com.studyword.literacy.util.TtsManager
 import kotlin.math.cos
 import kotlin.math.sin
@@ -56,10 +56,27 @@ class GameActivity : AppCompatActivity() {
     private lateinit var englishRepository: EnglishRepository
     private lateinit var progressStore: ProgressStore
 
-    private var mode: GameMode = GameMode.LISTEN
-    private var language: StudyMode = StudyMode.CHINESE
-    private var difficulty: Difficulty = Difficulty.EASY
-    private var round: GameRound? = null
+    /**
+     * v1.5.0:整轮状态交给 [GameViewModel]。此前 round 是 Activity 字段,
+     * 旋转屏幕即丢失 → 5 题一轮直接作废重开。
+     */
+    private val vm: GameViewModel by lazy { ViewModelProvider(this)[GameViewModel::class.java] }
+
+    private var mode: GameMode
+        get() = vm.mode
+        set(value) { vm.mode = value }
+
+    private var language: StudyMode
+        get() = vm.language
+        set(value) { vm.language = value }
+
+    private var difficulty: Difficulty
+        get() = vm.difficulty
+        set(value) { vm.difficulty = value }
+
+    private var round: GameRound?
+        get() = vm.round
+        set(value) { vm.round = value }
 
     private val random = Random(System.currentTimeMillis())
     private val optionButtons: List<MaterialButton> by lazy {
@@ -83,24 +100,55 @@ class GameActivity : AppCompatActivity() {
 
         repository = CharacterRepository(this)
         englishRepository = EnglishRepository(this)
-        progressStore = ProgressStore(this)
+        progressStore = ProgressStore.active(this)
         TtsManager.init(this)
 
-        // 解析入口参数
-        mode = GameMode.fromName(intent.getStringExtra(EXTRA_MODE))
-        language = mode.language
-        difficulty = intent.getStringExtra(EXTRA_DIFFICULTY)
-            ?.let { runCatching { Difficulty.valueOf(it) }.getOrNull() }
-            ?: Difficulty.EASY
+        // v1.5.0:仅在首次创建时解析入口参数;
+        // 旋转重建时 ViewModel 仍持有整轮进度,重开会让已答的题作废。
+        if (savedInstanceState == null) {
+            mode = GameMode.fromName(intent.getStringExtra(EXTRA_MODE))
+            language = mode.language
+            difficulty = intent.getStringExtra(EXTRA_DIFFICULTY)
+                ?.let { runCatching { Difficulty.valueOf(it) }.getOrNull() }
+                ?: Difficulty.EASY
+            round = null
+        }
 
         setupModeChips()
         setupDifficultyChips()
         setupActions()
-        startNewRound()
+        // 有存活的一轮就恢复现场(可能停在某题或已到结算页),否则开新一轮
+        if (round == null) {
+            startNewRound()
+        } else {
+            showCurrentQuestion()
+        }
     }
 
     override fun onDestroy() {
+        // v1.5.0:清理挂起的延迟任务。
+        // 此前 onDestroy 为空,导致 700ms 的朗读与 800ms 的"进入下一题"在退出后仍会执行:
+        // 孩子按返回后喇叭还在念、回合还在后台推进。
+        pendingRunnables.forEach { binding.root.removeCallbacks(it) }
+        pendingRunnables.clear()
+        TtsManager.stop()
         super.onDestroy()
+    }
+
+    /** v1.5.0:已排期但尚未执行的延迟任务,便于 onDestroy 逐个取消 */
+    private val pendingRunnables = mutableListOf<Runnable>()
+
+    /**
+     * v1.5.0:延迟执行,且只在 Activity 仍存活时生效。
+     * 与 [onDestroy] 中的 removeCallbacks 形成双保险。
+     */
+    private fun postDelayedIfAlive(delayMs: Long, action: () -> Unit) {
+        val runnable = Runnable {
+            if (isFinishing || isDestroyed) return@Runnable
+            action()
+        }
+        pendingRunnables += runnable
+        binding.root.postDelayed(runnable, delayMs)
     }
 
     // ============================================================
@@ -198,30 +246,31 @@ class GameActivity : AppCompatActivity() {
      * 英文:letters + words ∩ (known + unknown),按 mode 进一步过滤 letter / word
      */
     private fun buildStudiedPool(): List<StudyItem> {
-        val known: Set<Int>
-        val unknown: Set<Int>
+        val known: Set<String>
+        val unknown: Set<String>
         return when (language) {
             StudyMode.CHINESE -> {
                 known = progressStore.loadKnown()
                 unknown = progressStore.loadUnknown()
-                val studiedIds = known + unknown
+                val studied = known + unknown
+                // v1.5.0:按内容键过滤(进度集合元素是汉字本身)
                 repository.byDifficulty(difficulty)
-                    .filter { it.id in studiedIds }
                     .map { ChineseStudyItem(it) }
+                    .filter { it.progressKey in studied }
             }
             StudyMode.ENGLISH -> {
                 known = progressStore.loadEnglishKnown()
                 unknown = progressStore.loadEnglishUnknown()
-                val studiedIds = known + unknown
+                val studied = known + unknown
                 val allItems = mutableListOf<StudyItem>()
                 if (mode == GameMode.LISTEN_LETTER) {
                     allItems += englishRepository.letters()
-                        .filter { it.id in studiedIds }
                         .map { EnglishLetterItem(it) }
+                        .filter { it.progressKey in studied }
                 } else if (mode == GameMode.LISTEN_WORD) {
                     allItems += englishRepository.words()
-                        .filter { it.id in studiedIds }
                         .map { EnglishWordItem(it) }
+                        .filter { it.progressKey in studied }
                 }
                 allItems
             }
@@ -284,9 +333,9 @@ class GameActivity : AppCompatActivity() {
                 binding.speakPromptButton.isVisible = true
                 binding.speakPromptHint.isVisible = true
                 binding.pinyinPrompt.isVisible = false
-                binding.speakPromptHint.text = "听一听,再选"
+                binding.speakPromptHint.text = getString(R.string.game_hint_listen)
                 // v1.4.3:0.7s 延迟后才发音,让用户先看清楚当前界面再听
-                binding.root.postDelayed({ speakCurrentPrompt() }, 700L)
+                postDelayedIfAlive(700L) { speakCurrentPrompt() }
             }
             GameMode.PINYIN -> {
                 binding.speakPromptButton.isVisible = false
@@ -298,15 +347,15 @@ class GameActivity : AppCompatActivity() {
                 binding.speakPromptButton.isVisible = true
                 binding.speakPromptHint.isVisible = true
                 binding.pinyinPrompt.isVisible = false
-                binding.speakPromptHint.text = "Listen and pick the letter"
-                binding.root.postDelayed({ speakCurrentPrompt() }, 700L)
+                binding.speakPromptHint.text = getString(R.string.game_hint_listen_letter)
+                postDelayedIfAlive(700L) { speakCurrentPrompt() }
             }
             GameMode.LISTEN_WORD -> {
                 binding.speakPromptButton.isVisible = true
                 binding.speakPromptHint.isVisible = true
                 binding.pinyinPrompt.isVisible = false
-                binding.speakPromptHint.text = "Listen and pick the word"
-                binding.root.postDelayed({ speakCurrentPrompt() }, 700L)
+                binding.speakPromptHint.text = getString(R.string.game_hint_listen_word)
+                postDelayedIfAlive(700L) { speakCurrentPrompt() }
             }
         }
 
@@ -334,14 +383,19 @@ class GameActivity : AppCompatActivity() {
     private fun applyOptionAutoSize(btn: MaterialButton, item: StudyItem) {
         when (item) {
             is EnglishWordItem -> {
-                btn.setAutoSizeTextTypeUniformWithConfiguration(
-                    14, 44, 1, TypedValue.COMPLEX_UNIT_SP
+                // v1.5.0:改用 TextViewCompat ——
+                // AppCompatButton 上的 setAutoSizeTextType* 是 @RestrictedApi(lint [RestrictedApi]),
+                // 且 TextView.AUTO_SIZE_TEXT_TYPE_NONE 会触发 [WrongConstant]。
+                TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+                    btn, 14, 44, 1, TypedValue.COMPLEX_UNIT_SP
                 )
                 btn.maxLines = 1
                 btn.ellipsize = null
             }
             else -> {
-                btn.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_NONE)
+                TextViewCompat.setAutoSizeTextTypeWithDefaults(
+                    btn, TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE
+                )
                 btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 44f)
                 btn.maxLines = 1
             }
@@ -404,6 +458,31 @@ class GameActivity : AppCompatActivity() {
     // 判分
     // ============================================================
 
+    /**
+     * v1.6.0:把游戏里的答错计入错题本。
+     *
+     * 做两件事(与主页面点「再学一次」完全一致):
+     * 1. 写错题本(间隔重复状态):盒子归零,累计错误次数 —— 之后会出现在「复习错题」里
+     * 2. 标为「待巩固」:从"已认识"移除,避免同一个字既算会了又算错题
+     *
+     * 只记录错误、不记录正确:游戏是练习场景,答对一次不足以证明已掌握,
+     * 由主页面的「认识了」来沉淀掌握状态。
+     */
+    private fun recordGameMistake(item: StudyItem) {
+        val key = item.progressKey
+        progressStore.recordWrong(key, System.currentTimeMillis())
+
+        val english = ProgressKey.isEnglish(key)
+        val known = (if (english) progressStore.loadEnglishKnown() else progressStore.loadKnown()).toMutableSet()
+        val unknown = (if (english) progressStore.loadEnglishUnknown() else progressStore.loadUnknown()).toMutableSet()
+        ProgressRules.apply(known, unknown, key, false)
+        if (english) {
+            progressStore.saveEnglish(known, unknown)
+        } else {
+            progressStore.save(known, unknown)
+        }
+    }
+
     private fun onOptionTapped(btn: MaterialButton) {
         val r = round ?: return
         val q = r.currentQuestion ?: return
@@ -415,6 +494,19 @@ class GameActivity : AppCompatActivity() {
 
         val isCorrect = tapped.id == q.correct.id
         r.recordAnswer(isCorrect)
+
+        // v1.6.0:游戏答错要计入错题本。
+        // 此前游戏只"读"进度不"写",导致孩子在游戏里反复错的字永远进不了复习队列。
+        if (!isCorrect) {
+            recordGameMistake(q.correct)
+        }
+
+        // v1.5.0:无障碍 —— 答对/答错要能被读屏播报。
+        // 此前只换背景色 + 图标,视障用户既看不到颜色变化,也拿不到任何反馈
+        // (且答错后按钮被 isEnabled=false 锁死,会移出无障碍树)。
+        binding.root.announceForAccessibility(
+            getString(if (isCorrect) R.string.announce_correct else R.string.announce_wrong)
+        )
 
         if (isCorrect) {
             btn.background = ContextCompat.getDrawable(this, R.drawable.bg_option_correct)
@@ -437,14 +529,14 @@ class GameActivity : AppCompatActivity() {
         }
 
         // 800ms 后进入下一题
-        binding.root.postDelayed({
+        postDelayedIfAlive(800L) {
             r.advance()
             if (r.isFinished) {
                 showResult()
             } else {
                 showCurrentQuestion()
             }
-        }, 800L)
+        }
     }
 
     private fun skipCurrent() {
@@ -526,102 +618,19 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 答对的小撒花。
+     *
+     * v1.5.0:改由共享的 [ConfettiOverlayView] 绘制 ——
+     * 此处原先与 MainActivity 各写了一份几乎逐行相同的粒子系统。
+     */
     private fun showMiniConfetti() {
-        val overlay = binding.confettiOverlay
-        val width = overlay.width
-        val height = overlay.height
-        if (width == 0 || height == 0) {
-            overlay.post { showMiniConfetti() }
-            return
-        }
-        val emojis = listOf("✅", "✨", "🌟")
-        repeat(6) {
-            val tv = TextView(this).apply {
-                text = emojis.random()
-                textSize = Random.nextInt(20, 32).toFloat()
-                alpha = 0f
-            }
-            overlay.addView(
-                tv,
-                FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT
-                )
-            )
-            val centerX = width / 2f
-            val centerY = height / 2f
-            val angle = Random.nextDouble(0.0, Math.PI * 2)
-            val velocity = Random.nextDouble(0.2, 0.4) * height
-            animateParticle(tv, centerX, centerY, angle.toFloat(), velocity.toFloat(), duration = 600L)
-        }
+        binding.confettiOverlay.burst(ConfettiOverlayView.miniSpec())
     }
 
+    /** 结算的大撒花 */
     private fun showBigConfetti() {
-        val overlay = binding.confettiOverlay
-        val width = overlay.width
-        val height = overlay.height
-        if (width == 0 || height == 0) {
-            overlay.post { showBigConfetti() }
-            return
-        }
-        overlay.removeAllViews()
-        val emojis = listOf("🎉", "✨", "🎈", "🎊", "🌟", "💫")
-        repeat(18) { i ->
-            val tv = TextView(this).apply {
-                text = emojis[i % emojis.size]
-                textSize = Random.nextInt(20, 36).toFloat()
-                alpha = 0f
-            }
-            overlay.addView(
-                tv,
-                FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT
-                )
-            )
-            val centerX = width / 2f
-            val centerY = height / 3f
-            val angle = Random.nextDouble(0.0, Math.PI * 2)
-            val velocity = Random.nextDouble(0.35, 0.7) * height
-            animateParticle(
-                tv, centerX, centerY, angle.toFloat(), velocity.toFloat(),
-                duration = Random.nextLong(900L, 1400L)
-            )
-        }
-    }
-
-    private fun animateParticle(
-        tv: TextView,
-        centerX: Float,
-        centerY: Float,
-        angle: Float,
-        velocity: Float,
-        duration: Long
-    ) {
-        tv.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-        val halfW = tv.measuredWidth / 2f
-        val halfH = tv.measuredHeight / 2f
-        ValueAnimator.ofFloat(0f, 1f).apply {
-            this.duration = duration
-            interpolator = DecelerateInterpolator()
-            addUpdateListener { va ->
-                val f = va.animatedValue as Float
-                val dist = velocity * f
-                tv.translationX = (centerX + dist * cos(angle.toDouble()).toFloat()) - halfW
-                tv.translationY = (centerY + dist * sin(angle.toDouble()).toFloat()) - halfH
-                tv.alpha = when {
-                    f < 0.2f -> f / 0.2f
-                    f > 0.8f -> (1f - f) / 0.2f
-                    else -> 1f
-                }
-            }
-            addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    tv.parent?.let { (it as FrameLayout).removeView(tv) }
-                }
-            })
-            start()
-        }
+        binding.confettiOverlay.burst(ConfettiOverlayView.bigSpec())
     }
 
     companion object {

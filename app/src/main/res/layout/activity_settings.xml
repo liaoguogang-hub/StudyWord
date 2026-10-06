@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:navigationContentDescription="@string/back"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:title="设置中心"
+        app:title="@string/settings_title"
         app:titleTextColor="@color/deep_blue" />
 
     <androidx.core.widget.NestedScrollView
@@ -37,6 +37,73 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- v1.6.0:孩子档案卡片(P2-2)。整个设置页已在家长门后面,这里不再重复加门 -->
+            <LinearLayout
+                android:id="@+id/cardProfiles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_card_playful"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_section_title"
+                    android:textColor="@color/deep_blue"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/profile_section_desc"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/profileChipGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:singleSelection="true"
+                    app:selectionRequired="true" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/addProfileButton"
+                    style="@style/Widget.StudyWord.SecondaryButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/profile_add" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/renameProfileButton"
+                        style="@style/Widget.StudyWord.SecondaryButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:layout_weight="1"
+                        android:text="@string/profile_rename" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/deleteProfileButton"
+                        style="@style/Widget.StudyWord.DangerOutlineButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/profile_delete" />
+                </LinearLayout>
+            </LinearLayout>
+
             <!-- 数据与进度卡片 -->
             <LinearLayout
                 android:id="@+id/cardLayout"
@@ -49,7 +116,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="✨ 数据与进度"
+                    android:text="@string/settings_data_title"
                     android:textColor="@color/deep_blue"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -58,7 +125,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="导出当前学习记录（中英文）或重置进度，重新开启冒险。"
+                    android:text="@string/settings_data_desc"
                     android:textColor="@color/gray_dark"
                     android:textSize="13sp" />
 
@@ -68,32 +135,41 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="浏览全部字词" />
+                    android:text="@string/library_all_label" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/exportButton"
-                    style="@style/Widget.StudyWord.PrimaryButton"
+                    style="@style/Widget.StudyWord.SecondaryButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="导出学习进度（中英）" />
+                    android:text="@string/export_button_label" />
+
+                <!-- v1.6.0:CSV 导入(P2-3)—— 把导出的文件导回,用于换手机或换档案 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/importButton"
+                    style="@style/Widget.StudyWord.SecondaryButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/import_button_label" />
 
                 <!-- v1.3.0:重置按钮拆为两个,中文 / 英文独立重置 -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/resetChineseButton"
-                    style="@style/Widget.StudyWord.UnknownButton"
+                    style="@style/Widget.StudyWord.DangerOutlineButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="重置中文进度" />
+                    android:text="@string/reset_chinese_label" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/resetEnglishButton"
-                    style="@style/Widget.StudyWord.UnknownButton"
+                    style="@style/Widget.StudyWord.DangerOutlineButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Reset English Progress" />
+                    android:text="@string/reset_english_label" />
             </LinearLayout>
 
             <!-- v1.3.0 新增:字库总览(中英分别) -->
@@ -109,7 +185,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="📚 字库总览"
+                    android:text="@string/settings_overview_title"
                     android:textColor="@color/deep_blue"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -119,7 +195,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="中文 0 字"
+                    android:text="@string/overview_chinese_placeholder"
                     android:textColor="@color/gray_dark"
                     android:textSize="14sp" />
 
@@ -128,7 +204,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:text="English: 26 letters · 30 words"
+                    android:text="@string/overview_english_placeholder"
                     android:textColor="@color/gray_dark"
                     android:textSize="14sp" />
 
@@ -137,7 +213,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="中文已学: 0 · 待巩固: 0"
+                    android:text="@string/overview_chinese_progress_placeholder"
                     android:textColor="@color/deep_blue"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -147,7 +223,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:text="English: Known 0 · Review 0"
+                    android:text="@string/overview_english_progress_placeholder"
                     android:textColor="@color/deep_blue"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -158,7 +234,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
-                android:text="更多功能敬请期待..."
+                android:text="@string/settings_more_coming"
                 android:textColor="@color/gray_dark"
                 android:textSize="13sp" />
         </LinearLayout>

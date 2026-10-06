@@ -4,7 +4,6 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
-import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -33,10 +32,10 @@ import com.studyword.literacy.model.EnglishLetterItem
 import com.studyword.literacy.model.EnglishWordItem
 import com.studyword.literacy.model.StudyItem
 import com.studyword.literacy.model.StudyMode
+import com.studyword.literacy.model.toStudyItem
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
@@ -62,57 +61,28 @@ class ProgressActivity : AppCompatActivity() {
 
         repository = CharacterRepository(this)
         englishRepository = EnglishRepository(this)
-        progressStore = ProgressStore(this)
+        progressStore = ProgressStore.active(this)
         binding.topBar.setNavigationOnClickListener { finish() }
 
         setupTrendRangeToggle()
-        setupSwipeBack()
         renderProgress()
     }
 
     /**
      * v1.4.1:从屏幕左边缘向右滑动 → finish()
-     * 与 CharacterLibraryActivity 共用同一套阈值,体感一致。
+     * v1.5.0:实现抽到 [SwipeBackDelegate](与 CharacterLibraryActivity 共用)
      */
-    private var swipeBackDetector: GestureDetector? = null
-
-    private fun setupSwipeBack() {
-        val density = resources.displayMetrics.density
-        val edgePx = EDGE_THRESHOLD_DP * density
-        val distancePx = SWIPE_DISTANCE_THRESHOLD_DP * density
-        swipeBackDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onFling(
-                e1: MotionEvent?,
-                e2: MotionEvent,
-                velocityX: Float,
-                velocityY: Float
-            ): Boolean {
-                if (e1 == null) return false
-                val dx = e2.x - e1.x
-                val dy = e2.y - e1.y
-                val startsAtLeftEdge = e1.x <= edgePx
-                val longEnough = dx >= distancePx
-                val mostlyHorizontal = abs(dx) > abs(dy) * 2
-                val fastEnough = velocityX > SWIPE_VELOCITY_THRESHOLD
-                if (startsAtLeftEdge && longEnough && mostlyHorizontal && fastEnough) {
-                    finish()
-                    return true
-                }
-                return false
-            }
-        })
-    }
+    private val swipeBack by lazy { SwipeBackDelegate(this) }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        swipeBackDetector?.onTouchEvent(ev)
+        swipeBack.onTouchEvent(ev)
         return super.dispatchTouchEvent(ev)
     }
 
     private fun renderProgress() {
-        // ====== 中文 ======
+        // ====== 中文(v1.5.0:进度集合元素是汉字本身) ======
         val knownIds = progressStore.loadKnown()
         val unknownIds = progressStore.loadUnknown()
-        val characters = repository.all().associateBy { it.id }
         val history = progressStore.loadHistory()
         val filteredHistory = filterHistory(history)
         val formatter = currentDateFormatter()
@@ -122,20 +92,20 @@ class ProgressActivity : AppCompatActivity() {
         val unknown = unknownIds.size
         val masteryRate = if (total == 0) 0.0 else known * 100.0 / total
 
-        binding.totalCountLabel.text = "字库总数：$total"
-        binding.knownCountLabel.text = "认识：$known"
-        binding.unknownCountLabel.text = "待巩固：$unknown"
-        binding.masteryRateLabel.text = String.format("掌握率：%.1f%%", masteryRate)
+        binding.totalCountLabel.text = getString(R.string.label_total_count, total)
+        binding.knownCountLabel.text = getString(R.string.label_known_count, known)
+        binding.unknownCountLabel.text = getString(R.string.label_unknown_count, unknown)
+        binding.masteryRateLabel.text = getString(R.string.label_mastery_rate, masteryRate)
 
         populateChineseChipGroup(
             binding.knownChipGroup,
             binding.knownEmptyHint,
-            knownIds.mapNotNull { characters[it] }
+            knownIds.mapNotNull { repository.byHanzi(it) }
         )
         populateChineseChipGroup(
             binding.unknownChipGroup,
             binding.unknownEmptyHint,
-            unknownIds.mapNotNull { characters[it] }
+            unknownIds.mapNotNull { repository.byHanzi(it) }
         )
 
         renderTrendChart(filteredHistory, total, formatter)
@@ -151,19 +121,13 @@ class ProgressActivity : AppCompatActivity() {
 
         val letterCount = englishRepository.letterCount()
         val wordCount = englishRepository.wordCount()
-        binding.enTotalLabel.text = "Total: $letterCount letters · $wordCount words"
-        binding.enKnownLabel.text = "Known: $enKnown"
-        binding.enUnknownLabel.text = "Review: $enUnknown"
-        binding.enMasteryLabel.text = String.format("Mastery: %.1f%%", enMastery)
+        binding.enTotalLabel.text = getString(R.string.label_en_total, letterCount, wordCount)
+        binding.enKnownLabel.text = getString(R.string.label_en_known, enKnown)
+        binding.enUnknownLabel.text = getString(R.string.label_en_unknown, enUnknown)
+        binding.enMasteryLabel.text = getString(R.string.label_en_mastery, enMastery)
 
-        val knownItems = enKnownIds.mapNotNull { id ->
-            englishRepository.findByLetterById(id)?.let { EnglishLetterItem(it) }
-                ?: englishRepository.findByWordById(id)?.let { EnglishWordItem(it) }
-        }
-        val unknownItems = enUnknownIds.mapNotNull { id ->
-            englishRepository.findByLetterById(id)?.let { EnglishLetterItem(it) }
-                ?: englishRepository.findByWordById(id)?.let { EnglishWordItem(it) }
-        }
+        val knownItems = enKnownIds.mapNotNull { key -> englishRepository.findByProgressKey(key).toStudyItem() }
+        val unknownItems = enUnknownIds.mapNotNull { key -> englishRepository.findByProgressKey(key).toStudyItem() }
         populateEnglishChipGroup(
             binding.enKnownChipGroup,
             binding.enKnownEmptyHint,
@@ -243,8 +207,8 @@ class ProgressActivity : AppCompatActivity() {
         val data = Intent().apply {
             putExtra(MainActivity.EXTRA_SELECTED_ID, itemId)
             putExtra(MainActivity.EXTRA_SELECTED_LANG, lang)
+            // v1.6.0:不再发 CLEAR_SOURCE(同上)
             putExtra(MainActivity.EXTRA_SOURCE_PAGE, MainActivity.SOURCE_PROGRESS)
-            putExtra(MainActivity.EXTRA_CLEAR_SOURCE, true)
         }
         setResult(RESULT_OK, data)
         finish()
@@ -255,7 +219,10 @@ class ProgressActivity : AppCompatActivity() {
         isCheckable = false
         isClickable = true   // v1.4.0:改为可点
         isCloseIconVisible = false
-        setEnsureMinTouchTargetSize(false)
+        // v1.5.0:无障碍 —— 这些 chip 是可点跳转的入口,必须保留 Material 的最小触控目标扩展。
+        // 原实现调 setEnsureMinTouchTargetSize(false) 把触控区压到视觉高度(约 40dp),
+        // 低于 48dp 推荐值;恢复默认(true)只扩大触摸热区、不改变视觉尺寸。
+        setEnsureMinTouchTargetSize(true)
         chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(this@ProgressActivity, R.color.bubble_pink))
         setTextColor(ContextCompat.getColor(this@ProgressActivity, R.color.deep_blue))
     }
@@ -326,7 +293,7 @@ class ProgressActivity : AppCompatActivity() {
         }
 
         val color = ContextCompat.getColor(this, R.color.deep_blue)
-        val dataSet = LineDataSet(entries, "掌握率").apply {
+        val dataSet = LineDataSet(entries, getString(R.string.chart_label_mastery)).apply {
             lineWidth = 2.5f
             this.color = color
             setCircleColor(color)
@@ -403,10 +370,11 @@ class ProgressActivity : AppCompatActivity() {
         TrendRange.YEAR -> SimpleDateFormat("yy-MM", Locale.getDefault())
     }
 
-    private fun renderDifficultyPie(knownIds: Set<Int>) {
+    private fun renderDifficultyPie(knownIds: Set<String>) {
         val pieChart = binding.difficultyPieChart
         val counts = Difficulty.values().map { difficulty ->
-            val mastered = repository.byDifficulty(difficulty).count { knownIds.contains(it.id) }
+            // v1.5.0:用汉字比对(进度集合元素即汉字)
+            val mastered = repository.byDifficulty(difficulty).count { knownIds.contains(it.hanzi) }
             difficulty to mastered
         }
         val totalMastered = counts.sumOf { it.second }
@@ -425,7 +393,7 @@ class ProgressActivity : AppCompatActivity() {
         pieChart.legend.isEnabled = false
         pieChart.setDrawEntryLabels(true)
         pieChart.setEntryLabelColor(Color.DKGRAY)
-        pieChart.centerText = "掌握\n按难度"
+        pieChart.centerText = getString(R.string.pie_center_text)
         pieChart.setCenterTextSize(14f)
         pieChart.holeRadius = 45f
         pieChart.transparentCircleRadius = 50f
@@ -463,10 +431,6 @@ class ProgressActivity : AppCompatActivity() {
         private const val DAYS_7 = 7L * 24 * 60 * 60 * 1000
         private const val DAYS_30 = 30L * 24 * 60 * 60 * 1000
         private const val DAYS_365 = 365L * 24 * 60 * 60 * 1000
-        // v1.4.1:边滑返回阈值
-        private const val EDGE_THRESHOLD_DP = 24f
-        private const val SWIPE_DISTANCE_THRESHOLD_DP = 120f
-        private const val SWIPE_VELOCITY_THRESHOLD = 400f
     }
 
     private enum class TrendRange {

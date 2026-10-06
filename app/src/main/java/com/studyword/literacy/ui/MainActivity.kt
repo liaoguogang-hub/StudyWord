@@ -1,46 +1,46 @@
 package com.studyword.literacy.ui
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.animation.DecelerateInterpolator
-import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.studyword.literacy.R
 import com.studyword.literacy.data.CharacterRepository
 import com.studyword.literacy.data.EnglishRepository
+import com.studyword.literacy.data.ProgressMigrator
+import com.studyword.literacy.data.ProfileStore
 import com.studyword.literacy.data.ProgressStore
 import com.studyword.literacy.databinding.ActivityMainBinding
 import com.studyword.literacy.game.GameActivity
 import com.studyword.literacy.game.GameMode
+import com.studyword.literacy.model.BackAction
+import com.studyword.literacy.model.BackPolicy
 import com.studyword.literacy.model.ChineseStudyItem
 import com.studyword.literacy.model.Difficulty
 import com.studyword.literacy.model.EnglishCategory
 import com.studyword.literacy.model.EnglishLetterItem
 import com.studyword.literacy.model.EnglishWordItem
+import com.studyword.literacy.model.ProgressKey
+import com.studyword.literacy.model.ProgressRules
 import com.studyword.literacy.model.StudyItem
 import com.studyword.literacy.model.StudyMode
 import com.studyword.literacy.util.TtsManager
-import java.util.ArrayDeque
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.random.Random
 
 /**
@@ -58,31 +58,54 @@ class MainActivity : AppCompatActivity() {
     private lateinit var englishRepository: EnglishRepository
     private lateinit var progressStore: ProgressStore
 
-    // ====== 语种 ======
-    private var currentMode: StudyMode = StudyMode.CHINESE
+    /**
+     * v1.5.0:跨配置变更(旋转)需保留的状态统一交给 [MainViewModel]。
+     * 下面用属性委托转发,既有调用点无需改动。
+     */
+    private val vm: MainViewModel by lazy { ViewModelProvider(this)[MainViewModel::class.java] }
 
-    // ====== 中文 ======
-    private val knownIds: MutableSet<Int> = mutableSetOf()
-    private val unknownIds: MutableSet<Int> = mutableSetOf()
-    private var currentDifficulty: Difficulty = Difficulty.EASY
+    // ====== 语种 / 难度 / 英文子模式(ViewModel 持有) ======
+    private var currentMode: StudyMode
+        get() = vm.currentMode
+        set(value) { vm.currentMode = value }
 
-    // ====== 英文 ======
-    private val englishKnownIds: MutableSet<Int> = mutableSetOf()
-    private val englishUnknownIds: MutableSet<Int> = mutableSetOf()
-    /** v1.4.0:英文 mode 的子模式。LETTERS=只显示字母;WORDS=只显示单词(按难度过滤) */
-    private var englishSubMode: EnglishSubMode = EnglishSubMode.LETTERS
+    private var currentDifficulty: Difficulty
+        get() = vm.currentDifficulty
+        set(value) { vm.currentDifficulty = value }
 
-    // ====== 队列 ======
-    private val pendingItems: ArrayDeque<StudyItem> = ArrayDeque()
-    private var currentItem: StudyItem? = null
+    private var englishSubMode: EnglishSubMode
+        get() = vm.englishSubMode
+        set(value) { vm.englishSubMode = value }
+
+    // ====== 进度集合(v1.5.0:元素为汉字 / "L:A" / "W:apple";每次 onResume 从 prefs 重载) ======
+    private val knownIds: MutableSet<String> = mutableSetOf()
+    private val unknownIds: MutableSet<String> = mutableSetOf()
+    private val englishKnownIds: MutableSet<String> = mutableSetOf()
+    private val englishUnknownIds: MutableSet<String> = mutableSetOf()
+
+    // ====== 队列与当前项(ViewModel 持有,旋转不丢) ======
+    private val pendingItems: ArrayDeque<StudyItem>
+        get() = vm.pendingItems
+
+    private var currentItem: StudyItem?
+        get() = vm.currentItem
+        set(value) { vm.currentItem = value }
 
     /**
      * v1.4.2:跳转来源 — null = 正常启动;/ "progress" = 从 ProgressActivity 跳回;
      * "library" = 从 CharacterLibraryActivity 跳回。用于显示"← 返回进度/字库"按钮。
+     *
+     * v1.5.0:改由 [MainViewModel] 持有,旋转后不再丢失(此前按钮会莫名消失)。
      */
-    private var jumpSource: String? = null
+    private var activeProfileId: String? = null
+
+    private var jumpSource: String?
+        get() = vm.jumpSource
+        set(value) { vm.jumpSource = value }
 
     private val random = Random(System.currentTimeMillis())
+    /** v1.5.0:程序化回显 chip 状态时抑制监听器,避免初始化阶段触发重建队列 */
+    private var initializingToggles = false
     private var successPlayer: MediaPlayer? = null
     private var encouragePlayer: MediaPlayer? = null
     private val mascotFaces = listOf("🐻", "🦊", "🐼", "🐰", "🦄", "🐨")
@@ -92,23 +115,70 @@ class MainActivity : AppCompatActivity() {
      * 从 ProgressActivity / CharacterLibraryActivity 接 selectedId + language + 来源页
      * 来源页用于显示"← 返回"按钮,让用户能从主页跳回去
      *
-     * v1.4.4:接收 EXTRA_CLEAR_SOURCE — 源页内 chip 主动跳转时,主页清掉 jumpSource
-     * 不显示"← 返回"按钮(否则用户从 chip 跳回主页后又看到跳转按钮,体验割裂)
+     * 主页据此把 `jumpSource` 置空 → **"← 返回"按钮在任何跳转后都不会出现**
+     * (等于把这个功能自己关掉了)。现在只要带了 `EXTRA_SOURCE_PAGE` 就记录来源,
+     * 保证跳转后一定能点返回。
      */
+    /**
+     * v1.6.0:离开主页去打开源页(进度页 / 字库页)之前，先记下当前状态。
+     * 用户从源页**用自己的返回箭头**退出来时(不会 setResult)，主页要恢复成
+     * "打开源页之前"的样子 —— 否则返回按钮和跳转过来的卡片会一直留在主页上，
+     * 表现就是"点了返回回到进度页，再按箭头又回到刚才那张卡"。
+     */
+    private var preJumpItem: StudyItem? = null
+    private var preJumpSource: String? = null
+
     private val pageResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
-        if (result.resultCode != RESULT_OK) return@registerForActivityResult
+        if (result.resultCode != RESULT_OK) {
+            // 源页是被它自己的返回箭头关掉的(没有 setResult)→ 回到打开源页之前的状态
+            restorePreJumpState()
+            return@registerForActivityResult
+        }
         val data = result.data ?: return@registerForActivityResult
         val selectedId = data.getIntExtra(EXTRA_SELECTED_ID, -1)
         val lang = data.getStringExtra(EXTRA_SELECTED_LANG) ?: return@registerForActivityResult
         if (selectedId < 0) return@registerForActivityResult
-        // v1.4.4:chip 主动跳转 → 清 jumpSource,不显示"← 返回"按钮
-        // 工具栏箭头 finish 回来 → 不带 EXTRA_CLEAR_SOURCE,保留 jumpSource 显示按钮
-        val clearSource = data.getBooleanExtra(EXTRA_CLEAR_SOURCE, false)
-        jumpSource = if (clearSource) null else data.getStringExtra(EXTRA_SOURCE_PAGE)
+        // 记录来源(进度页 / 字库页),供"← 返回"按钮使用
+        jumpSource = data.getStringExtra(EXTRA_SOURCE_PAGE)
         refreshBackJumpButton()
         loadItemById(selectedId, lang)
+    }
+
+    /**
+     * 打开源页之前先快照;返回时若未选卡就还原。
+     *
+     * **只在"尚未处于跳转态"时快照**(即 `jumpSource == null`)。
+     * 用户点「← 返回进度/字库」时本身已经处于跳转态了;如果这时也用
+     * "被跳转过来的那张卡"覆盖快照,那么他从源页退出时会回到那张卡 ——
+     * 而他期望的是回到**最开始离开主页时**的样子。
+     * 所以快照记的是"跳转这件事还没发生之前"的状态。
+     */
+    private fun openSourcePage(intent: Intent) {
+        if (jumpSource == null) {
+            preJumpItem = currentItem
+            preJumpSource = null
+        }
+        pageResultLauncher.launch(intent)
+    }
+
+    /**
+     * 恢复到"打开源页之前":返回按钮回到原来的显隐状态,卡片回到原来那一张。
+     * 快照用掉即清空,避免下次误用旧状态。
+     */
+    private fun restorePreJumpState() {
+        val item = preJumpItem
+        jumpSource = preJumpSource
+        preJumpItem = null
+        preJumpSource = null
+
+        if (item != null) {
+            currentItem = item
+            updateCurrentItemView(item)
+            updateSummaryHint()
+        }
+        refreshBackJumpButton()
     }
 
     /**
@@ -116,35 +186,54 @@ class MainActivity : AppCompatActivity() {
      * - 抽屉打开时 → 关闭抽屉
      * - 有跳转源(jumpSource != null) → 启动源 Activity + finish 主页(回到源页)
      * - 正常主页态 → 弹"退出识字小帮手?"确认对话框
+     *
+     * v1.5.0:优先级规则抽到 [BackPolicy](纯函数 + 单测锁定),
+     * 这里只负责"按决定执行"。
      */
     private val backCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            if (binding.drawerLayout.isDrawerOpen(GravityCompat.END)) {
-                binding.drawerLayout.closeDrawer(GravityCompat.END)
-                return
+            val drawerOpen = binding.drawerLayout.isDrawerOpen(GravityCompat.END)
+            val action = BackPolicy.decide(drawerOpen, jumpSource != null)
+            when (action) {
+                BackAction.CLOSE_DRAWER -> binding.drawerLayout.closeDrawer(GravityCompat.END)
+
+                BackAction.GO_TO_SOURCE -> if (!navigateBackToSource()) showExitConfirmDialog()
+
+                BackAction.CONFIRM_EXIT -> showExitConfirmDialog()
             }
-            // v1.4.4:有跳转源 → finish 主页回到源页(单步返回)
-            if (jumpSource != null) {
-                val intent = when (jumpSource) {
-                    SOURCE_PROGRESS -> Intent(this@MainActivity, ProgressActivity::class.java)
-                    SOURCE_LIBRARY -> Intent(this@MainActivity, CharacterLibraryActivity::class.java)
-                    else -> null
-                }
-                jumpSource = null
-                if (intent != null) {
-                    startActivity(intent)
-                    finish()
-                    return
-                }
-            }
-            // v1.4.4:正常退出确认
-            MaterialAlertDialogBuilder(this@MainActivity)
-                .setTitle("退出识字小帮手?")
-                .setMessage("今天的进度还没保存,确定要退出吗?")
-                .setPositiveButton("退出") { _, _ -> finish() }
-                .setNegativeButton("再练一会儿", null)
-                .show()
         }
+    }
+
+    /**
+     * 回到跳转来源页(进度 / 字库)。
+     *
+     * @return true 表示已跳转;false 表示来源无法解析(理论上不会发生),
+     *         由调用方回落到退出确认,避免"按了返回却毫无反应"
+     */
+    private fun navigateBackToSource(): Boolean {
+        val intent = when (jumpSource) {
+            SOURCE_PROGRESS -> Intent(this, ProgressActivity::class.java)
+            SOURCE_LIBRARY -> Intent(this, CharacterLibraryActivity::class.java)
+            else -> null
+        } ?: return false
+        jumpSource = null
+        startActivity(intent)
+        finish()
+        return true
+    }
+
+    /**
+     * 退出确认对话框。
+     *
+     * v1.5.0:文案修正 —— 每次判定都立即落盘,原话"进度还没保存"与事实不符,会误导家长。
+     */
+    private fun showExitConfirmDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(getString(R.string.exit_dialog_title))
+            .setMessage(getString(R.string.exit_dialog_message))
+            .setPositiveButton(getString(R.string.exit_dialog_confirm)) { _, _ -> finish() }
+            .setNegativeButton(getString(R.string.exit_dialog_cancel), null)
+            .show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -154,14 +243,24 @@ class MainActivity : AppCompatActivity() {
 
         repository = CharacterRepository(this)
         englishRepository = EnglishRepository(this)
-        progressStore = ProgressStore(this)
+        progressStore = ProgressStore.active(this)
+
+        // v1.5.0:把旧版「位置 id」进度一次性迁移为「内容键」进度(幂等)
+        ProgressMigrator.migrateIfNeeded(progressStore, repository, englishRepository)
 
         currentMode = StudyMode.fromName(progressStore.loadLanguage())
+        currentDifficulty = progressStore.loadDifficulty()
+            ?.let { runCatching { Difficulty.valueOf(it) }.getOrNull() }
+            ?: Difficulty.EASY
+        englishSubMode = progressStore.loadEnglishSubMode()
+            ?.let { runCatching { EnglishSubMode.valueOf(it) }.getOrNull() }
+            ?: EnglishSubMode.LETTERS
         reloadAllProgressFromStore()
         progressStore.recordSnapshot(knownIds.size, unknownIds.size)
 
         TtsManager.init(this)
         setupMenuButton()
+        setupSystemBarInsets()
         setupDrawerEntries()
         setupBackJumpButton()
         setupLanguageToggle()
@@ -170,14 +269,25 @@ class MainActivity : AppCompatActivity() {
         setupActions()
         setupCardClick()
         refreshDrawerGreeting()
-        rebuildQueue()
-        loadNextItem()
+        // v1.5.0:旋转重建时 ViewModel 仍持有队列与当前项,
+        // 绝不能无条件 rebuildQueue —— 否则孩子正在看的字会被换成队列里的另一项。
+        if (vm.currentItem == null) {
+            rebuildQueue()
+            loadNextItem()
+        } else {
+            updateCurrentItemView(vm.currentItem)
+            updateSummaryHint()
+        }
+        // v1.5.0:jumpSource 由 ViewModel 保留,需据此恢复"← 返回"按钮可见性
+        refreshBackJumpButton()
 
         // v1.4.4:接管系统返回键 — 弹退出确认 / 关闭抽屉 / 回源页
         onBackPressedDispatcher.addCallback(this, backCallback)
     }
 
     override fun onDestroy() {
+        // v1.5.0:取消撒花层所有挂起动画/回调(实现收敛到 ConfettiOverlayView)
+        binding.confettiOverlay.cancelAll()
         successPlayer?.release()
         successPlayer = null
         encouragePlayer?.release()
@@ -232,10 +342,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * 朗读一段自定义文本(供词组 chip / 例句 TextView 点击调用)。
+     * 朗读一段自定义文本(供词组 chip 点击调用)。
      * v1.4.2:中文走整段 speak(),正常语速(用户反馈"词组例句读得慢")
+     * v1.5.0:移除从未使用的 pinyin 参数(lint/编译告警)
      */
-    private fun speakWordOrSentence(text: String, pinyin: String, utteranceId: String, isEnglish: Boolean) {
+    private fun speakWordOrSentence(text: String, utteranceId: String, isEnglish: Boolean) {
         if (isEnglish) {
             TtsManager.speakEnglish(text, utteranceId = utteranceId)
         } else {
@@ -276,6 +387,31 @@ class MainActivity : AppCompatActivity() {
     // 控件初始化
     // ============================================================
 
+    /**
+     * v1.6.0:系统栏避让。
+     *
+     * 应用的窗口实际是**全屏**的(`dumpsys window` 里 `Requested h=2720` = 物理高度),
+     * 也就是说内容会一直画到导航栏底下。手势导航的机型看不出问题(导航条是细横线),
+     * 但**三键导航**的机型上,底部固定按钮栏会被系统导航栏压住一截。
+     *
+     * 这里按 `systemBars` 的 inset 给两处补内边距:
+     * - 固定按钮栏的底部 → 始终高于导航栏
+     * - 滚动区的顶部 → 状态栏/刘海更高的机型上,顶部 label 不会被压住
+     *
+     * 在布局原有 padding 的基础上**累加**,不是覆盖,避免破坏设计间距。
+     */
+    private fun setupSystemBarInsets() {
+        val scrollTop = binding.homeScrollView.paddingTop
+        val barBottom = binding.actionBar.paddingBottom
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.drawerLayout) { _, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            binding.homeScrollView.updatePadding(top = scrollTop + bars.top)
+            binding.actionBar.updatePadding(bottom = barBottom + bars.bottom)
+            insets
+        }
+    }
+
     private fun setupMenuButton() {
         binding.menuButton.setOnClickListener {
             binding.drawerLayout.openDrawer(GravityCompat.END)
@@ -288,17 +424,40 @@ class MainActivity : AppCompatActivity() {
      * - 设置走普通 startActivity
      */
     private fun setupDrawerEntries() {
+        // v1.6.0:字库规模按实际数量生成 —— 此前写死"3000+ 字、26 字母、30 单词",
+        // 英文词库扩到 150 个之后这句就是错的。数据驱动的文案不会过期。
+        binding.navLibraryDesc.text = getString(
+            R.string.nav_library_desc_format,
+            repository.count(),
+            englishRepository.letterCount(),
+            englishRepository.wordCount()
+        )
+
+        // v1.6.0:进入"复习错题"模式(间隔重复)—— 只出到期的错题
+        binding.drawerReviewCard.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.END)
+            vm.reviewOnly = true
+            pendingItems.clear()
+            currentItem = null
+            rebuildQueue()
+            loadNextItem()
+        }
         binding.drawerProgressCard.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.END)
-            pageResultLauncher.launch(Intent(this, ProgressActivity::class.java))
+            openSourcePage(Intent(this, ProgressActivity::class.java))
         }
         binding.drawerLibraryCard.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.END)
-            pageResultLauncher.launch(Intent(this, CharacterLibraryActivity::class.java))
+            openSourcePage(Intent(this, CharacterLibraryActivity::class.java))
         }
         binding.drawerSettingsCard.setOnClickListener {
-            binding.drawerLayout.closeDrawer(GravityCompat.END)
-            startActivity(Intent(this, SettingsActivity::class.java))
+            // v1.6.0:重要设置走家长门(Apple Kids 类目强制要求 parental gate)。
+            // 只有"更多设置"加门 —— 语言/难度/复习/进度/字库对孩子无害,不加门,
+            // 免得家长每次都要解题。
+            ParentGate.show(this) {
+                binding.drawerLayout.closeDrawer(GravityCompat.END)
+                startActivity(Intent(this, SettingsActivity::class.java))
+            }
         }
         // v1.4.4 新增:抽屉左侧"←"按钮 → 关闭抽屉回主页(主页本来就在后台栈,不需要 finish)
         binding.drawerBackButton.setOnClickListener {
@@ -321,7 +480,8 @@ class MainActivity : AppCompatActivity() {
             }
             if (intent != null) {
                 // v1.4.3:不 finish,主页继续驻留在任务栈底部
-                startActivity(intent)
+                // v1.6.0:改走 openSourcePage → 源页用自身箭头退出时能收到回调并还原状态
+                openSourcePage(intent)
             }
         }
     }
@@ -333,9 +493,9 @@ class MainActivity : AppCompatActivity() {
         } else {
             binding.backJumpButton.visibility = View.VISIBLE
             binding.backJumpButton.text = when (source) {
-                SOURCE_PROGRESS -> "← 返回进度"
-                SOURCE_LIBRARY -> "← 返回字库"
-                else -> "← 返回"
+                SOURCE_PROGRESS -> getString(R.string.back_jump_progress)
+                SOURCE_LIBRARY -> getString(R.string.back_jump_library)
+                else -> getString(R.string.back)
             }
         }
         // v1.4.3:按钮可见状态变了,刷新 topLabel 的 margin 让位
@@ -359,6 +519,7 @@ class MainActivity : AppCompatActivity() {
                 else -> StudyMode.CHINESE
             }
             if (newMode != currentMode) {
+                vm.reviewOnly = false   // v1.6.0:换语种时退出复习模式
                 currentMode = newMode
                 progressStore.saveLanguage(newMode.name)
                 pendingItems.clear()
@@ -384,10 +545,14 @@ class MainActivity : AppCompatActivity() {
         binding.englishSubModeGroup.isVisible = isEnglish
         binding.englishSubModeLabel.isVisible = isEnglish
         refreshTopLabel()
-        // 英文默认选中 letters
-        if (isEnglish && !binding.chipSubLetters.isChecked && !binding.chipSubWords.isChecked) {
-            binding.chipSubLetters.isChecked = true
-            englishSubMode = EnglishSubMode.LETTERS
+        // v1.5.0:让 chip 与已恢复/已选择的子模式保持一致(不再无条件强制 letters)
+        if (isEnglish) {
+            initializingToggles = true
+            when (englishSubMode) {
+                EnglishSubMode.LETTERS -> binding.chipSubLetters.isChecked = true
+                EnglishSubMode.WORDS -> binding.chipSubWords.isChecked = true
+            }
+            initializingToggles = false
         }
     }
 
@@ -401,25 +566,32 @@ class MainActivity : AppCompatActivity() {
      */
     private fun refreshTopLabel() {
         val langLabel = when (currentMode) {
-            StudyMode.CHINESE -> "🇨🇳 中文"
-            StudyMode.ENGLISH -> "🇬🇧 ENGLISH"
+            StudyMode.CHINESE -> getString(R.string.lang_label_chinese)
+            StudyMode.ENGLISH -> getString(R.string.lang_label_english)
         }
-        val difficultyLabel = when (currentDifficulty) {
-            Difficulty.EASY -> "难度 简单"
-            Difficulty.MEDIUM -> "难度 中等"
-            Difficulty.HARD -> "难度 困难"
+        // v1.5.0:难度文案走 difficulty_easy/medium/hard 资源
+        val difficultyText = when (currentDifficulty) {
+            Difficulty.EASY -> getString(R.string.difficulty_easy)
+            Difficulty.MEDIUM -> getString(R.string.difficulty_medium)
+            Difficulty.HARD -> getString(R.string.difficulty_hard)
         }
-        binding.topLabel.text = "$langLabel · $difficultyLabel"
-        // v1.4.4:返回按钮可见时,topLabel 加 110dp margin 让位(按钮透明 + 高度 40dp)
-        val params = binding.topLabel.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
-        params.marginStart = if (jumpSource == null) 0 else dp(110)
-        binding.topLabel.layoutParams = params
+        binding.topLabel.text = getString(
+            R.string.top_label_format,
+            langLabel,
+            getString(R.string.difficulty_format, difficultyText)
+        )
+        // v1.6.0:不再用动态 margin 给返回按钮"让位"。
+        // 旧实现是 `params.marginStart = if (jumpSource == null) 0 else dp(110)` ——
+        // 它会随着返回按钮的显隐推着标签左右跳,正是"跳转后顶栏没对齐"的直接原因。
+        // 现在三个元素在同一个 LinearLayout 里(标签 weight=1 占满左侧,按钮在右侧),
+        // 返回按钮的显隐**不会**影响标签位置。
     }
 
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
     private fun setupDifficultyToggle() {
         binding.difficultyChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (initializingToggles) return@setOnCheckedStateChangeListener
             val checkedId = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
             currentDifficulty = when (checkedId) {
                 binding.chipEasy.id -> Difficulty.EASY
@@ -427,29 +599,50 @@ class MainActivity : AppCompatActivity() {
                 binding.chipHard.id -> Difficulty.HARD
                 else -> Difficulty.EASY
             }
-            // v1.4.3:刷新顶部 label,显示新难度
+            // v1.5.0:难度持久化 —— 此前旋转/重启后会被强制重置回"简单"
+            progressStore.saveDifficulty(currentDifficulty.name)
+            vm.reviewOnly = false   // v1.6.0:换难度时退出复习模式
             refreshTopLabel()
             pendingItems.clear()
             currentItem = null
             rebuildQueue()
             loadNextItem()
         }
-        binding.chipEasy.isChecked = true
+        // v1.5.0:回显上次使用的难度(不再无条件 chipEasy)
+        initializingToggles = true
+        when (currentDifficulty) {
+            Difficulty.EASY -> binding.chipEasy.isChecked = true
+            Difficulty.MEDIUM -> binding.chipMedium.isChecked = true
+            Difficulty.HARD -> binding.chipHard.isChecked = true
+        }
+        initializingToggles = false
+        refreshTopLabel()
     }
 
     private fun setupEnglishSubModeToggle() {
         binding.englishSubModeGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (initializingToggles) return@setOnCheckedStateChangeListener
             val checkedId = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
             englishSubMode = when (checkedId) {
                 binding.chipSubLetters.id -> EnglishSubMode.LETTERS
                 binding.chipSubWords.id -> EnglishSubMode.WORDS
                 else -> EnglishSubMode.LETTERS
             }
+            // v1.5.0:子模式持久化
+            progressStore.saveEnglishSubMode(englishSubMode.name)
+            vm.reviewOnly = false   // v1.6.0:换子模式时退出复习模式
             pendingItems.clear()
             currentItem = null
             rebuildQueue()
             loadNextItem()
         }
+        // v1.5.0:回显上次使用的子模式
+        initializingToggles = true
+        when (englishSubMode) {
+            EnglishSubMode.LETTERS -> binding.chipSubLetters.isChecked = true
+            EnglishSubMode.WORDS -> binding.chipSubWords.isChecked = true
+        }
+        initializingToggles = false
     }
 
     /**
@@ -458,19 +651,19 @@ class MainActivity : AppCompatActivity() {
      */
     private fun setupActions() {
         binding.knowButton.setOnClickListener {
-            toast("认识啦!")
+            toast(getString(R.string.toast_known))
             handleResult(ItemResult.KNOWN)
         }
         binding.unknownButton.setOnClickListener {
-            toast("没关系,下次记住!")
+            toast(getString(R.string.toast_unknown))
             handleResult(ItemResult.UNKNOWN)
         }
         binding.skipButton.setOnClickListener {
-            toast("下一个!")
+            toast(getString(R.string.toast_skip))
             loadNextItem(requeueCurrent = true)
         }
         binding.playGameButton.setOnClickListener {
-            toast("来玩游戏吧!")
+            toast(getString(R.string.toast_play_game))
             val defaultMode = when (currentMode) {
                 StudyMode.CHINESE -> GameMode.LISTEN
                 StudyMode.ENGLISH -> GameMode.LISTEN_LETTER
@@ -513,12 +706,11 @@ class MainActivity : AppCompatActivity() {
     /**
      * 从 ProgressActivity / CharacterLibraryActivity 跳转回主页指定卡片。
      *
-     * - 如果语言不同,切语言
-     * - 如果是英文 id,自动切子模式(letter / word)和难度,保证跳转目标一定在 pool 内
-     *   - id < EnglishRepository.WORD_ID_OFFSET (1000):字母 → 子模式 LETTERS
-     *   - id >= 1000:单词 → 子模式 WORDS + 该单词的 difficulty
-     * - 把 id 推到队首,loadNextItem 拉出来显示
-     * - 如果 id 不在当前 pool(理论上不应发生),静默忽略
+     * v1.6.0 **修复两个 bug**:
+     * 1. **中文也要按全库定位并对齐难度**。此前只有英文分支会切子模式/难度,
+     *    中文沿用"当前难度池",于是在字库页点了其它难度的字时 `pendingItems` 里
+     *    根本找不到该 id → 走静默 return → **主页字卡纹丝不动**(用户看到的就是"跳转错误")。
+     * 2. **不再静默失败**:若重建队列后仍找不到目标,直接用仓库构造卡片显示。
      */
     private fun loadItemById(id: Int, lang: String) {
         val targetMode = StudyMode.fromName(lang)
@@ -527,41 +719,70 @@ class MainActivity : AppCompatActivity() {
             progressStore.saveLanguage(targetMode.name)
             applyModeUi()
         }
+        // 跳转是"我要看这一张卡"的明确动作 → 退出复习模式,避免题池互相干扰
+        vm.reviewOnly = false
 
-        // v1.4.1:英文 id → 同步切子模式 + 难度,避免跳转后 id 不在 pool 静默失败
-        if (targetMode == StudyMode.ENGLISH) {
-            if (id >= EnglishRepository.WORD_ID_OFFSET) {
-                englishSubMode = EnglishSubMode.WORDS
-                binding.chipSubWords.isChecked = true
-                // 从仓库反查单词的难度
-                val word = englishRepository.findByWordById(id)
-                if (word != null) {
-                    currentDifficulty = word.difficulty
-                    when (currentDifficulty) {
-                        Difficulty.EASY -> binding.chipEasy.isChecked = true
-                        Difficulty.MEDIUM -> binding.chipMedium.isChecked = true
-                        Difficulty.HARD -> binding.chipHard.isChecked = true
-                    }
+        var directItem: StudyItem? = null
+        initializingToggles = true
+        when (targetMode) {
+            StudyMode.CHINESE -> {
+                repository.all().firstOrNull { it.id == id }?.let { character ->
+                    currentDifficulty = character.difficulty
+                    directItem = ChineseStudyItem(character)
                 }
-            } else {
-                englishSubMode = EnglishSubMode.LETTERS
-                binding.chipSubLetters.isChecked = true
+                syncDifficultyChip()
+            }
+            StudyMode.ENGLISH -> {
+                if (id >= EnglishRepository.WORD_ID_OFFSET) {
+                    englishSubMode = EnglishSubMode.WORDS
+                    binding.chipSubWords.isChecked = true
+                    englishRepository.findByWordById(id)?.let { word ->
+                        currentDifficulty = word.difficulty
+                        directItem = EnglishWordItem(word)
+                    }
+                } else {
+                    englishSubMode = EnglishSubMode.LETTERS
+                    binding.chipSubLetters.isChecked = true
+                    englishRepository.findByLetterById(id)?.let { directItem = EnglishLetterItem(it) }
+                }
+                syncDifficultyChip()
             }
         }
+        initializingToggles = false
+        progressStore.saveEnglishSubMode(englishSubMode.name)
+        progressStore.saveDifficulty(currentDifficulty.name)
+        refreshTopLabel()
 
         rebuildQueue()
-        // 把 id 推到队首(ArrayDeque 没有 removeAt,改用 toList+重建)
+        // 把目标推到队首(ArrayDeque 没有 removeAt,改用 toList+重建)
         val matchIdx = pendingItems.indexOfFirst { it.id == id }
-        if (matchIdx > 0) {
-            val all = pendingItems.toList()
-            pendingItems.clear()
-            val found = all[matchIdx]
-            pendingQueueAddFirst(found, all, matchIdx)
-        } else if (matchIdx < 0) {
-            // 不在当前 pool — 静默忽略(避免误跳导致空卡)
-            return
+        when {
+            matchIdx > 0 -> {
+                val all = pendingItems.toList()
+                pendingItems.clear()
+                pendingQueueAddFirst(all[matchIdx], all, matchIdx)
+                loadNextItem()
+            }
+            matchIdx == 0 -> loadNextItem()
+            else -> {
+                // 兜底:宁可直接显示目标,也不要静默什么都不做
+                val item = directItem
+                if (item != null) {
+                    currentItem = item
+                    updateCurrentItemView(item)
+                    updateSummaryHint()
+                }
+            }
         }
-        loadNextItem()
+    }
+
+    /** 把难度 chip 与 [currentDifficulty] 对齐(不触发监听器) */
+    private fun syncDifficultyChip() {
+        when (currentDifficulty) {
+            Difficulty.EASY -> binding.chipEasy.isChecked = true
+            Difficulty.MEDIUM -> binding.chipMedium.isChecked = true
+            Difficulty.HARD -> binding.chipHard.isChecked = true
+        }
     }
 
     /**
@@ -578,10 +799,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleResult(result: ItemResult) {
         val item = currentItem ?: return
-        when (currentMode) {
-            StudyMode.CHINESE -> recordChineseResult(item.id, result)
-            StudyMode.ENGLISH -> recordEnglishResult(item.id, result)
+        // v1.5.0:统一走 ProgressRules(与字库页共用同一套互斥规则)
+        val (known, unknown) = currentKnownUnknown()
+        ProgressRules.apply(known, unknown, item.progressKey, result == ItemResult.KNOWN)
+
+        // v1.6.0:错题本 + 间隔重复
+        // 不认识 → 进错题本、盒子归零;认识 → 若曾进过错题本则盒子 +1(间隔拉长)
+        val now = System.currentTimeMillis()
+        when (result) {
+            ItemResult.UNKNOWN -> progressStore.recordWrong(item.progressKey, now)
+            ItemResult.KNOWN -> progressStore.recordCorrect(item.progressKey, now)
         }
+
         when (result) {
             ItemResult.KNOWN -> celebrate()
             ItemResult.UNKNOWN -> {
@@ -593,32 +822,6 @@ class MainActivity : AppCompatActivity() {
         }
         persistProgress()
         updateSummaryHint()
-    }
-
-    private fun recordChineseResult(id: Int, result: ItemResult) {
-        when (result) {
-            ItemResult.KNOWN -> {
-                knownIds.add(id)
-                unknownIds.remove(id)
-            }
-            ItemResult.UNKNOWN -> {
-                unknownIds.add(id)
-                knownIds.remove(id)
-            }
-        }
-    }
-
-    private fun recordEnglishResult(id: Int, result: ItemResult) {
-        when (result) {
-            ItemResult.KNOWN -> {
-                englishKnownIds.add(id)
-                englishUnknownIds.remove(id)
-            }
-            ItemResult.UNKNOWN -> {
-                englishUnknownIds.add(id)
-                englishKnownIds.remove(id)
-            }
-        }
     }
 
     private fun persistProgress() {
@@ -641,28 +844,81 @@ class MainActivity : AppCompatActivity() {
      * - 中文:repository.byDifficulty(currentDifficulty)
      * - 英文 + LETTERS:全部字母
      * - 英文 + WORDS:byCategoryAndDifficulty(WORDS, currentDifficulty)
+     * - v1.6.0 复习模式([MainViewModel.reviewOnly]):题池**只保留到期的错题**
      */
     private fun rebuildQueue() {
         pendingItems.clear()
+
+        // v1.6.0:复习模式不受难度/子模式限制,直接从全库取到期错题
+        if (vm.reviewOnly) {
+            rebuildReviewQueue()
+            return
+        }
+
         val pool = buildCurrentPool()
         if (pool.isEmpty()) {
             updateCurrentItemView(null)
             val emptyMsg = when (currentMode) {
-                StudyMode.CHINESE -> "当前难度暂无字词,请稍后再试"
-                StudyMode.ENGLISH -> "暂无内容,请切换子模式或难度"
+                StudyMode.CHINESE -> getString(R.string.empty_pool_chinese)
+                StudyMode.ENGLISH -> getString(R.string.empty_pool_english)
             }
             Snackbar.make(binding.root, emptyMsg, Snackbar.LENGTH_SHORT).show()
             return
         }
 
         val (known, unknown) = currentKnownUnknown()
-        val needReview = pool.filter { unknown.contains(it.id) }
-        val untested = pool.filter { it.id !in known && it.id !in unknown }
-        val mastered = pool.filter { known.contains(it.id) && it.id !in unknown }
+        pendingItems.addAll(
+            ProgressRules.partition(pool, { it.progressKey }, known, unknown).ordered()
+        )
+    }
 
-        pendingItems.addAll(needReview)
-        pendingItems.addAll(untested)
-        pendingItems.addAll(mastered)
+    /**
+     * 复习模式的题池:只放**现在到期**的错题,按"错得最多、最久没复习"排序。
+     *
+     * v1.6.0 修复:此前复用"当前难度/子模式"的题池,于是**错题只要不属于当前难度,
+     * 就被判成"没有要复习的字"并静默退回普通模式** —— 用户看到的现象就是
+     * "点了复习错题完全没反应"。现在改为从**整个仓库**按到期键取卡片,
+     * 不受难度 / 子模式限制(复习本来就不该受这些筛选影响)。
+     */
+    private fun rebuildReviewQueue() {
+        val dueKeys = progressStore.dueReviewKeys(System.currentTimeMillis())
+        val due = dueKeys.mapNotNull { key -> itemByProgressKey(key) }
+
+        if (due.isEmpty()) {
+            vm.reviewOnly = false
+            updateCurrentItemView(null)
+            // 区分两种情况:真的没有错题 vs 错题在另一种语言里
+            val wantEnglish = currentMode == StudyMode.ENGLISH
+            val belongsToCurrent = dueKeys.any { ProgressKey.isEnglish(it) == wantEnglish }
+            val msgRes = if (dueKeys.isNotEmpty() && !belongsToCurrent) {
+                R.string.review_other_language
+            } else {
+                R.string.review_empty
+            }
+            Snackbar.make(binding.root, getString(msgRes), Snackbar.LENGTH_LONG).show()
+            rebuildQueue()
+            return
+        }
+
+        pendingItems.addAll(due)
+        Snackbar.make(
+            binding.root,
+            getString(R.string.review_started_format, due.size),
+            Snackbar.LENGTH_SHORT
+        ).show()
+    }
+
+    /**
+     * 按进度键从**整个仓库**取卡片,忽略当前难度 / 子模式。
+     * (与 [buildCurrentPool] 相对:那个是"当前筛选下的题池",这个是"全库查找")
+     */
+    private fun itemByProgressKey(key: String): StudyItem? = when (currentMode) {
+        StudyMode.CHINESE -> repository.byHanzi(key)?.let { ChineseStudyItem(it) }
+        StudyMode.ENGLISH -> when (val found = englishRepository.findByProgressKey(key)) {
+            is com.studyword.literacy.model.EnglishLetter -> EnglishLetterItem(found)
+            is com.studyword.literacy.model.EnglishWord -> EnglishWordItem(found)
+            else -> null
+        }
     }
 
     private fun buildCurrentPool(): List<StudyItem> = when (currentMode) {
@@ -682,7 +938,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun currentKnownUnknown(): Pair<Set<Int>, Set<Int>> = when (currentMode) {
+    /** 返回当前语种对应的 known/unknown 集合(可变引用,供 ProgressRules 就地改写) */
+    private fun currentKnownUnknown(): Pair<MutableSet<String>, MutableSet<String>> = when (currentMode) {
         StudyMode.CHINESE -> knownIds to unknownIds
         StudyMode.ENGLISH -> englishKnownIds to englishUnknownIds
     }
@@ -722,10 +979,10 @@ class MainActivity : AppCompatActivity() {
             binding.currentPinyin.text = ""
             // v1.4.3:卡片内不再显示难度 chip(已在 topLabel 显示),避免重复
             binding.remainingHint.text = when (currentMode) {
-                StudyMode.CHINESE -> "暂无可测汉字,请调整难度或重置进度"
-                StudyMode.ENGLISH -> "暂无可测内容"
+                StudyMode.CHINESE -> getString(R.string.card_empty_chinese)
+                StudyMode.ENGLISH -> getString(R.string.card_empty_english)
             }
-            binding.cardEmoji.text = "💤"
+            binding.cardEmoji.text = getString(R.string.card_emoji_idle)
             setActionButtonsEnabled(false)
             renderWordsAndExamples(null)
             return
@@ -755,7 +1012,6 @@ class MainActivity : AppCompatActivity() {
         setActionButtonsEnabled(true)
         renderWordsAndExamples(item)
     }
-
     /**
      * 渲染词组 + 例句。
      * v1.4.0 改进:
@@ -790,7 +1046,9 @@ class MainActivity : AppCompatActivity() {
             wordsDivider.isVisible = true
             wordsLabel.isVisible = true
             wordsGroup.isVisible = true
-            wordsLabel.text = if (isEnglish) "🌟 示例词" else "🧩 词组"
+            wordsLabel.text = getString(
+                if (isEnglish) R.string.words_label_en else R.string.words_label
+            )
             val inflater = LayoutInflater.from(this)
             words.forEachIndexed { index, entry ->
                 val chip = inflater.inflate(R.layout.item_word_chip, wordsGroup, false) as Chip
@@ -812,7 +1070,6 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         speakWordOrSentence(
                             text = entry.word,
-                            pinyin = entry.pinyin,
                             utteranceId = "main_word_${item?.id ?: 0}_$index",
                             isEnglish = isEnglish
                         )
@@ -837,7 +1094,9 @@ class MainActivity : AppCompatActivity() {
         if (examples.isNotEmpty()) {
             examplesLabel.isVisible = true
             exampleView.isVisible = true
-            examplesLabel.text = if (isEnglish) "📖 Example" else "📖 例句"
+            examplesLabel.text = getString(
+                if (isEnglish) R.string.examples_label_en else R.string.examples_label
+            )
             val first = examples.first()
             val displayText = if (isEnglish && item?.englishExtra?.isNotBlank() == true) {
                 "${first.sentence}\n— ${item.englishExtra}"
@@ -855,29 +1114,56 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateSummaryHint() {
+        // v1.6.0:复习模式下明确提示"现在只出到期的错题",
+        // 避免家长误以为字库只剩这几个字
+        if (vm.reviewOnly) {
+            binding.remainingHint.text = getString(R.string.review_mode_hint)
+            return
+        }
         when (currentMode) {
             StudyMode.CHINESE -> {
                 val total = repository.count()
                 val known = knownIds.size
                 val unknown = unknownIds.size
                 val untested = total - known - unknown
-                binding.remainingHint.text =
-                    "已认识 $known / $total · 待巩固 $unknown · 未测 ${untested.coerceAtLeast(0)}"
+                binding.remainingHint.text = getString(
+                    R.string.hint_chinese_format,
+                    known,
+                    total,
+                    unknown,
+                    untested.coerceAtLeast(0)
+                )
             }
             StudyMode.ENGLISH -> {
                 val total = englishRepository.count()
                 val known = englishKnownIds.size
                 val unknown = englishUnknownIds.size
                 val untested = total - known - unknown
-                binding.remainingHint.text =
-                    "Known $known / $total · Review $unknown · New ${untested.coerceAtLeast(0)}"
+                binding.remainingHint.text = getString(
+                    R.string.hint_english_format,
+                    known,
+                    total,
+                    unknown,
+                    untested.coerceAtLeast(0)
+                )
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
+        // v1.6.0:家长在设置里切换了孩子档案 → 必须换用新的 progressStore 并重建队列,
+        // 否则会继续读写上一个孩子的进度(每个档案是独立的 SharedPreferences 文件)。
+        val currentProfile = ProfileStore(this).activeProfileId()
+        if (currentProfile != activeProfileId) {
+            activeProfileId = currentProfile
+            progressStore = ProgressStore(this, currentProfile)
+            currentItem = null
+            pendingItems.clear()
+        }
         reloadAllProgressFromStore()
+        // v1.6.0:每次 resume 都校正"← 返回"按钮(进程恢复 / 跳转回来都能正确显示)
+        refreshBackJumpButton()
         updateSummaryHint()
         // 仅在 currentItem 丢失时(首次启动 / 进程被回收)才重建队列 + loadNext。
         // 否则 pageResultLauncher → loadItemById 设置的 currentItem 会被 onResume 的
@@ -906,128 +1192,28 @@ class MainActivity : AppCompatActivity() {
         binding.playGameButton.isEnabled = enabled
     }
 
+    /**
+     * 鼓励气泡。
+     *
+     * v1.5.0:改由 [ConfettiOverlayView.floatMessage] 绘制 —— 此前本文件与 GameActivity
+     * 各写了一份几乎相同的粒子/浮字动画。
+     */
     private fun showEncourageSparkle() {
-        val overlay = binding.confettiOverlay
-        val width = overlay.width
-        val height = overlay.height
-        if (width == 0 || height == 0) {
-            overlay.post { showEncourageSparkle() }
-            return
-        }
-
-        val messages = listOf("继续加油！", "还差一点点", "我们一起努力", "Try again!")
-        val label = TextView(this).apply {
-            text = messages[random.nextInt(messages.size)]
-            textSize = 18f
-            setTextColor(ContextCompat.getColor(context, R.color.deep_blue))
-            setBackgroundResource(R.drawable.bg_status_unseen)
-            setPadding(28, 12, 28, 12)
-            alpha = 0f
-        }
-
-        val params = FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.WRAP_CONTENT,
-            FrameLayout.LayoutParams.WRAP_CONTENT
-        )
-        overlay.addView(label, params)
-
-        // v1.4.0:锚点改为 remainingHint(原本是 actionRow,但现在 actionRow 是 emoji 按钮不美观)
-        val startX = width / 2f - label.paint.measureText(label.text.toString()) / 2
-        val anchorY = binding.remainingHint.y.takeIf { it > 0f } ?: (height / 2f)
-        val startY = anchorY - 24f
-        label.translationX = startX
-        label.translationY = startY
-
-        ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = 700
-            addUpdateListener { animator ->
-                val fraction = animator.animatedValue as Float
-                label.translationY = startY - 90 * fraction
-                label.alpha = when {
-                    fraction < 0.25f -> fraction / 0.25f
-                    fraction > 0.8f -> (1f - fraction) / 0.2f
-                    else -> 1f
-                }
-            }
-            addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    overlay.removeView(label)
-                }
-            })
-            start()
-        }
+        val message = ENCOURAGE_MESSAGES[random.nextInt(ENCOURAGE_MESSAGES.size)]
+        binding.confettiOverlay.floatMessage(message, binding.remainingHint)
     }
 
+    /**
+     * 撒花。
+     *
+     * v1.5.0:改由 [ConfettiOverlayView.burst] 绘制,锚点为字卡中心。
+     */
     private fun showConfetti(onEnd: () -> Unit) {
-        val overlay = binding.confettiOverlay
-        val width = overlay.width
-        val height = overlay.height
-        if (width == 0 || height == 0) {
-            overlay.post { showConfetti(onEnd) }
-            return
-        }
-
-        overlay.removeAllViews()
-
-        val card = binding.currentCharacterCard
-        val centerX = if (card.width > 0) card.x + card.width / 2f else width / 2f
-        val centerY = if (card.height > 0) card.y + card.height / 2f else height / 2f
-        val particles = mutableListOf<ValueAnimator>()
-
-        repeat(CONFETTI_COUNT) { index ->
-            val emoji = CONFETTI_EMOJIS[index % CONFETTI_EMOJIS.size]
-            val textView = TextView(this).apply {
-                text = emoji
-                textSize = random.nextInt(18, 34).toFloat()
-                alpha = 0f
-            }
-            val params = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
-            )
-            overlay.addView(textView, params)
-
-            textView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-            val halfWidth = textView.measuredWidth / 2f
-            val halfHeight = textView.measuredHeight / 2f
-
-            val angle = random.nextDouble(0.0, Math.PI * 2)
-            val velocity = random.nextDouble(0.35, 0.75) * height
-            val rotationDirection = if (random.nextBoolean()) 1 else -1
-            val rotationRange = random.nextInt(120, 300)
-
-            val animator = ValueAnimator.ofFloat(0f, 1f).apply {
-                duration = random.nextLong(900L, 1400L)
-                interpolator = DecelerateInterpolator()
-                addUpdateListener { valueAnimator ->
-                    val fraction = valueAnimator.animatedValue as Float
-                    val distance = velocity * fraction
-                    val x = centerX + (distance * cos(angle)).toFloat()
-                    val y = centerY + (distance * sin(angle)).toFloat()
-                    textView.translationX = x - halfWidth
-                    textView.translationY = y - halfHeight
-                    textView.rotation = rotationDirection * rotationRange * fraction
-                    textView.alpha = when {
-                        fraction < 0.2f -> fraction / 0.2f
-                        fraction > 0.8f -> (1f - fraction) / 0.2f
-                        else -> 1f
-                    }
-                }
-                addListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator) {
-                        overlay.removeView(textView)
-                    }
-                })
-            }
-            animator.start()
-            particles.add(animator)
-        }
-
-        overlay.postDelayed({
-            particles.forEach { it.cancel() }
-            overlay.removeAllViews()
-            onEnd()
-        }, CONFETTI_DURATION_MS)
+        binding.confettiOverlay.burst(
+            spec = ConfettiOverlayView.celebrateSpec(),
+            anchor = binding.currentCharacterCard,
+            onEnd = { if (!isFinishing && !isDestroyed) onEnd() }
+        )
     }
 
     private fun playSuccessSound() {
@@ -1061,12 +1247,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private enum class ItemResult { KNOWN, UNKNOWN }
-    private enum class EnglishSubMode { LETTERS, WORDS }
 
     companion object {
-        private const val CONFETTI_COUNT = 18
-        private const val CONFETTI_DURATION_MS = 300L
-        private val CONFETTI_EMOJIS = listOf("🎉", "✨", "🎈", "🎊", "🌟", "💫")
+        /** v1.5.0:鼓励文案(原先硬编码在 showEncourageSparkle 内) */
+        private val ENCOURAGE_MESSAGES = listOf("继续加油！", "还差一点点", "我们一起努力", "Try again!")
 
         /** ProgressActivity / CharacterLibraryActivity setResult 时填入的 extras */
         const val EXTRA_SELECTED_ID = "selected_id"
@@ -1074,7 +1258,6 @@ class MainActivity : AppCompatActivity() {
         /** v1.4.2:跳转来源 — 主页收到后可显示"← 返回"按钮跳回源 Activity */
         const val EXTRA_SOURCE_PAGE = "source_page"
         /** v1.4.4:源页内 chip 主动 setResult + finish 时,主页清掉 jumpSource,不显示"← 返回"按钮 */
-        const val EXTRA_CLEAR_SOURCE = "clear_source"
         const val SOURCE_PROGRESS = "progress"
         const val SOURCE_LIBRARY = "library"
     }
