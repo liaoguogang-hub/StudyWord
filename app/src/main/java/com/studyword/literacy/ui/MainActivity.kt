@@ -46,6 +46,7 @@ import com.studyword.literacy.model.ProgressKey
 import com.studyword.literacy.model.ProgressRules
 import com.studyword.literacy.model.StudyItem
 import com.studyword.literacy.model.StudyMode
+import com.studyword.literacy.util.AudioClips
 import com.studyword.literacy.util.TtsManager
 import kotlin.random.Random
 
@@ -294,6 +295,7 @@ class MainActivity : AppCompatActivity() {
         progressStore.recordSnapshot(knownIds.size, unknownIds.size)
 
         TtsManager.init(this)
+        AudioClips.init(this)
         setupMenuButton()
         setupCardSwipe()
         setupSystemBarInsets()
@@ -347,28 +349,67 @@ class MainActivity : AppCompatActivity() {
      */
     private fun speakCurrentItem() {
         val item = currentItem ?: return
-        // v1.6.0:语音不可用时明确告知,而不是点下去毫无反应
-        if (!ensureTtsAvailable()) return
         when (item) {
             is ChineseStudyItem -> {
                 // v1.4.2:只读汉字一遍,不再 append 拼音(拼音仅作为卡片下方的 visual hint)
-                TtsManager.speak(item.character.hanzi, utteranceId = "main_char_${item.id}")
+                speakWithFallback(listOf("c:${item.character.hanzi}")) {
+                    TtsManager.speak(item.character.hanzi, utteranceId = "main_char_${item.id}")
+                }
             }
             is EnglishLetterItem -> {
-                TtsManager.speakEnglish(item.letter.uppercase, utteranceId = "main_letter_${item.id}")
+                speakWithFallback(listOf("l:${item.letter.uppercase}")) {
+                    TtsManager.speakEnglish(
+                        item.letter.uppercase, utteranceId = "main_letter_${item.id}"
+                    )
+                }
             }
             is EnglishWordItem -> {
                 val word = item.word
-                TtsManager.speakSequential(
-                    items = buildList {
-                        add(word.word to true)
-                        if (word.chineseMeaning.isNotBlank()) add(word.chineseMeaning to false)
-                    },
-                    delayMs = 500,
-                    baseUtteranceId = "main_word_${item.id}"
-                )
+                speakWithFallback(
+                    buildList {
+                        add("n:${word.word}")
+                        if (word.chineseMeaning.isNotBlank()) add("z:${word.chineseMeaning}")
+                    }
+                ) {
+                    TtsManager.speakSequential(
+                        items = buildList {
+                            add(word.word to true)
+                            if (word.chineseMeaning.isNotBlank()) add(word.chineseMeaning to false)
+                        },
+                        delayMs = 500,
+                        baseUtteranceId = "main_word_${item.id}"
+                    )
+                    true
+                }
             }
         }
+    }
+
+    /**
+     * v1.6.0:发音的**统一入口** —— 优先播内置语音包,没有再回退系统 TTS。
+     *
+     * 为什么:部分设备(实测 HarmonyOS 的安卓兼容层)不提供 TTS 引擎,
+     * `TextToSpeech.getEngines()` 返回空、系统"文本转语音"页卡在"正在检查",
+     * 但 **MediaPlayer 播放音频文件是正常的**(答题音效有声)。
+     * 把常用字词预生成成音频打进 APK,这些设备上就照样有发音。
+     *
+     * 两条路都不可用时才提示用户。
+     */
+    private fun speakWithFallback(clips: List<String>, tts: () -> Boolean) {
+        if (AudioClips.playSequence(clips)) return
+        if (tts()) return
+        showTtsUnavailable()
+    }
+
+    /**
+     * 依次尝试多个候选 key,返回第一个成功播放的。
+     * 用于"同一个文本可能是词组、例句或其它中文"这种不确定场景。
+     */
+    private fun playFirstClip(vararg keys: String): Boolean {
+        for (key in keys) {
+            if (AudioClips.play(key)) return true
+        }
+        return false
     }
 
     /**
@@ -382,6 +423,12 @@ class MainActivity : AppCompatActivity() {
      */
     private fun ensureTtsAvailable(): Boolean {
         if (TtsManager.isReady) return true
+        showTtsUnavailable()
+        return false
+    }
+
+    /** 显示"语音不可用"提示,内容随探测到的原因变化 */
+    private fun showTtsUnavailable() {
         val msgRes = when (TtsManager.status) {
             TtsManager.Status.NO_ENGINE -> R.string.tts_no_engine
             TtsManager.Status.NO_CHINESE -> R.string.tts_no_chinese
@@ -390,13 +437,12 @@ class MainActivity : AppCompatActivity() {
         }
         Log.w(
             TAG,
-            "TTS 不可用 status=${TtsManager.status} engine=${TtsManager.enginePackage}\n" +
+            "发音不可用 status=${TtsManager.status} engine=${TtsManager.enginePackage}\n" +
                 TtsManager.diagnostics
         )
         Snackbar.make(binding.root, getString(msgRes), Snackbar.LENGTH_LONG)
             .setAction(R.string.tts_open_settings) { openTtsSettings() }
             .show()
-        return false
     }
 
     /**
@@ -423,8 +469,9 @@ class MainActivity : AppCompatActivity() {
      */
     private fun speakLetterOnly() {
         val letter = (currentItem as? EnglishLetterItem)?.letter ?: return
-        if (!ensureTtsAvailable()) return
-        TtsManager.speakEnglish(letter.uppercase, utteranceId = "main_letter_only_${letter.id}")
+        speakWithFallback(listOf("l:${letter.uppercase}")) {
+            TtsManager.speakEnglish(letter.uppercase, utteranceId = "main_letter_only_${letter.id}")
+        }
     }
 
     /**
@@ -433,12 +480,19 @@ class MainActivity : AppCompatActivity() {
      * v1.5.0:移除从未使用的 pinyin 参数(lint/编译告警)
      */
     private fun speakWordOrSentence(text: String, utteranceId: String, isEnglish: Boolean) {
-        if (!ensureTtsAvailable()) return
-        if (isEnglish) {
-            TtsManager.speakEnglish(text, utteranceId = utteranceId)
+        // 调用方传进来的文本可能是词组、例句或其它中文/英文,依次试各个命名空间
+        val played = if (isEnglish) {
+            playFirstClip("n:$text", "s:$text")
         } else {
-            TtsManager.speak(text, utteranceId = utteranceId)
+            playFirstClip("w:$text", "e:$text", "z:$text")
         }
+        if (played) return
+        if (isEnglish) {
+            if (TtsManager.speakEnglish(text, utteranceId = utteranceId)) return
+        } else {
+            if (TtsManager.speak(text, utteranceId = utteranceId)) return
+        }
+        showTtsUnavailable()
     }
 
     /**
@@ -448,27 +502,34 @@ class MainActivity : AppCompatActivity() {
      * - 中文:整段读一遍
      */
     private fun speakExampleSentence(item: StudyItem?, sentence: String, utteranceId: String) {
-        if (!ensureTtsAvailable()) return
+        val english = item is EnglishWordItem || item is EnglishLetterItem
+        val translation = (item as? EnglishWordItem)?.word?.exampleSentenceTranslation.orEmpty()
+        // 英文单词的例句读"英文 + 中文翻译";其余只读一句
+        val clips = buildList {
+            add(if (english) "s:$sentence" else "e:$sentence")
+            if (translation.isNotBlank()) add("z:$translation")
+        }
+        if (AudioClips.playSequence(clips)) return
+
         if (item == null) {
-            TtsManager.speak(sentence, utteranceId = utteranceId)
+            if (TtsManager.speak(sentence, utteranceId = utteranceId)) return
+            showTtsUnavailable()
             return
         }
-        if (item is EnglishWordItem && item.word.exampleSentenceTranslation.isNotBlank()) {
+        if (item is EnglishWordItem && translation.isNotBlank()) {
             TtsManager.speakSequential(
-                items = listOf(
-                    sentence to true,
-                    item.word.exampleSentenceTranslation to false
-                ),
+                items = listOf(sentence to true, translation to false),
                 delayMs = 500,
                 baseUtteranceId = utteranceId
             )
-        } else if (item is EnglishLetterItem) {
-            // 字母没有例句;走英文版
+            return
+        }
+        val ok = if (english) {
             TtsManager.speakEnglish(sentence, utteranceId = utteranceId)
         } else {
-            // 中文例句:整段一遍
             TtsManager.speak(sentence, utteranceId = utteranceId)
         }
+        if (!ok) showTtsUnavailable()
     }
 
     // ============================================================
@@ -1309,6 +1370,12 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
+    }
+
+    override fun onPause() {
+        // 离开页面就停掉正在播的内置语音,避免在后台继续响
+        AudioClips.stop()
+        super.onPause()
     }
 
     override fun onResume() {

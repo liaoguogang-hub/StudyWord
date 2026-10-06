@@ -34,6 +34,7 @@ import com.studyword.literacy.model.StudyItem
 import com.studyword.literacy.model.StudyMode
 import com.studyword.literacy.ui.ConfettiOverlayView
 import com.studyword.literacy.ui.GameViewModel
+import com.studyword.literacy.util.AudioClips
 import com.studyword.literacy.util.TtsManager
 import kotlin.math.cos
 import kotlin.math.sin
@@ -102,6 +103,7 @@ class GameActivity : AppCompatActivity() {
         englishRepository = EnglishRepository(this)
         progressStore = ProgressStore.active(this)
         TtsManager.init(this)
+        AudioClips.init(this)
 
         // v1.5.0:仅在首次创建时解析入口参数;
         // 旋转重建时 ViewModel 仍持有整轮进度,重开会让已答的题作废。
@@ -126,6 +128,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        AudioClips.stop()
         // v1.5.0:清理挂起的延迟任务。
         // 此前 onDestroy 为空,导致 700ms 的朗读与 800ms 的"进入下一题"在退出后仍会执行:
         // 孩子按返回后喇叭还在念、回合还在后台推进。
@@ -440,17 +443,32 @@ class GameActivity : AppCompatActivity() {
 
     private fun speakCurrentPrompt() {
         val q = round?.currentQuestion ?: return
-        when (q.correct) {
-            is ChineseStudyItem -> {
-                // v1.4.3:只读汉字,不再 append 拼音(会被 TTS 读成"日 rì")
-                TtsManager.speak(q.correct.character.hanzi, utteranceId = "game_q_${q.correct.id}")
-            }
-            is EnglishLetterItem -> {
-                TtsManager.speakEnglish(q.correct.letter.uppercase, utteranceId = "game_q_en_${q.correct.id}")
-            }
-            is EnglishWordItem -> {
-                TtsManager.speakEnglish(q.correct.word.word, utteranceId = "game_q_en_${q.correct.id}")
-            }
+        speakCorrectAnswer(q, prefix = "game_q")
+    }
+
+    /**
+     * v1.6.0:朗读正确答案 —— 优先内置语音包,没有再回退系统 TTS。
+     *
+     * 为什么:部分设备(实测 HarmonyOS 的安卓兼容层)没有 TTS 引擎,
+     * 而"听音找字"模式完全依赖发音,不处理就等于该模式不可用。
+     * 内置语音包走 MediaPlayer,在那类设备上正常。
+     */
+    private fun speakCorrectAnswer(q: GameQuestion, prefix: String) {
+        val item = q.correct
+        val clips = when (item) {
+            is ChineseStudyItem -> listOf("c:${item.character.hanzi}")
+            is EnglishLetterItem -> listOf("l:${item.letter.uppercase}")
+            is EnglishWordItem -> listOf("n:${item.word.word}")
+            else -> emptyList()
+        }
+        if (clips.isNotEmpty() && AudioClips.playSequence(clips)) return
+        when (item) {
+            is ChineseStudyItem ->
+                TtsManager.speak(item.character.hanzi, utteranceId = "${prefix}_${item.id}")
+            is EnglishLetterItem ->
+                TtsManager.speakEnglish(item.letter.uppercase, utteranceId = "${prefix}_en_${item.id}")
+            is EnglishWordItem ->
+                TtsManager.speakEnglish(item.word.word, utteranceId = "${prefix}_en_${item.id}")
         }
     }
 
@@ -521,11 +539,7 @@ class GameActivity : AppCompatActivity() {
             }
             correctBtn?.background = ContextCompat.getDrawable(this, R.drawable.bg_option_correct)
             // 答错时主动念一遍正确答案
-            when (q.correct) {
-                is ChineseStudyItem -> TtsManager.speak(q.correct.character.hanzi, utteranceId = "game_wrong_${q.correct.id}")
-                is EnglishLetterItem -> TtsManager.speakEnglish(q.correct.letter.uppercase, utteranceId = "game_wrong_en_${q.correct.id}")
-                is EnglishWordItem -> TtsManager.speakEnglish(q.correct.word.word, utteranceId = "game_wrong_en_${q.correct.id}")
-            }
+            speakCorrectAnswer(q, prefix = "game_wrong")
         }
 
         // 800ms 后进入下一题
