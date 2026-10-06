@@ -312,13 +312,16 @@ class CharacterLibraryActivity : AppCompatActivity() {
 
     /**
      * v1.4.3:难度 filter 也用于英文 mode。
-     * - EnglishLetterItem:letter 始终显示(难度对它无意义)
-     * - EnglishWordItem:按 word.difficulty 过滤
-     * - 其他(理论不应出现):全量通过
+     *
+     * v1.6.0 修正:字母只在「全部难度」和「简单」下显示。
+     * 数据里字母**没有 difficulty 字段**(只有单词有 EASY/MEDIUM/HARD),
+     * 旧实现让字母"始终通过",于是切到「中等」「困难」时列表里仍混着一堆字母 ——
+     * 而中等/困难本该只有单词。字母是入门内容,归到「简单」最符合直觉。
      */
     private fun matchesDifficultyEnglish(item: StudyItem): Boolean {
         return when (item) {
-            is EnglishLetterItem -> true
+            is EnglishLetterItem -> difficultyFilter == DifficultyFilter.ALL ||
+                difficultyFilter == DifficultyFilter.EASY
             is EnglishWordItem -> when (difficultyFilter) {
                 DifficultyFilter.ALL -> true
                 DifficultyFilter.EASY -> item.word.difficulty == Difficulty.EASY

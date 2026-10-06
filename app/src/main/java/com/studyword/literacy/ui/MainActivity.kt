@@ -1191,6 +1191,10 @@ class MainActivity : AppCompatActivity() {
     // ============================================================
 
     private fun updateCurrentItemView(item: StudyItem?) {
+        // v1.6.0:切卡片时把滚动位置复位到顶部。
+        // 否则上一张卡片若被滚到中间,下一张会"继承"这个滚动位置 ——
+        // 表现为卡片看起来停在中间而不是最高处,顶部内容被切掉。
+        binding.homeScrollView.scrollTo(0, 0)
         if (item == null) {
             binding.currentCharacter.isVisible = false
             binding.letterContainer.isVisible = false
