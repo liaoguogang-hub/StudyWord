@@ -3,6 +3,7 @@ package com.studyword.literacy.ui
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import android.text.InputType
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.studyword.literacy.R
+import com.studyword.literacy.util.TtsManager
 import com.studyword.literacy.data.CharacterRepository
 import com.studyword.literacy.data.EnglishRepository
 import com.studyword.literacy.data.ProfileStore
@@ -61,6 +63,9 @@ class SettingsActivity : AppCompatActivity() {
         progressStore = ProgressStore.active(this)
 
         binding.topBar.setNavigationOnClickListener { finish() }
+
+        // v1.6.0:语音诊断 —— 远程排查 TTS 问题时让用户截图
+        binding.ttsDiagnoseButton.setOnClickListener { showTtsDiagnostics() }
 
         binding.libraryButton.setOnClickListener {
             startActivity(Intent(this, CharacterLibraryActivity::class.java))
@@ -264,6 +269,28 @@ class SettingsActivity : AppCompatActivity() {
      * 新增 / 重命名共用一个输入框对话框。
      * @param creating true = 新增,false = 重命名当前档案
      */
+    /**
+     * 显示语音引擎探测报告。
+     *
+     * 起因:用户在鸿蒙手机上 TTS 无声音,而那台设备的系统"文本转语音"页
+     * 自己也卡在"默认语言状态:正在检查…"。这个对话框把 App 侧探测到的
+     * **逐引擎结果**原样显示出来,便于远程定位。
+     */
+    private fun showTtsDiagnostics() {
+        TtsManager.init(this)
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.tts_diagnose_title)
+            .setMessage(TtsManager.report())
+            .setPositiveButton(R.string.tts_diagnose_redetect) { _, _ ->
+                TtsManager.redetect(this)
+                Toast.makeText(
+                    this, getString(R.string.tts_diagnose_redetecting), Toast.LENGTH_SHORT
+                ).show()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
     private fun showNameDialog(creating: Boolean, initial: String = "") {
         val input = EditText(this).apply {
             hint = getString(R.string.profile_name_hint)

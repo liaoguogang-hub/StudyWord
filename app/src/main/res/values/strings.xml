@@ -302,4 +302,8 @@
     <string name="tts_not_ready">语音还没准备好，请稍后再试</string>
     <string name="tts_open_settings">去设置</string>
     <string name="tts_no_settings">打不开系统设置</string>
+    <string name="tts_diagnose_label">语音诊断</string>
+    <string name="tts_diagnose_title">语音诊断</string>
+    <string name="tts_diagnose_redetect">重新检测</string>
+    <string name="tts_diagnose_redetecting">正在重新检测，请稍候再打开查看</string>
 </resources>

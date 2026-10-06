@@ -128,6 +128,51 @@ object TtsManager {
         probe(context.applicationContext)
     }
 
+    /**
+     * 重置并重新探测。供"语音诊断"里的「重新检测」使用 ——
+     * 用户可能在系统设置里装好了语音,但 App 的探测发生在启动时,需要手动触发一次。
+     */
+    fun redetect(context: Context) {
+        synchronized(this) {
+            runCatching { tts?.shutdown() }
+            tts = null
+            isReady = false
+            isEnglishReady = false
+            status = Status.NOT_INITIALIZED
+            enginePackage = null
+            diagnostics = ""
+            probing = false
+        }
+        probe(context.applicationContext)
+    }
+
+    /**
+     * 供"语音诊断"界面展示的可读报告。
+     *
+     * 之所以要做这个:用户设备上的 TTS 问题我这边看不到,只能靠用户截图。
+     * 报告里带**逐引擎的探测结果**,一次截图就能区分
+     * "系统里一个引擎都没有" 与 "有引擎但都起不来"。
+     */
+    fun report(): String = buildString {
+        append("状态：").append(
+            when (status) {
+                Status.READY -> "可用 ✓"
+                Status.NO_ENGINE -> "没有探测到任何语音引擎"
+                Status.NO_CHINESE -> "有引擎，但没有一个支持中文"
+                Status.INIT_FAILED -> "引擎初始化失败"
+                Status.NOT_INITIALIZED -> "尚未检测完成（点「重新检测」）"
+            }
+        ).append('\n')
+        append("选中引擎：").append(enginePackage ?: "（无）").append('\n')
+        append("中文就绪：").append(isReady)
+            .append("　英文就绪：").append(isEnglishReady).append('\n')
+        if (diagnostics.isNotBlank()) {
+            append('\n').append(diagnostics)
+        } else {
+            append("\n（没有引擎探测记录）")
+        }
+    }
+
     // ============================================================
     // 引擎探测
     // ============================================================

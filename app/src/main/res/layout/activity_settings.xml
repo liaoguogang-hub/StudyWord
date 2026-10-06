@@ -163,6 +163,15 @@
                     android:layout_marginTop="12dp"
                     android:text="@string/reset_chinese_label" />
 
+                <!-- v1.6.0:语音诊断(远程排查 TTS 问题时让用户截图) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ttsDiagnoseButton"
+                    style="@style/Widget.StudyWord.SecondaryButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/tts_diagnose_label" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/resetEnglishButton"
                     style="@style/Widget.StudyWord.DangerOutlineButton"
