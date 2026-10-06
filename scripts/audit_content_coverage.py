@@ -49,6 +49,7 @@ EN_FILE = ROOT / "app" / "src" / "main" / "assets" / "english_sets.json"
 KNOWN_NO_WORDS = set(
     "毋弗奴囚弘死杀血伤奸邪伪妄讼刑亦岂汝迄忖讳迂兆夷旬旨廷吏玑吁讽牟"
     "伦邦仲贞妃执劣巩朽匈"
+    "妓坟隶怖劫歼役扼"
 )
 
 LETTER_FIELDS = ["letter", "uppercase", "lowercase", "phonetic",
@@ -67,7 +68,7 @@ def audit_chinese(show_list=False, only_seg=None):
 
     segs = [
         ("easy 1~600", easy[:600], True),          # True = 已承诺覆盖
-        ("easy 601~1200", easy[600:1200], False),
+        ("easy 601~1200", easy[600:1200], True),
         ("medium 1~1000", med, False),
         ("hard 1~800", hard, False),
     ]

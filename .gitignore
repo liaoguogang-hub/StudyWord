@@ -134,3 +134,6 @@ _screenshots/
 keystore.properties
 *.jks
 *.keystore
+
+# Python
+__pycache__/

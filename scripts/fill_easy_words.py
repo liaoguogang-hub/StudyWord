@@ -99,13 +99,16 @@ CONTENT: dict[str, dict] = {
 }
 
 # 只处理 easy 的前 N 个常用字（第一批 100 + 第二批 100 = 前 200）
-TARGET_PREFIX = 600
+TARGET_PREFIX = 1200
 DIFFICULTY_KEYS = ("easy", "medium", "hard")
 
 # 外部内容批次（人工/子代理撰写，键 → {words, examples}）。
 # 与脚本内 CONTENT 合并；同名以外部文件为准（便于分批迭代）。
 BATCH_FILES = ("words_content_batch2.json", "words_content_batch3.json",
-               "words_content_batch4.json")
+                "words_content_batch4.json", "words_content_batch5.json",
+                "words_content_batch6.json", "words_content_batch7.json",
+                "words_content_batch8.json", "words_content_batch9.json",
+                "words_content_batch10.json")
 
 
 def load_batches() -> dict[str, dict]:
@@ -222,7 +225,7 @@ def main() -> int:
     print(f"前 {TARGET_PREFIX} 字中原本有内容 : {len(already)}")
     print(f"本次补齐                        : {len(filled)}  -> {' '.join(filled)}")
     print(f"  其中原本是空对象的              : {len(empty_fixed)}")
-    print(f"字典里没有、仍需后续补充          : {len(not_in_dict)}"
+    print(f"字典里没有(多数是已确认无合适幼儿词组的白名单)          : {len(not_in_dict)}"
           + (f" -> {' '.join(not_in_dict)}" if not_in_dict else ""))
     print(f"easy 中现共有词组的条目           : {total_with}")
     print(f"顺序指纹一致(关键!)              : {'是' if order_ok else '否 —— 已中止'}")
