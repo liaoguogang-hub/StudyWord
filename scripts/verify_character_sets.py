@@ -38,8 +38,27 @@ ROOT = Path(__file__).resolve().parent.parent
 JSON_PATH = ROOT / "app" / "src" / "main" / "assets" / "character_sets.json"
 BASELINE_PATH = ROOT / "scripts" / "character_sets_order.sha256"
 
-EXPECTED_COUNTS = {"easy": 1200, "medium": 1000, "hard": 800}
-MIN_WORDS_COVERED = 1200  # 前 N 个简单字应具备词组与例句
+# v1.6.0:中文难度改为按**教学适用性**划分(不再是"前 1200 个算简单"):
+# 降档 70 个不适合 3~6 岁的字(抽象/书面/负面),升档 37 个部编版一年级字。
+# 用户明确不考虑老用户进度迁移,故换档无需兼容处理。
+EXPECTED_COUNTS = {"easy": 1167, "medium": 1035, "hard": 798}
+
+# 已确认**不适合 3~6 岁幼儿**、必须留在简单档之外的字(v1.6.0 降档清单)。
+#
+#   A. 内容创作阶段人工确认「找不到任何适合幼儿的常用词组」的 50 字
+#      (毋弗奴囚死杀血伤… 现代汉语里只有书面语/负面/姓氏用法)
+#   B. 本轮复核新增 20 字 —— 复查的是**已写好的词组本身**是否适合幼儿:
+#      乙(甲乙/乙方/乙等,合同用语) 乃(乃是,文言) 兀(突兀) 尸(尸体/僵尸)
+#      亏(吃亏/亏本) 歹(好歹/好说歹说) 乞(乞求/乞丐) 亡(死亡/逃亡)
+#      士(士兵/战士) 丈(丈夫/方丈) 凡(平凡/凡是) 川(四川/山川) 亿(一亿/亿万)
+#      弓(拉弓/弹弓) 刃(刀刃) 丫(丫头) 已(抽象副词) 及(以及) 夕(夕阳) 史(历史)
+#
+# 这些字若回到简单档,4 岁孩子会看到「甲乙」「尸体」「死亡」这类卡片。
+NOT_FOR_TODDLERS = set(
+    "毋弗奴囚弘死杀血伤执亦伦刑邦邪伪廷旨仲岂讼劣奸妄玑吁兆吏讽旬夷贞巩匈朽汝迄妃牟讳迂忖役歼劫坟妓扼怖隶"
+    "乙乃兀尸亏歹乞亡士丈凡川亿弓刃丫已及夕史"
+)
+MIN_WORDS_COVERED = 1167  # 简单档全部字数(v1.6.0 起要求 100% 覆盖)
 
 # 英文难度的下限规则(v1.6.0 起)
 #
@@ -167,7 +186,8 @@ def main() -> int:
 
     # ---- 5. 前 N 个简单字的覆盖 ----
     easy = data.get("easy", [])
-    expected_cover = MIN_WORDS_COVERED - len(KNOWN_NO_WORDS)
+    # v1.6.0:不适合幼儿的字已全部降出简单档,所以不再扣减白名单 —— 要求 100% 覆盖
+    expected_cover = MIN_WORDS_COVERED
     covered = sum(1 for it in easy[:MIN_WORDS_COVERED] if isinstance(it, dict) and it.get("words"))
     total_covered = sum(1 for it in easy if isinstance(it, dict) and it.get("words"))
     if covered < expected_cover:
@@ -188,12 +208,25 @@ def main() -> int:
     _easy = data.get("easy", [])
     for _label, _seg in (
         ("简单 1~600", _easy[:600]),
-        ("简单 601~1200", _easy[600:1200]),
-        ("中等 1000", data.get("medium", [])),
-        ("困难 800", data.get("hard", [])),
+        ("简单 601~1167", _easy[600:1167]),
+        (f"中等 {len(data.get("medium", []))}", data.get("medium", [])),
+        (f"困难 {len(data.get("hard", []))}", data.get("hard", [])),
     ):
         _done = sum(1 for it in _seg if isinstance(it, dict) and it.get("words"))
         print(f"  词组覆盖 {_label:14}: {_done}/{len(_seg)}")
+
+    # ---- 5b. 幼儿适用性下限(v1.6.0) ----
+    # 难度不该由"字在列表第几位"决定。这两条把"分级要有教学依据"钉死:
+    leaked = [char_of(it) for it in easy if char_of(it) in NOT_FOR_TODDLERS]
+    if leaked:
+        problems.append(
+            f"以下字不适合 3~6 岁幼儿,却出现在「简单」档: {''.join(leaked)}"
+        )
+    easy_no_words = [char_of(it) for it in easy if not (isinstance(it, dict) and it.get("words"))]
+    if easy_no_words:
+        problems.append(
+            f"「简单」档有 {len(easy_no_words)} 个字缺词组: {''.join(easy_no_words[:40])}"
+        )
 
     # ---- 6. 英文词库 ----
     en_path = ROOT / "app" / "src" / "main" / "assets" / "english_sets.json"

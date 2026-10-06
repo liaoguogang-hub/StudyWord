@@ -98,8 +98,9 @@ CONTENT: dict[str, dict] = {
     "弓": {"words": ["弓箭", "拉弓", "弹弓"], "examples": ["他拉开弓射箭。"]},
 }
 
-# 只处理 easy 的前 N 个常用字（第一批 100 + 第二批 100 = 前 200）
-TARGET_PREFIX = 1200
+# 处理范围:None = 整个简单档。
+# 以前写死 1200,难度改档后简单档长度变了,写死的数字会让新增的字被漏掉 —— 改为动态。
+TARGET_PREFIX = None
 DIFFICULTY_KEYS = ("easy", "medium", "hard")
 
 # 外部内容批次（人工/子代理撰写，键 → {words, examples}）。
@@ -108,7 +109,7 @@ BATCH_FILES = ("words_content_batch2.json", "words_content_batch3.json",
                 "words_content_batch4.json", "words_content_batch5.json",
                 "words_content_batch6.json", "words_content_batch7.json",
                 "words_content_batch8.json", "words_content_batch9.json",
-                "words_content_batch10.json")
+                "words_content_batch10.json", "words_content_batch11.json")
 
 
 def load_batches() -> dict[str, dict]:
@@ -190,9 +191,10 @@ def main() -> int:
     ]
 
     easy = data.get("easy", [])
+    limit = TARGET_PREFIX if TARGET_PREFIX is not None else len(easy)
     filled, already, not_in_dict, empty_fixed = [], [], [], []
 
-    for idx in range(min(TARGET_PREFIX, len(easy))):
+    for idx in range(min(limit, len(easy))):
         item = easy[idx]
         ch = char_of(item)
         has_words = isinstance(item, dict) and item.get("words")
@@ -222,7 +224,7 @@ def main() -> int:
         1 for it in easy if isinstance(it, dict) and it.get("words")
     )
 
-    print(f"前 {TARGET_PREFIX} 字中原本有内容 : {len(already)}")
+    print(f"简单档前 {limit} 字中原本有内容 : {len(already)}")
     print(f"本次补齐                        : {len(filled)}  -> {' '.join(filled)}")
     print(f"  其中原本是空对象的              : {len(empty_fixed)}")
     print(f"字典里没有(多数是已确认无合适幼儿词组的白名单)          : {len(not_in_dict)}"

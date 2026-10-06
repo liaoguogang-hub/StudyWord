@@ -801,6 +801,1005 @@
       ]
     },
     {
+      "char": "春",
+      "words": [
+        {
+          "word": "春天",
+          "pinyin": "chūn tiān"
+        },
+        {
+          "word": "春风",
+          "pinyin": "chūn fēng"
+        },
+        {
+          "word": "春雨",
+          "pinyin": "chūn yǔ"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "春天来了，花都开了。",
+          "pinyin": "chūn tiān lái le huā dōu kāi le"
+        },
+        {
+          "sentence": "春风吹在脸上很舒服。",
+          "pinyin": "chūn fēng chuī zài liǎn shàng hěn shū fú"
+        }
+      ]
+    },
+    {
+      "char": "雪",
+      "words": [
+        {
+          "word": "雪花",
+          "pinyin": "xuě huā"
+        },
+        {
+          "word": "下雪",
+          "pinyin": "xià xuě"
+        },
+        {
+          "word": "雪人",
+          "pinyin": "xuě rén"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "下雪了，我们一起堆雪人。",
+          "pinyin": "xià xuě le wǒ men yì qǐ duī xuě rén"
+        },
+        {
+          "sentence": "雪花从天上飘下来。",
+          "pinyin": "xuě huā cóng tiān shàng piāo xià lái"
+        }
+      ]
+    },
+    {
+      "char": "清",
+      "words": [
+        {
+          "word": "清水",
+          "pinyin": "qīng shuǐ"
+        },
+        {
+          "word": "清楚",
+          "pinyin": "qīng chǔ"
+        },
+        {
+          "word": "清明",
+          "pinyin": "qīng míng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "小河里的水真清。",
+          "pinyin": "xiǎo hé lǐ de shuǐ zhēn qīng"
+        },
+        {
+          "sentence": "我听清楚了老师的话。",
+          "pinyin": "wǒ tīng qīng chǔ le lǎo shī de huà"
+        }
+      ]
+    },
+    {
+      "char": "情",
+      "words": [
+        {
+          "word": "心情",
+          "pinyin": "xīn qíng"
+        },
+        {
+          "word": "事情",
+          "pinyin": "shì qíng"
+        },
+        {
+          "word": "热情",
+          "pinyin": "rè qíng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "今天我的心情很好。",
+          "pinyin": "jīn tiān wǒ de xīn qíng hěn hǎo"
+        },
+        {
+          "sentence": "我把事情做完了。",
+          "pinyin": "wǒ bǎ shì qíng zuò wán le"
+        }
+      ]
+    },
+    {
+      "char": "请",
+      "words": [
+        {
+          "word": "请坐",
+          "pinyin": "qǐng zuò"
+        },
+        {
+          "word": "请问",
+          "pinyin": "qǐng wèn"
+        },
+        {
+          "word": "请进",
+          "pinyin": "qǐng jìn"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "请坐下来喝杯水。",
+          "pinyin": "qǐng zuò xià lái hē bēi shuǐ"
+        },
+        {
+          "sentence": "请问你叫什么名字？",
+          "pinyin": "qǐng wèn nǐ jiào shén me míng zì"
+        }
+      ]
+    },
+    {
+      "char": "种",
+      "words": [
+        {
+          "word": "种花",
+          "pinyin": "zhòng huā"
+        },
+        {
+          "word": "种树",
+          "pinyin": "zhòng shù"
+        },
+        {
+          "word": "种子",
+          "pinyin": "zhǒng zi"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我和爸爸一起种花。",
+          "pinyin": "wǒ hé bà bà yì qǐ zhòng huā"
+        },
+        {
+          "sentence": "种子发芽了。",
+          "pinyin": "zhǒng zi fā yá le"
+        }
+      ]
+    },
+    {
+      "char": "样",
+      "words": [
+        {
+          "word": "样子",
+          "pinyin": "yàng zi"
+        },
+        {
+          "word": "一样",
+          "pinyin": "yī yàng"
+        },
+        {
+          "word": "花样",
+          "pinyin": "huā yàng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "小狗的样子很可爱。",
+          "pinyin": "xiǎo gǒu de yàng zi hěn kě ài"
+        },
+        {
+          "sentence": "我们两个一样高。",
+          "pinyin": "wǒ men liǎng gè yī yàng gāo"
+        }
+      ]
+    },
+    {
+      "char": "秋",
+      "words": [
+        {
+          "word": "秋天",
+          "pinyin": "qiū tiān"
+        },
+        {
+          "word": "秋风",
+          "pinyin": "qiū fēng"
+        },
+        {
+          "word": "中秋",
+          "pinyin": "zhōng qiū"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "秋天到了，树叶黄了。",
+          "pinyin": "qiū tiān dào le shù yè huáng le"
+        },
+        {
+          "sentence": "秋天的果子熟了。",
+          "pinyin": "qiū tiān de guǒ zi shú le"
+        }
+      ]
+    },
+    {
+      "char": "说",
+      "words": [
+        {
+          "word": "说话",
+          "pinyin": "shuō huà"
+        },
+        {
+          "word": "听说",
+          "pinyin": "tīng shuō"
+        },
+        {
+          "word": "小说",
+          "pinyin": "xiǎo shuō"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "妈妈说话很温柔。",
+          "pinyin": "mā mā shuō huà hěn wēn róu"
+        },
+        {
+          "sentence": "我听说明天放假。",
+          "pinyin": "wǒ tīng shuō míng tiān fàng jià"
+        }
+      ]
+    },
+    {
+      "char": "很",
+      "words": [
+        {
+          "word": "很好",
+          "pinyin": "hěn hǎo"
+        },
+        {
+          "word": "很多",
+          "pinyin": "hěn duō"
+        },
+        {
+          "word": "很大",
+          "pinyin": "hěn dà"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我今天很开心。",
+          "pinyin": "wǒ jīn tiān hěn kāi xīn"
+        },
+        {
+          "sentence": "公园里有很多小朋友。",
+          "pinyin": "gōng yuán lǐ yǒu hěn duō xiǎo péng yǒu"
+        }
+      ]
+    },
+    {
+      "char": "音",
+      "words": [
+        {
+          "word": "声音",
+          "pinyin": "shēng yīn"
+        },
+        {
+          "word": "音乐",
+          "pinyin": "yīn yuè"
+        },
+        {
+          "word": "拼音",
+          "pinyin": "pīn yīn"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我听见小鸟的声音。",
+          "pinyin": "wǒ tīng jiàn xiǎo niǎo de shēng yīn"
+        },
+        {
+          "sentence": "我喜欢听音乐。",
+          "pinyin": "wǒ xǐ huān tīng yīn yuè"
+        }
+      ]
+    },
+    {
+      "char": "思",
+      "words": [
+        {
+          "word": "思念",
+          "pinyin": "sī niàn"
+        },
+        {
+          "word": "思考",
+          "pinyin": "sī kǎo"
+        },
+        {
+          "word": "意思",
+          "pinyin": "yì si"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我很思念奶奶。",
+          "pinyin": "wǒ hěn sī niàn nǎi nǎi"
+        },
+        {
+          "sentence": "这道题要好好思考。",
+          "pinyin": "zhè dào tí yào hǎo hǎo sī kǎo"
+        }
+      ]
+    },
+    {
+      "char": "前",
+      "words": [
+        {
+          "word": "前面",
+          "pinyin": "qián miàn"
+        },
+        {
+          "word": "以前",
+          "pinyin": "yǐ qián"
+        },
+        {
+          "word": "前进",
+          "pinyin": "qián jìn"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "前面有一座小桥。",
+          "pinyin": "qián miàn yǒu yī zuò xiǎo qiáo"
+        },
+        {
+          "sentence": "我以前去过动物园。",
+          "pinyin": "wǒ yǐ qián qù guò dòng wù yuán"
+        }
+      ]
+    },
+    {
+      "char": "故",
+      "words": [
+        {
+          "word": "故事",
+          "pinyin": "gù shì"
+        },
+        {
+          "word": "故乡",
+          "pinyin": "gù xiāng"
+        },
+        {
+          "word": "故意",
+          "pinyin": "gù yì"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "妈妈给我讲了一个故事。",
+          "pinyin": "mā mā gěi wǒ jiǎng le yí gè gù shì"
+        },
+        {
+          "sentence": "我的故乡很美。",
+          "pinyin": "wǒ de gù xiāng hěn měi"
+        }
+      ]
+    },
+    {
+      "char": "看",
+      "words": [
+        {
+          "word": "看书",
+          "pinyin": "kàn shū"
+        },
+        {
+          "word": "看见",
+          "pinyin": "kàn jiàn"
+        },
+        {
+          "word": "看电视",
+          "pinyin": "kàn diàn shì"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我每天都要看书。",
+          "pinyin": "wǒ měi tiān dōu yào kàn shū"
+        },
+        {
+          "sentence": "我看见一只小鸟。",
+          "pinyin": "wǒ kàn jiàn yī zhī xiǎo niǎo"
+        }
+      ]
+    },
+    {
+      "char": "晚",
+      "words": [
+        {
+          "word": "晚上",
+          "pinyin": "wǎn shàng"
+        },
+        {
+          "word": "晚安",
+          "pinyin": "wǎn ān"
+        },
+        {
+          "word": "傍晚",
+          "pinyin": "bàng wǎn"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "晚上我要早点睡觉。",
+          "pinyin": "wǎn shàng wǒ yào zǎo diǎn shuì jiào"
+        },
+        {
+          "sentence": "睡觉前要说晚安。",
+          "pinyin": "shuì jiào qián yào shuō wǎn ān"
+        }
+      ]
+    },
+    {
+      "char": "笑",
+      "words": [
+        {
+          "word": "笑话",
+          "pinyin": "xiào huà"
+        },
+        {
+          "word": "微笑",
+          "pinyin": "wēi xiào"
+        },
+        {
+          "word": "大笑",
+          "pinyin": "dà xiào"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "弟弟笑得很开心。",
+          "pinyin": "dì di xiào dé hěn kāi xīn"
+        },
+        {
+          "sentence": "她对我微笑。",
+          "pinyin": "tā duì wǒ wēi xiào"
+        }
+      ]
+    },
+    {
+      "char": "真",
+      "words": [
+        {
+          "word": "真的",
+          "pinyin": "zhēn de"
+        },
+        {
+          "word": "认真",
+          "pinyin": "rèn zhēn"
+        },
+        {
+          "word": "真好",
+          "pinyin": "zhēn hǎo"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "你说的是真的吗？",
+          "pinyin": "nǐ shuō de shì zhēn de ma"
+        },
+        {
+          "sentence": "我写字很认真。",
+          "pinyin": "wǒ xiě zì hěn rèn zhēn"
+        }
+      ]
+    },
+    {
+      "char": "着",
+      "words": [
+        {
+          "word": "看着",
+          "pinyin": "kàn zhe"
+        },
+        {
+          "word": "听着",
+          "pinyin": "tīng zhe"
+        },
+        {
+          "word": "走着",
+          "pinyin": "zǒu zhe"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我看着他画画。",
+          "pinyin": "wǒ kàn zhe tā huà huà"
+        },
+        {
+          "sentence": "我们走着去公园。",
+          "pinyin": "wǒ men zǒu zhe qù gōng yuán"
+        }
+      ]
+    },
+    {
+      "char": "高",
+      "words": [
+        {
+          "word": "高兴",
+          "pinyin": "gāo xìng"
+        },
+        {
+          "word": "高大",
+          "pinyin": "gāo dà"
+        },
+        {
+          "word": "长高",
+          "pinyin": "zhǎng gāo"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我今天很高兴。",
+          "pinyin": "wǒ jīn tiān hěn gāo xìng"
+        },
+        {
+          "sentence": "我又长高了。",
+          "pinyin": "wǒ yòu zhǎng gāo le"
+        }
+      ]
+    },
+    {
+      "char": "迷",
+      "words": [
+        {
+          "word": "迷路",
+          "pinyin": "mí lù"
+        },
+        {
+          "word": "迷人",
+          "pinyin": "mí rén"
+        },
+        {
+          "word": "入迷",
+          "pinyin": "rù mí"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "小狗迷路了。",
+          "pinyin": "xiǎo gǒu mí lù le"
+        },
+        {
+          "sentence": "我看书看得入迷。",
+          "pinyin": "wǒ kàn shū kàn dé rù mí"
+        }
+      ]
+    },
+    {
+      "char": "造",
+      "words": [
+        {
+          "word": "造句",
+          "pinyin": "zào jù"
+        },
+        {
+          "word": "建造",
+          "pinyin": "jiàn zào"
+        },
+        {
+          "word": "创造",
+          "pinyin": "chuàng zào"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "老师让我们用新词造句。",
+          "pinyin": "lǎo shī ràng wǒ men yòng xīn cí zào jù"
+        },
+        {
+          "sentence": "工人叔叔在建造房子。",
+          "pinyin": "gōng rén shū shū zài jiàn zào fáng zi"
+        }
+      ]
+    },
+    {
+      "char": "凉",
+      "words": [
+        {
+          "word": "凉快",
+          "pinyin": "liáng kuài"
+        },
+        {
+          "word": "清凉",
+          "pinyin": "qīng liáng"
+        },
+        {
+          "word": "凉水",
+          "pinyin": "liáng shuǐ"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "树荫下面很凉快。",
+          "pinyin": "shù yīn xià miàn hěn liáng kuài"
+        },
+        {
+          "sentence": "夏天喝凉水真舒服。",
+          "pinyin": "xià tiān hē liáng shuǐ zhēn shū fú"
+        }
+      ]
+    },
+    {
+      "char": "语",
+      "words": [
+        {
+          "word": "语文",
+          "pinyin": "yǔ wén"
+        },
+        {
+          "word": "语言",
+          "pinyin": "yǔ yán"
+        },
+        {
+          "word": "词语",
+          "pinyin": "cí yǔ"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我喜欢上语文课。",
+          "pinyin": "wǒ xǐ huān shàng yǔ wén kè"
+        },
+        {
+          "sentence": "我学了很多新词语。",
+          "pinyin": "wǒ xué le hěn duō xīn cí yǔ"
+        }
+      ]
+    },
+    {
+      "char": "香",
+      "words": [
+        {
+          "word": "花香",
+          "pinyin": "huā xiāng"
+        },
+        {
+          "word": "香甜",
+          "pinyin": "xiāng tián"
+        },
+        {
+          "word": "香味",
+          "pinyin": "xiāng wèi"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "花园里的花香真好闻。",
+          "pinyin": "huā yuán lǐ de huā xiāng zhēn hǎo wén"
+        },
+        {
+          "sentence": "这个苹果又香又甜。",
+          "pinyin": "zhè ge píng guǒ yòu xiāng yòu tián"
+        }
+      ]
+    },
+    {
+      "char": "相",
+      "words": [
+        {
+          "word": "相同",
+          "pinyin": "xiāng tóng"
+        },
+        {
+          "word": "互相",
+          "pinyin": "hù xiāng"
+        },
+        {
+          "word": "相信",
+          "pinyin": "xiāng xìn"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我们的书包相同。",
+          "pinyin": "wǒ men de shū bāo xiāng tóng"
+        },
+        {
+          "sentence": "好朋友要互相帮助。",
+          "pinyin": "hǎo péng yǒu yào hù xiāng bāng zhù"
+        }
+      ]
+    },
+    {
+      "char": "首",
+      "words": [
+        {
+          "word": "首先",
+          "pinyin": "shǒu xiān"
+        },
+        {
+          "word": "首都",
+          "pinyin": "shǒu dū"
+        },
+        {
+          "word": "一首",
+          "pinyin": "yī shǒu"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我首先把作业写完。",
+          "pinyin": "wǒ shǒu xiān bǎ zuò yè xiě wán"
+        },
+        {
+          "sentence": "我会唱一首儿歌。",
+          "pinyin": "wǒ huì chàng yī shǒu ér gē"
+        }
+      ]
+    },
+    {
+      "char": "树",
+      "words": [
+        {
+          "word": "大树",
+          "pinyin": "dà shù"
+        },
+        {
+          "word": "树叶",
+          "pinyin": "shù yè"
+        },
+        {
+          "word": "果树",
+          "pinyin": "guǒ shù"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "大树下面很凉快。",
+          "pinyin": "dà shù xià miàn hěn liáng kuài"
+        },
+        {
+          "sentence": "大树的叶子绿绿的。",
+          "pinyin": "dà shù de yè zi lǜ lǜ de"
+        }
+      ]
+    },
+    {
+      "char": "亮",
+      "words": [
+        {
+          "word": "月亮",
+          "pinyin": "yuè liàng"
+        },
+        {
+          "word": "明亮",
+          "pinyin": "míng liàng"
+        },
+        {
+          "word": "天亮",
+          "pinyin": "tiān liàng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "月亮又圆又亮。",
+          "pinyin": "yuè liàng yòu yuán yòu liàng"
+        },
+        {
+          "sentence": "教室里很明亮。",
+          "pinyin": "jiào shì lǐ hěn míng liàng"
+        }
+      ]
+    },
+    {
+      "char": "美",
+      "words": [
+        {
+          "word": "美丽",
+          "pinyin": "měi lì"
+        },
+        {
+          "word": "美好",
+          "pinyin": "měi hǎo"
+        },
+        {
+          "word": "美味",
+          "pinyin": "měi wèi"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "花园里的花真美丽。",
+          "pinyin": "huā yuán lǐ de huā zhēn měi lì"
+        },
+        {
+          "sentence": "今天的饭菜很美味。",
+          "pinyin": "jīn tiān de fàn cài hěn měi wèi"
+        }
+      ]
+    },
+    {
+      "char": "要",
+      "words": [
+        {
+          "word": "要求",
+          "pinyin": "yāo qiú"
+        },
+        {
+          "word": "重要",
+          "pinyin": "zhòng yào"
+        },
+        {
+          "word": "需要",
+          "pinyin": "xū yào"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我要好好吃饭。",
+          "pinyin": "wǒ yào hǎo hǎo chī fàn"
+        },
+        {
+          "sentence": "早睡早起很重要。",
+          "pinyin": "zǎo shuì zǎo qǐ hěn zhòng yào"
+        }
+      ]
+    },
+    {
+      "char": "点",
+      "words": [
+        {
+          "word": "点头",
+          "pinyin": "diǎn tóu"
+        },
+        {
+          "word": "一点",
+          "pinyin": "yì diǎn"
+        },
+        {
+          "word": "点心",
+          "pinyin": "diǎn xīn"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我笑着点了点头。",
+          "pinyin": "wǒ xiào zhe diǎn le diǎn tóu"
+        },
+        {
+          "sentence": "我只吃了一点点心。",
+          "pinyin": "wǒ zhǐ chī le yì diǎn diǎn xīn"
+        }
+      ]
+    },
+    {
+      "char": "常",
+      "words": [
+        {
+          "word": "常常",
+          "pinyin": "cháng cháng"
+        },
+        {
+          "word": "日常",
+          "pinyin": "rì cháng"
+        },
+        {
+          "word": "常见",
+          "pinyin": "cháng jiàn"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我常常去公园玩。",
+          "pinyin": "wǒ cháng cháng qù gōng yuán wán"
+        },
+        {
+          "sentence": "这是我日常用的杯子。",
+          "pinyin": "zhè shì wǒ rì cháng yòng de bēi zi"
+        }
+      ]
+    },
+    {
+      "char": "病",
+      "words": [
+        {
+          "word": "生病",
+          "pinyin": "shēng bìng"
+        },
+        {
+          "word": "病人",
+          "pinyin": "bìng rén"
+        },
+        {
+          "word": "看病",
+          "pinyin": "kàn bìng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "弟弟生病了，要多喝水。",
+          "pinyin": "dì di shēng bìng le yào duō hē shuǐ"
+        },
+        {
+          "sentence": "妈妈带我去看病。",
+          "pinyin": "mā mā dài wǒ qù kàn bìng"
+        }
+      ]
+    },
+    {
+      "char": "星",
+      "words": [
+        {
+          "word": "星星",
+          "pinyin": "xīng xīng"
+        },
+        {
+          "word": "星空",
+          "pinyin": "xīng kōng"
+        },
+        {
+          "word": "卫星",
+          "pinyin": "wèi xīng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "晚上天上有许多星星。",
+          "pinyin": "wǎn shàng tiān shàng yǒu xǔ duō xīng xīng"
+        },
+        {
+          "sentence": "星星一闪一闪的。",
+          "pinyin": "xīng xīng yī shǎn yī shǎn de"
+        }
+      ]
+    },
+    {
+      "char": "晴",
+      "words": [
+        {
+          "word": "晴天",
+          "pinyin": "qíng tiān"
+        },
+        {
+          "word": "晴朗",
+          "pinyin": "qíng lǎng"
+        },
+        {
+          "word": "放晴",
+          "pinyin": "fàng qíng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "今天是个大晴天。",
+          "pinyin": "jīn tiān shì gè dà qíng tiān"
+        },
+        {
+          "sentence": "天晴了，我们出去玩。",
+          "pinyin": "tiān qíng le wǒ men chū qù wán"
+        }
+      ]
+    },
+    {
+      "char": "跑",
+      "words": [
+        {
+          "word": "跑步",
+          "pinyin": "pǎo bù"
+        },
+        {
+          "word": "奔跑",
+          "pinyin": "bēn pǎo"
+        },
+        {
+          "word": "跑车",
+          "pinyin": "pǎo chē"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我每天早上去跑步。",
+          "pinyin": "wǒ měi tiān zǎo shàng qù pǎo bù"
+        },
+        {
+          "sentence": "小狗在草地上奔跑。",
+          "pinyin": "xiǎo gǒu zài cǎo dì shàng bēn pǎo"
+        }
+      ]
+    },
+    {
       "char": "书",
       "words": [
         {
@@ -1123,29 +2122,6 @@
       ]
     },
     {
-      "char": "乙",
-      "words": [
-        {
-          "word": "甲乙",
-          "pinyin": "jiǎ yǐ"
-        },
-        {
-          "word": "乙方",
-          "pinyin": "yǐ fāng"
-        },
-        {
-          "word": "乙等",
-          "pinyin": "yǐ děng"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "我按甲乙丙丁的顺序排队。",
-          "pinyin": "wǒ àn jiǎ yǐ bǐng dīng de shùn xù pái duì"
-        }
-      ]
-    },
-    {
       "char": "了",
       "words": [
         {
@@ -1326,29 +2302,6 @@
         {
           "sentence": "妈妈用菜刀切菜。",
           "pinyin": "mā mā yòng cài dāo qiè cài"
-        }
-      ]
-    },
-    {
-      "char": "乃",
-      "words": [
-        {
-          "word": "乃是",
-          "pinyin": "nǎi shì"
-        },
-        {
-          "word": "乃至",
-          "pinyin": "nǎi zhì"
-        },
-        {
-          "word": "乃父",
-          "pinyin": "nǎi fù"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "这本书乃是老师送的。",
-          "pinyin": "zhè běn shū nǎi shì lǎo shī sòng de"
         }
       ]
     },
@@ -1629,29 +2582,6 @@
       ]
     },
     {
-      "char": "已",
-      "words": [
-        {
-          "word": "已经",
-          "pinyin": "yǐ jīng"
-        },
-        {
-          "word": "而已",
-          "pinyin": "ér yǐ"
-        },
-        {
-          "word": "已知",
-          "pinyin": "yǐ zhī"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "我已经吃完饭了。",
-          "pinyin": "wǒ yǐ jīng chī wán fàn le"
-        }
-      ]
-    },
-    {
       "char": "工",
       "words": [
         {
@@ -1717,29 +2647,6 @@
         {
           "sentence": "请把门关上。",
           "pinyin": "qǐng bǎ mén guān shàng"
-        }
-      ]
-    },
-    {
-      "char": "及",
-      "words": [
-        {
-          "word": "及时",
-          "pinyin": "jí shí"
-        },
-        {
-          "word": "以及",
-          "pinyin": "yǐ jí"
-        },
-        {
-          "word": "及格",
-          "pinyin": "jí gé"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "我们要及时喝水。",
-          "pinyin": "wǒ men yào jí shí hē shuǐ"
         }
       ]
     },
@@ -1855,29 +2762,6 @@
         {
           "sentence": "我把手洗得很干净。",
           "pinyin": "wǒ bǎ shǒu xǐ dé hěn gān jìng"
-        }
-      ]
-    },
-    {
-      "char": "士",
-      "words": [
-        {
-          "word": "士兵",
-          "pinyin": "shì bīng"
-        },
-        {
-          "word": "战士",
-          "pinyin": "zhàn shì"
-        },
-        {
-          "word": "士气",
-          "pinyin": "shì qì"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "士兵站得很直。",
-          "pinyin": "shì bīng zhàn dé hěn zhí"
         }
       ]
     },
@@ -2043,167 +2927,6 @@
       ]
     },
     {
-      "char": "亡",
-      "words": [
-        {
-          "word": "亡羊补牢",
-          "pinyin": "wáng yáng bǔ láo"
-        },
-        {
-          "word": "死亡",
-          "pinyin": "sǐ wáng"
-        },
-        {
-          "word": "逃亡",
-          "pinyin": "táo wáng"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "亡羊补牢，还不算晚。",
-          "pinyin": "wáng yáng bǔ láo hái bù suàn wǎn"
-        }
-      ]
-    },
-    {
-      "char": "凡",
-      "words": [
-        {
-          "word": "凡是",
-          "pinyin": "fán shì"
-        },
-        {
-          "word": "平凡",
-          "pinyin": "píng fán"
-        },
-        {
-          "word": "不凡",
-          "pinyin": "bù fán"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "凡是自己能做的事，就自己做。",
-          "pinyin": "fán shì zì jǐ néng zuò de shì jiù zì jǐ zuò"
-        }
-      ]
-    },
-    {
-      "char": "亿",
-      "words": [
-        {
-          "word": "一亿",
-          "pinyin": "yī yì"
-        },
-        {
-          "word": "亿万",
-          "pinyin": "yì wàn"
-        },
-        {
-          "word": "一亿年",
-          "pinyin": "yī yì nián"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "一亿是很大的数。",
-          "pinyin": "yī yì shì hěn dà de shù"
-        }
-      ]
-    },
-    {
-      "char": "川",
-      "words": [
-        {
-          "word": "四川",
-          "pinyin": "sì chuān"
-        },
-        {
-          "word": "山川",
-          "pinyin": "shān chuān"
-        },
-        {
-          "word": "川流不息",
-          "pinyin": "chuān liú bù xī"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "四川有可爱的大熊猫。",
-          "pinyin": "sì chuān yǒu kě ài de dà xióng māo"
-        }
-      ]
-    },
-    {
-      "char": "丈",
-      "words": [
-        {
-          "word": "丈夫",
-          "pinyin": "zhàng fū"
-        },
-        {
-          "word": "万丈",
-          "pinyin": "wàn zhàng"
-        },
-        {
-          "word": "方丈",
-          "pinyin": "fāng zhàng"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "这座山好像有万丈高。",
-          "pinyin": "zhè zuò shān hǎo xiàng yǒu wàn zhàng gāo"
-        }
-      ]
-    },
-    {
-      "char": "尸",
-      "words": [
-        {
-          "word": "僵尸",
-          "pinyin": "jiāng shī"
-        },
-        {
-          "word": "尸体",
-          "pinyin": "shī tǐ"
-        },
-        {
-          "word": "尸骨",
-          "pinyin": "shī gǔ"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "万圣节有人扮成僵尸。",
-          "pinyin": "wàn shèng jié yǒu rén bàn chéng jiāng shī"
-        }
-      ]
-    },
-    {
-      "char": "亏",
-      "words": [
-        {
-          "word": "吃亏",
-          "pinyin": "chī kuī"
-        },
-        {
-          "word": "幸亏",
-          "pinyin": "xìng kuī"
-        },
-        {
-          "word": "亏本",
-          "pinyin": "kuī běn"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "幸亏今天带了雨伞。",
-          "pinyin": "xìng kuī jīn tiān dài le yǔ sǎn"
-        }
-      ]
-    },
-    {
       "char": "寸",
       "words": [
         {
@@ -2223,52 +2946,6 @@
         {
           "sentence": "这条绳子有一寸长。",
           "pinyin": "zhè tiáo shéng zi yǒu yī cùn zhǎng"
-        }
-      ]
-    },
-    {
-      "char": "夕",
-      "words": [
-        {
-          "word": "夕阳",
-          "pinyin": "xī yáng"
-        },
-        {
-          "word": "除夕",
-          "pinyin": "chú xī"
-        },
-        {
-          "word": "七夕",
-          "pinyin": "qī xī"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "夕阳把天空染红了。",
-          "pinyin": "xī yáng bǎ tiān kōng rǎn hóng le"
-        }
-      ]
-    },
-    {
-      "char": "弓",
-      "words": [
-        {
-          "word": "弓箭",
-          "pinyin": "gōng jiàn"
-        },
-        {
-          "word": "拉弓",
-          "pinyin": "lā gōng"
-        },
-        {
-          "word": "弹弓",
-          "pinyin": "dàn gōng"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "他拉开弓射箭。",
-          "pinyin": "tā lā kāi gōng shè jiàn"
         }
       ]
     },
@@ -2319,25 +2996,6 @@
       ]
     },
     {
-      "char": "乞",
-      "words": [
-        {
-          "word": "乞求",
-          "pinyin": "qǐ qiú"
-        },
-        {
-          "word": "乞丐",
-          "pinyin": "qǐ gài"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "小狗在门口乞求食物。",
-          "pinyin": "xiǎo gǒu zài mén kǒu qǐ qiú shí wù"
-        }
-      ]
-    },
-    {
       "char": "丸",
       "words": [
         {
@@ -2357,59 +3015,6 @@
         {
           "sentence": "妈妈做了鱼丸汤。",
           "pinyin": "mā mā zuò le yú wán tāng"
-        }
-      ]
-    },
-    {
-      "char": "丫",
-      "words": [
-        {
-          "word": "丫头",
-          "pinyin": "yā tou"
-        },
-        {
-          "word": "树丫",
-          "pinyin": "shù yā"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "树丫上有一只小鸟。",
-          "pinyin": "shù yā shàng yǒu yī zhī xiǎo niǎo"
-        }
-      ]
-    },
-    {
-      "char": "刃",
-      "words": [
-        {
-          "word": "刀刃",
-          "pinyin": "dāo rèn"
-        },
-        {
-          "word": "刃口",
-          "pinyin": "rèn kǒu"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "菜刀的刀刃很锋利。",
-          "pinyin": "cài dāo de dāo rèn hěn fēng lì"
-        }
-      ]
-    },
-    {
-      "char": "兀",
-      "words": [
-        {
-          "word": "突兀",
-          "pinyin": "tū wù"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "大山突兀地立在远处。",
-          "pinyin": "dà shān tū wù dì lì zài yuǎn chù"
         }
       ]
     },
@@ -4526,7 +5131,6 @@
         }
       ]
     },
-    "毋",
     {
       "char": "尹",
       "words": [
@@ -4543,25 +5147,6 @@
         {
           "sentence": "尹老师教我们唱歌。",
           "pinyin": "yǐn lǎo shī jiào wǒ men chàng gē"
-        }
-      ]
-    },
-    {
-      "char": "歹",
-      "words": [
-        {
-          "word": "好歹",
-          "pinyin": "hǎo dǎi"
-        },
-        {
-          "word": "好说歹说",
-          "pinyin": "hǎo shuō dǎi shuō"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "你好歹把作业写完。",
-          "pinyin": "nǐ hǎo dǎi bǎ zuò yè xiě wán"
         }
       ]
     },
@@ -5788,25 +6373,6 @@
       ]
     },
     {
-      "char": "史",
-      "words": [
-        {
-          "word": "历史",
-          "pinyin": "lì shǐ"
-        },
-        {
-          "word": "史书",
-          "pinyin": "shǐ shū"
-        }
-      ],
-      "examples": [
-        {
-          "sentence": "我喜欢听历史故事。",
-          "pinyin": "wǒ xǐ huān tīng lì shǐ gù shì"
-        }
-      ]
-    },
-    {
       "char": "乎",
       "words": [
         {
@@ -6774,7 +7340,6 @@
         }
       ]
     },
-    "弗",
     {
       "char": "鸟",
       "words": [
@@ -6920,7 +7485,6 @@
         }
       ]
     },
-    "奴",
     {
       "char": "甘",
       "words": [
@@ -7362,7 +7926,6 @@
         }
       ]
     },
-    "囚",
     {
       "char": "甩",
       "words": [
@@ -7401,7 +7964,6 @@
         }
       ]
     },
-    "弘",
     {
       "char": "丙",
       "words": [
@@ -8726,7 +9288,6 @@
         }
       ]
     },
-    "死",
     {
       "char": "交",
       "words": [
@@ -9437,7 +9998,6 @@
         }
       ]
     },
-    "杀",
     {
       "char": "网",
       "words": [
@@ -9522,8 +10082,6 @@
         }
       ]
     },
-    "血",
-    "伤",
     {
       "char": "欢",
       "words": [
@@ -9783,7 +10341,6 @@
         }
       ]
     },
-    "执",
     {
       "char": "岁",
       "words": [
@@ -9974,7 +10531,6 @@
         }
       ]
     },
-    "亦",
     {
       "char": "耳",
       "words": [
@@ -10051,7 +10607,6 @@
         }
       ]
     },
-    "伦",
     {
       "char": "阴",
       "words": [
@@ -10303,7 +10858,6 @@
         }
       ]
     },
-    "刑",
     {
       "char": "迅",
       "words": [
@@ -10624,7 +11178,6 @@
         }
       ]
     },
-    "邦",
     {
       "char": "仰",
       "words": [
@@ -10792,7 +11345,6 @@
         }
       ]
     },
-    "邪",
     {
       "char": "巡",
       "words": [
@@ -10812,7 +11364,6 @@
         }
       ]
     },
-    "伪",
     {
       "char": "朵",
       "words": [
@@ -10897,7 +11448,6 @@
         }
       ]
     },
-    "廷",
     {
       "char": "迁",
       "words": [
@@ -10974,7 +11524,6 @@
         }
       ]
     },
-    "旨",
     {
       "char": "迈",
       "words": [
@@ -10994,7 +11543,6 @@
         }
       ]
     },
-    "仲",
     {
       "char": "池",
       "words": [
@@ -11052,7 +11600,6 @@
         }
       ]
     },
-    "岂",
     {
       "char": "夹",
       "words": [
@@ -11114,7 +11661,6 @@
         }
       ]
     },
-    "讼",
     {
       "char": "羽",
       "words": [
@@ -11172,7 +11718,6 @@
         }
       ]
     },
-    "劣",
     {
       "char": "肌",
       "words": [
@@ -11230,7 +11775,6 @@
         }
       ]
     },
-    "奸",
     {
       "char": "吊",
       "words": [
@@ -11273,7 +11817,6 @@
         }
       ]
     },
-    "妄",
     {
       "char": "驰",
       "words": [
@@ -11312,7 +11855,6 @@
         }
       ]
     },
-    "玑",
     {
       "char": "匠",
       "words": [
@@ -11366,7 +11908,6 @@
         }
       ]
     },
-    "吁",
     {
       "char": "芝",
       "words": [
@@ -11447,7 +11988,6 @@
         }
       ]
     },
-    "兆",
     {
       "char": "芒",
       "words": [
@@ -11467,12 +12007,6 @@
         }
       ]
     },
-    "吏",
-    "讽",
-    "旬",
-    "夷",
-    "贞",
-    "巩",
     {
       "char": "帆",
       "words": [
@@ -11492,11 +12026,6 @@
         }
       ]
     },
-    "匈",
-    "朽",
-    "汝",
-    "迄",
-    "妃",
     {
       "char": "圾",
       "words": [
@@ -11603,9 +12132,6 @@
         }
       ]
     },
-    "牟",
-    "讳",
-    "迂",
     {
       "char": "扛",
       "words": [
@@ -11625,7 +12151,6 @@
         }
       ]
     },
-    "忖",
     {
       "char": "我",
       "words": [
@@ -15062,7 +15587,6 @@
         }
       ]
     },
-    "役",
     {
       "char": "玛",
       "words": [
@@ -16241,8 +16765,6 @@
         }
       ]
     },
-    "歼",
-    "劫",
     {
       "char": "闷",
       "words": [
@@ -17068,7 +17590,6 @@
         }
       ]
     },
-    "坟",
     {
       "char": "轩",
       "words": [
@@ -17711,7 +18232,6 @@
         }
       ]
     },
-    "妓",
     {
       "char": "删",
       "words": [
@@ -17959,7 +18479,6 @@
         }
       ]
     },
-    "扼",
     {
       "char": "汰",
       "words": [
@@ -23139,7 +23658,6 @@
         }
       ]
     },
-    "怖",
     {
       "char": "弥",
       "words": [
@@ -23201,7 +23719,6 @@
         }
       ]
     },
-    "隶",
     {
       "char": "拨",
       "words": [
@@ -24650,12 +25167,8 @@
     }
   ],
   "medium": [
-    "春",
     "夏",
-    "秋",
-    "雪",
     "草",
-    "树",
     "菜",
     "面",
     "蛋",
@@ -24663,8 +25176,6 @@
     "桥",
     "城",
     "海",
-    "星",
-    "音",
     "泣",
     "帘",
     "斩",
@@ -24721,19 +25232,10 @@
     "炕",
     "拚",
     "是",
-    "说",
-    "要",
-    "种",
-    "看",
-    "前",
-    "点",
     "将",
-    "很",
     "重",
     "战",
     "政",
-    "美",
-    "相",
     "信",
     "给",
     "度",
@@ -24747,7 +25249,6 @@
     "便",
     "科",
     "界",
-    "思",
     "南",
     "品",
     "类",
@@ -24766,10 +25267,8 @@
     "除",
     "显",
     "标",
-    "首",
     "突",
     "费",
-    "语",
     "选",
     "响",
     "虽",
@@ -24783,7 +25282,6 @@
     "绝",
     "段",
     "项",
-    "故",
     "按",
     "客",
     "举",
@@ -24814,14 +25312,12 @@
     "追",
     "帮",
     "宣",
-    "香",
     "穿",
     "背",
     "洋",
     "胡",
     "闻",
     "临",
-    "亮",
     "架",
     "括",
     "误",
@@ -24853,7 +25349,6 @@
     "染",
     "怒",
     "残",
-    "迷",
     "赵",
     "勇",
     "罚",
@@ -25078,28 +25573,21 @@
     "都",
     "起",
     "部",
-    "样",
-    "高",
     "被",
     "特",
     "通",
     "原",
-    "真",
     "资",
     "展",
     "难",
     "格",
     "候",
-    "笑",
     "根",
-    "造",
     "准",
     "流",
     "调",
     "党",
     "离",
-    "请",
-    "病",
     "息",
     "消",
     "容",
@@ -25221,7 +25709,6 @@
     "桑",
     "宾",
     "递",
-    "凉",
     "陶",
     "脏",
     "埋",
@@ -25403,11 +25890,8 @@
     "酌",
     "峭",
     "得",
-    "着",
     "理",
     "第",
-    "情",
-    "常",
     "教",
     "做",
     "接",
@@ -25417,7 +25901,6 @@
     "据",
     "望",
     "领",
-    "清",
     "深",
     "商",
     "断",
@@ -25437,7 +25920,6 @@
     "球",
     "弹",
     "假",
-    "晚",
     "惊",
     "排",
     "停",
@@ -25649,7 +26131,489 @@
     "惕",
     "萝",
     "崎",
-    "萎"
+    "萎",
+    "毋",
+    "弗",
+    "奴",
+    "囚",
+    "弘",
+    "死",
+    "杀",
+    "血",
+    "伤",
+    "执",
+    "亦",
+    "伦",
+    "刑",
+    "邦",
+    "邪",
+    "伪",
+    "廷",
+    "旨",
+    "仲",
+    "岂",
+    "讼",
+    "劣",
+    "奸",
+    "妄",
+    "玑",
+    "吁",
+    "兆",
+    "吏",
+    "讽",
+    "旬",
+    "夷",
+    "贞",
+    "巩",
+    "匈",
+    "朽",
+    "汝",
+    "迄",
+    "妃",
+    "牟",
+    "讳",
+    "迂",
+    "忖",
+    "役",
+    "歼",
+    "劫",
+    "坟",
+    "妓",
+    "扼",
+    "怖",
+    "隶",
+    {
+      "char": "乙",
+      "words": [
+        {
+          "word": "甲乙",
+          "pinyin": "jiǎ yǐ"
+        },
+        {
+          "word": "乙方",
+          "pinyin": "yǐ fāng"
+        },
+        {
+          "word": "乙等",
+          "pinyin": "yǐ děng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我按甲乙丙丁的顺序排队。",
+          "pinyin": "wǒ àn jiǎ yǐ bǐng dīng de shùn xù pái duì"
+        }
+      ]
+    },
+    {
+      "char": "乃",
+      "words": [
+        {
+          "word": "乃是",
+          "pinyin": "nǎi shì"
+        },
+        {
+          "word": "乃至",
+          "pinyin": "nǎi zhì"
+        },
+        {
+          "word": "乃父",
+          "pinyin": "nǎi fù"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "这本书乃是老师送的。",
+          "pinyin": "zhè běn shū nǎi shì lǎo shī sòng de"
+        }
+      ]
+    },
+    {
+      "char": "兀",
+      "words": [
+        {
+          "word": "突兀",
+          "pinyin": "tū wù"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "大山突兀地立在远处。",
+          "pinyin": "dà shān tū wù dì lì zài yuǎn chù"
+        }
+      ]
+    },
+    {
+      "char": "尸",
+      "words": [
+        {
+          "word": "僵尸",
+          "pinyin": "jiāng shī"
+        },
+        {
+          "word": "尸体",
+          "pinyin": "shī tǐ"
+        },
+        {
+          "word": "尸骨",
+          "pinyin": "shī gǔ"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "万圣节有人扮成僵尸。",
+          "pinyin": "wàn shèng jié yǒu rén bàn chéng jiāng shī"
+        }
+      ]
+    },
+    {
+      "char": "亏",
+      "words": [
+        {
+          "word": "吃亏",
+          "pinyin": "chī kuī"
+        },
+        {
+          "word": "幸亏",
+          "pinyin": "xìng kuī"
+        },
+        {
+          "word": "亏本",
+          "pinyin": "kuī běn"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "幸亏今天带了雨伞。",
+          "pinyin": "xìng kuī jīn tiān dài le yǔ sǎn"
+        }
+      ]
+    },
+    {
+      "char": "歹",
+      "words": [
+        {
+          "word": "好歹",
+          "pinyin": "hǎo dǎi"
+        },
+        {
+          "word": "好说歹说",
+          "pinyin": "hǎo shuō dǎi shuō"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "你好歹把作业写完。",
+          "pinyin": "nǐ hǎo dǎi bǎ zuò yè xiě wán"
+        }
+      ]
+    },
+    {
+      "char": "乞",
+      "words": [
+        {
+          "word": "乞求",
+          "pinyin": "qǐ qiú"
+        },
+        {
+          "word": "乞丐",
+          "pinyin": "qǐ gài"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "小狗在门口乞求食物。",
+          "pinyin": "xiǎo gǒu zài mén kǒu qǐ qiú shí wù"
+        }
+      ]
+    },
+    {
+      "char": "亡",
+      "words": [
+        {
+          "word": "亡羊补牢",
+          "pinyin": "wáng yáng bǔ láo"
+        },
+        {
+          "word": "死亡",
+          "pinyin": "sǐ wáng"
+        },
+        {
+          "word": "逃亡",
+          "pinyin": "táo wáng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "亡羊补牢，还不算晚。",
+          "pinyin": "wáng yáng bǔ láo hái bù suàn wǎn"
+        }
+      ]
+    },
+    {
+      "char": "士",
+      "words": [
+        {
+          "word": "士兵",
+          "pinyin": "shì bīng"
+        },
+        {
+          "word": "战士",
+          "pinyin": "zhàn shì"
+        },
+        {
+          "word": "士气",
+          "pinyin": "shì qì"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "士兵站得很直。",
+          "pinyin": "shì bīng zhàn dé hěn zhí"
+        }
+      ]
+    },
+    {
+      "char": "丈",
+      "words": [
+        {
+          "word": "丈夫",
+          "pinyin": "zhàng fū"
+        },
+        {
+          "word": "万丈",
+          "pinyin": "wàn zhàng"
+        },
+        {
+          "word": "方丈",
+          "pinyin": "fāng zhàng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "这座山好像有万丈高。",
+          "pinyin": "zhè zuò shān hǎo xiàng yǒu wàn zhàng gāo"
+        }
+      ]
+    },
+    {
+      "char": "凡",
+      "words": [
+        {
+          "word": "凡是",
+          "pinyin": "fán shì"
+        },
+        {
+          "word": "平凡",
+          "pinyin": "píng fán"
+        },
+        {
+          "word": "不凡",
+          "pinyin": "bù fán"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "凡是自己能做的事，就自己做。",
+          "pinyin": "fán shì zì jǐ néng zuò de shì jiù zì jǐ zuò"
+        }
+      ]
+    },
+    {
+      "char": "川",
+      "words": [
+        {
+          "word": "四川",
+          "pinyin": "sì chuān"
+        },
+        {
+          "word": "山川",
+          "pinyin": "shān chuān"
+        },
+        {
+          "word": "川流不息",
+          "pinyin": "chuān liú bù xī"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "四川有可爱的大熊猫。",
+          "pinyin": "sì chuān yǒu kě ài de dà xióng māo"
+        }
+      ]
+    },
+    {
+      "char": "亿",
+      "words": [
+        {
+          "word": "一亿",
+          "pinyin": "yī yì"
+        },
+        {
+          "word": "亿万",
+          "pinyin": "yì wàn"
+        },
+        {
+          "word": "一亿年",
+          "pinyin": "yī yì nián"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "一亿是很大的数。",
+          "pinyin": "yī yì shì hěn dà de shù"
+        }
+      ]
+    },
+    {
+      "char": "弓",
+      "words": [
+        {
+          "word": "弓箭",
+          "pinyin": "gōng jiàn"
+        },
+        {
+          "word": "拉弓",
+          "pinyin": "lā gōng"
+        },
+        {
+          "word": "弹弓",
+          "pinyin": "dàn gōng"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "他拉开弓射箭。",
+          "pinyin": "tā lā kāi gōng shè jiàn"
+        }
+      ]
+    },
+    {
+      "char": "刃",
+      "words": [
+        {
+          "word": "刀刃",
+          "pinyin": "dāo rèn"
+        },
+        {
+          "word": "刃口",
+          "pinyin": "rèn kǒu"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "菜刀的刀刃很锋利。",
+          "pinyin": "cài dāo de dāo rèn hěn fēng lì"
+        }
+      ]
+    },
+    {
+      "char": "丫",
+      "words": [
+        {
+          "word": "丫头",
+          "pinyin": "yā tou"
+        },
+        {
+          "word": "树丫",
+          "pinyin": "shù yā"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "树丫上有一只小鸟。",
+          "pinyin": "shù yā shàng yǒu yī zhī xiǎo niǎo"
+        }
+      ]
+    },
+    {
+      "char": "已",
+      "words": [
+        {
+          "word": "已经",
+          "pinyin": "yǐ jīng"
+        },
+        {
+          "word": "而已",
+          "pinyin": "ér yǐ"
+        },
+        {
+          "word": "已知",
+          "pinyin": "yǐ zhī"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我已经吃完饭了。",
+          "pinyin": "wǒ yǐ jīng chī wán fàn le"
+        }
+      ]
+    },
+    {
+      "char": "及",
+      "words": [
+        {
+          "word": "及时",
+          "pinyin": "jí shí"
+        },
+        {
+          "word": "以及",
+          "pinyin": "yǐ jí"
+        },
+        {
+          "word": "及格",
+          "pinyin": "jí gé"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我们要及时喝水。",
+          "pinyin": "wǒ men yào jí shí hē shuǐ"
+        }
+      ]
+    },
+    {
+      "char": "夕",
+      "words": [
+        {
+          "word": "夕阳",
+          "pinyin": "xī yáng"
+        },
+        {
+          "word": "除夕",
+          "pinyin": "chú xī"
+        },
+        {
+          "word": "七夕",
+          "pinyin": "qī xī"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "夕阳把天空染红了。",
+          "pinyin": "xī yáng bǎ tiān kōng rǎn hóng le"
+        }
+      ]
+    },
+    {
+      "char": "史",
+      "words": [
+        {
+          "word": "历史",
+          "pinyin": "lì shǐ"
+        },
+        {
+          "word": "史书",
+          "pinyin": "shǐ shū"
+        }
+      ],
+      "examples": [
+        {
+          "sentence": "我喜欢听历史故事。",
+          "pinyin": "wǒ xǐ huān tīng lì shǐ gù shì"
+        }
+      ]
+    }
   ],
   "hard": [
     "焕",
@@ -25713,7 +26677,6 @@
     "登",
     "湾",
     "编",
-    "跑",
     "散",
     "温",
     "智",
@@ -25821,7 +26784,6 @@
     "傲",
     "窝",
     "棉",
-    "晴",
     "渴",
     "喘",
     "愉",

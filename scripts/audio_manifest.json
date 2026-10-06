@@ -1025,9 +1025,513 @@
   "lang": "zh",
   "kind": "例句"
  },
- "c:书": {
-  "file": "k237f8915.mp3",
-  "text": "书",
+ "c:春": {
+  "file": "k356d1922.mp3",
+  "text": "春",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:春天": {
+  "file": "k5e32b06f.mp3",
+  "text": "春天",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:春风": {
+  "file": "kbd636aa7.mp3",
+  "text": "春风",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:春雨": {
+  "file": "k78f153a1.mp3",
+  "text": "春雨",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:春天来了，花都开了。": {
+  "file": "k63898cf3.mp3",
+  "text": "春天来了，花都开了。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:春风吹在脸上很舒服。": {
+  "file": "k1261ddb3.mp3",
+  "text": "春风吹在脸上很舒服。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:雪": {
+  "file": "k85a3104d.mp3",
+  "text": "雪",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:雪花": {
+  "file": "ka0146a15.mp3",
+  "text": "雪花",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:下雪": {
+  "file": "k5a1b648f.mp3",
+  "text": "下雪",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:雪人": {
+  "file": "ke19a7c0a.mp3",
+  "text": "雪人",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:下雪了，我们一起堆雪人。": {
+  "file": "k4e05813f.mp3",
+  "text": "下雪了，我们一起堆雪人。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:雪花从天上飘下来。": {
+  "file": "k04c40f49.mp3",
+  "text": "雪花从天上飘下来。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:清": {
+  "file": "k9b871d48.mp3",
+  "text": "清",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:清水": {
+  "file": "k702f3580.mp3",
+  "text": "清水",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:清楚": {
+  "file": "k9b4cde5b.mp3",
+  "text": "清楚",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:清明": {
+  "file": "keb7e4298.mp3",
+  "text": "清明",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:小河里的水真清。": {
+  "file": "k927c527b.mp3",
+  "text": "小河里的水真清。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我听清楚了老师的话。": {
+  "file": "k43efea10.mp3",
+  "text": "我听清楚了老师的话。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:情": {
+  "file": "ka735f270.mp3",
+  "text": "情",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:心情": {
+  "file": "kc445a1e8.mp3",
+  "text": "心情",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:事情": {
+  "file": "k024dd5d2.mp3",
+  "text": "事情",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:热情": {
+  "file": "kadb18d69.mp3",
+  "text": "热情",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:今天我的心情很好。": {
+  "file": "kaeee42fc.mp3",
+  "text": "今天我的心情很好。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我把事情做完了。": {
+  "file": "kfb81d56a.mp3",
+  "text": "我把事情做完了。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:请": {
+  "file": "k5c4de554.mp3",
+  "text": "请",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:请坐": {
+  "file": "kdca82f2f.mp3",
+  "text": "请坐",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:请问": {
+  "file": "kee3c236a.mp3",
+  "text": "请问",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:请进": {
+  "file": "ke41023d4.mp3",
+  "text": "请进",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:请坐下来喝杯水。": {
+  "file": "k3df2f2ef.mp3",
+  "text": "请坐下来喝杯水。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:请问你叫什么名字？": {
+  "file": "k82a85182.mp3",
+  "text": "请问你叫什么名字？",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:种": {
+  "file": "k59c4f1d3.mp3",
+  "text": "种",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:种花": {
+  "file": "kc32ac965.mp3",
+  "text": "种花",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:种树": {
+  "file": "k9db1088f.mp3",
+  "text": "种树",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:种子": {
+  "file": "k5d5ef80d.mp3",
+  "text": "种子",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我和爸爸一起种花。": {
+  "file": "kb4213e9e.mp3",
+  "text": "我和爸爸一起种花。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:种子发芽了。": {
+  "file": "k4c42fa54.mp3",
+  "text": "种子发芽了。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:样": {
+  "file": "kd14bd491.mp3",
+  "text": "样",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:样子": {
+  "file": "kbbb4ef7d.mp3",
+  "text": "样子",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:一样": {
+  "file": "kd9f22752.mp3",
+  "text": "一样",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:花样": {
+  "file": "k3d46930b.mp3",
+  "text": "花样",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:小狗的样子很可爱。": {
+  "file": "k48d5ebc1.mp3",
+  "text": "小狗的样子很可爱。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我们两个一样高。": {
+  "file": "k817acf38.mp3",
+  "text": "我们两个一样高。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:秋": {
+  "file": "kb0a754e6.mp3",
+  "text": "秋",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:秋天": {
+  "file": "kf6f29490.mp3",
+  "text": "秋天",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:秋风": {
+  "file": "k15a34e58.mp3",
+  "text": "秋风",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:中秋": {
+  "file": "kea46d0c6.mp3",
+  "text": "中秋",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:秋天到了，树叶黄了。": {
+  "file": "ke3faa562.mp3",
+  "text": "秋天到了，树叶黄了。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:秋天的果子熟了。": {
+  "file": "kac8f99e6.mp3",
+  "text": "秋天的果子熟了。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:说": {
+  "file": "kc544b4ee.mp3",
+  "text": "说",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:说话": {
+  "file": "k55043b5e.mp3",
+  "text": "说话",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:听说": {
+  "file": "k1df4e0cb.mp3",
+  "text": "听说",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:小说": {
+  "file": "k6eb2cf1f.mp3",
+  "text": "小说",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:妈妈说话很温柔。": {
+  "file": "kd10b68d6.mp3",
+  "text": "妈妈说话很温柔。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我听说明天放假。": {
+  "file": "k01c15767.mp3",
+  "text": "我听说明天放假。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:很": {
+  "file": "kb12a782a.mp3",
+  "text": "很",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:很好": {
+  "file": "kc7be8aba.mp3",
+  "text": "很好",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:很多": {
+  "file": "k7baf0e90.mp3",
+  "text": "很多",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:很大": {
+  "file": "k23c74281.mp3",
+  "text": "很大",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我今天很开心。": {
+  "file": "k9ec57852.mp3",
+  "text": "我今天很开心。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:公园里有很多小朋友。": {
+  "file": "k82e69973.mp3",
+  "text": "公园里有很多小朋友。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:音": {
+  "file": "k85a47d89.mp3",
+  "text": "音",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:声音": {
+  "file": "ka15a03dd.mp3",
+  "text": "声音",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:音乐": {
+  "file": "kc99d58ca.mp3",
+  "text": "音乐",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:拼音": {
+  "file": "k9ca9aa0e.mp3",
+  "text": "拼音",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我听见小鸟的声音。": {
+  "file": "ke71c0ff5.mp3",
+  "text": "我听见小鸟的声音。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我喜欢听音乐。": {
+  "file": "ka17b33ac.mp3",
+  "text": "我喜欢听音乐。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:思": {
+  "file": "k9f7439e5.mp3",
+  "text": "思",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:思念": {
+  "file": "k860a2bb7.mp3",
+  "text": "思念",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:思考": {
+  "file": "k19b60741.mp3",
+  "text": "思考",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:意思": {
+  "file": "ke6b72efc.mp3",
+  "text": "意思",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我很思念奶奶。": {
+  "file": "k198df6cf.mp3",
+  "text": "我很思念奶奶。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:这道题要好好思考。": {
+  "file": "k3364d299.mp3",
+  "text": "这道题要好好思考。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:前": {
+  "file": "k51472c91.mp3",
+  "text": "前",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:前面": {
+  "file": "k70ec5674.mp3",
+  "text": "前面",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:以前": {
+  "file": "k89b2fa8e.mp3",
+  "text": "以前",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:前进": {
+  "file": "k8999f26b.mp3",
+  "text": "前进",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:前面有一座小桥。": {
+  "file": "k6a0fcd0b.mp3",
+  "text": "前面有一座小桥。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我以前去过动物园。": {
+  "file": "k0914f53b.mp3",
+  "text": "我以前去过动物园。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:故": {
+  "file": "kbbad47a7.mp3",
+  "text": "故",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:故事": {
+  "file": "k0673cfec.mp3",
+  "text": "故事",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:故乡": {
+  "file": "kf6e555f9.mp3",
+  "text": "故乡",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:故意": {
+  "file": "k435fc4e6.mp3",
+  "text": "故意",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:妈妈给我讲了一个故事。": {
+  "file": "kf4a9c9a3.mp3",
+  "text": "妈妈给我讲了一个故事。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我的故乡很美。": {
+  "file": "k017aff1d.mp3",
+  "text": "我的故乡很美。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:看": {
+  "file": "k8c15bbde.mp3",
+  "text": "看",
   "lang": "zh",
   "kind": "单字"
  },
@@ -1036,6 +1540,822 @@
   "text": "看书",
   "lang": "zh",
   "kind": "词组"
+ },
+ "w:看见": {
+  "file": "k3643756d.mp3",
+  "text": "看见",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:看电视": {
+  "file": "k28218e98.mp3",
+  "text": "看电视",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我每天都要看书。": {
+  "file": "kf15ada4c.mp3",
+  "text": "我每天都要看书。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我看见一只小鸟。": {
+  "file": "ke2adacdf.mp3",
+  "text": "我看见一只小鸟。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:晚": {
+  "file": "k9a10055e.mp3",
+  "text": "晚",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:晚上": {
+  "file": "k8ec83730.mp3",
+  "text": "晚上",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:晚安": {
+  "file": "k0a9bb96a.mp3",
+  "text": "晚安",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:傍晚": {
+  "file": "k400e5dc2.mp3",
+  "text": "傍晚",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:晚上我要早点睡觉。": {
+  "file": "k545fe252.mp3",
+  "text": "晚上我要早点睡觉。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:睡觉前要说晚安。": {
+  "file": "k00069993.mp3",
+  "text": "睡觉前要说晚安。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:笑": {
+  "file": "kae317457.mp3",
+  "text": "笑",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:笑话": {
+  "file": "k741eac57.mp3",
+  "text": "笑话",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:微笑": {
+  "file": "ka279799c.mp3",
+  "text": "微笑",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:大笑": {
+  "file": "kf521b935.mp3",
+  "text": "大笑",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:弟弟笑得很开心。": {
+  "file": "k87c15d45.mp3",
+  "text": "弟弟笑得很开心。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:她对我微笑。": {
+  "file": "k31a7099e.mp3",
+  "text": "她对我微笑。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:真": {
+  "file": "k96cf6fa3.mp3",
+  "text": "真",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:真的": {
+  "file": "kf8e64ea9.mp3",
+  "text": "真的",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:认真": {
+  "file": "k29440650.mp3",
+  "text": "认真",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:真好": {
+  "file": "kfcb938f3.mp3",
+  "text": "真好",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:你说的是真的吗？": {
+  "file": "ke7adcea1.mp3",
+  "text": "你说的是真的吗？",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我写字很认真。": {
+  "file": "ke3b882e3.mp3",
+  "text": "我写字很认真。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:着": {
+  "file": "k02dc5317.mp3",
+  "text": "着",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:看着": {
+  "file": "k6fb1dcbf.mp3",
+  "text": "看着",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:听着": {
+  "file": "kda6c0732.mp3",
+  "text": "听着",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:走着": {
+  "file": "k751c5cbf.mp3",
+  "text": "走着",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我看着他画画。": {
+  "file": "kfe25af83.mp3",
+  "text": "我看着他画画。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我们走着去公园。": {
+  "file": "k5b0d6a74.mp3",
+  "text": "我们走着去公园。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:高": {
+  "file": "k9232773e.mp3",
+  "text": "高",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:高兴": {
+  "file": "ka43d99aa.mp3",
+  "text": "高兴",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:高大": {
+  "file": "kac1ccd97.mp3",
+  "text": "高大",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:长高": {
+  "file": "kb70c9461.mp3",
+  "text": "长高",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我今天很高兴。": {
+  "file": "kdcd301e2.mp3",
+  "text": "我今天很高兴。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我又长高了。": {
+  "file": "k6fdfeb13.mp3",
+  "text": "我又长高了。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:迷": {
+  "file": "k168ff705.mp3",
+  "text": "迷",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:迷路": {
+  "file": "k6d9dcaeb.mp3",
+  "text": "迷路",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:迷人": {
+  "file": "kbcf4a929.mp3",
+  "text": "迷人",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:入迷": {
+  "file": "k1b37f458.mp3",
+  "text": "入迷",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:小狗迷路了。": {
+  "file": "k03a9270b.mp3",
+  "text": "小狗迷路了。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我看书看得入迷。": {
+  "file": "kae683bd4.mp3",
+  "text": "我看书看得入迷。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:造": {
+  "file": "kcc4032c9.mp3",
+  "text": "造",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:造句": {
+  "file": "kb7ec9f89.mp3",
+  "text": "造句",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:建造": {
+  "file": "kd79370ba.mp3",
+  "text": "建造",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:创造": {
+  "file": "k299c7ab7.mp3",
+  "text": "创造",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:老师让我们用新词造句。": {
+  "file": "k82041b8e.mp3",
+  "text": "老师让我们用新词造句。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:工人叔叔在建造房子。": {
+  "file": "k56cc6d1b.mp3",
+  "text": "工人叔叔在建造房子。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:凉": {
+  "file": "kc8a9c506.mp3",
+  "text": "凉",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:凉快": {
+  "file": "k97ca78a2.mp3",
+  "text": "凉快",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:清凉": {
+  "file": "kba0667fc.mp3",
+  "text": "清凉",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:凉水": {
+  "file": "k9f1cd7c1.mp3",
+  "text": "凉水",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:树荫下面很凉快。": {
+  "file": "ka48c2243.mp3",
+  "text": "树荫下面很凉快。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:夏天喝凉水真舒服。": {
+  "file": "kd27d99b7.mp3",
+  "text": "夏天喝凉水真舒服。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:语": {
+  "file": "ka12f1c2e.mp3",
+  "text": "语",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:语文": {
+  "file": "k816d7a81.mp3",
+  "text": "语文",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:语言": {
+  "file": "k5452d955.mp3",
+  "text": "语言",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:词语": {
+  "file": "kfefebcd9.mp3",
+  "text": "词语",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我喜欢上语文课。": {
+  "file": "k6e89ceb8.mp3",
+  "text": "我喜欢上语文课。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我学了很多新词语。": {
+  "file": "k2ea47f74.mp3",
+  "text": "我学了很多新词语。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:香": {
+  "file": "k509b39e5.mp3",
+  "text": "香",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:花香": {
+  "file": "kbc967e7f.mp3",
+  "text": "花香",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:香甜": {
+  "file": "k81f965fa.mp3",
+  "text": "香甜",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:香味": {
+  "file": "k54db7888.mp3",
+  "text": "香味",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:花园里的花香真好闻。": {
+  "file": "k623c917c.mp3",
+  "text": "花园里的花香真好闻。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:这个苹果又香又甜。": {
+  "file": "kdd16c34a.mp3",
+  "text": "这个苹果又香又甜。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:相": {
+  "file": "k7c844c0f.mp3",
+  "text": "相",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:相同": {
+  "file": "k8093b1e8.mp3",
+  "text": "相同",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:互相": {
+  "file": "kf4ed73b8.mp3",
+  "text": "互相",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:相信": {
+  "file": "kd692bfc7.mp3",
+  "text": "相信",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我们的书包相同。": {
+  "file": "k230a8e87.mp3",
+  "text": "我们的书包相同。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:好朋友要互相帮助。": {
+  "file": "kbf2c3562.mp3",
+  "text": "好朋友要互相帮助。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:首": {
+  "file": "kc0242474.mp3",
+  "text": "首",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:首先": {
+  "file": "k931d56af.mp3",
+  "text": "首先",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:首都": {
+  "file": "k9aeecc6e.mp3",
+  "text": "首都",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:一首": {
+  "file": "kc89dd7b7.mp3",
+  "text": "一首",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我首先把作业写完。": {
+  "file": "kc486afce.mp3",
+  "text": "我首先把作业写完。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我会唱一首儿歌。": {
+  "file": "k173e8b88.mp3",
+  "text": "我会唱一首儿歌。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:树": {
+  "file": "k0346516c.mp3",
+  "text": "树",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:大树": {
+  "file": "k58569c0e.mp3",
+  "text": "大树",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:树叶": {
+  "file": "k4b52dc42.mp3",
+  "text": "树叶",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:果树": {
+  "file": "k12793127.mp3",
+  "text": "果树",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:大树下面很凉快。": {
+  "file": "k98e6a486.mp3",
+  "text": "大树下面很凉快。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:大树的叶子绿绿的。": {
+  "file": "kfdad71d6.mp3",
+  "text": "大树的叶子绿绿的。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:亮": {
+  "file": "k068952e4.mp3",
+  "text": "亮",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:明亮": {
+  "file": "k62e6581b.mp3",
+  "text": "明亮",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:天亮": {
+  "file": "kbd46e8b5.mp3",
+  "text": "天亮",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:月亮又圆又亮。": {
+  "file": "kfc83846f.mp3",
+  "text": "月亮又圆又亮。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:教室里很明亮。": {
+  "file": "ke5288a9a.mp3",
+  "text": "教室里很明亮。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:美": {
+  "file": "k5bcd0971.mp3",
+  "text": "美",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:美丽": {
+  "file": "k51b37246.mp3",
+  "text": "美丽",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:美好": {
+  "file": "kaf1d746d.mp3",
+  "text": "美好",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:美味": {
+  "file": "kf38faa9d.mp3",
+  "text": "美味",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:花园里的花真美丽。": {
+  "file": "k3fce9885.mp3",
+  "text": "花园里的花真美丽。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:今天的饭菜很美味。": {
+  "file": "k46843bc6.mp3",
+  "text": "今天的饭菜很美味。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:要": {
+  "file": "k4235cb84.mp3",
+  "text": "要",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:要求": {
+  "file": "kcc364e9c.mp3",
+  "text": "要求",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:重要": {
+  "file": "k2709dc13.mp3",
+  "text": "重要",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:需要": {
+  "file": "kc253a25d.mp3",
+  "text": "需要",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我要好好吃饭。": {
+  "file": "kb5facd92.mp3",
+  "text": "我要好好吃饭。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:早睡早起很重要。": {
+  "file": "k075113c9.mp3",
+  "text": "早睡早起很重要。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:点": {
+  "file": "k9083d581.mp3",
+  "text": "点",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:点头": {
+  "file": "kc6f76817.mp3",
+  "text": "点头",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:一点": {
+  "file": "k983a2642.mp3",
+  "text": "一点",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:点心": {
+  "file": "kd77c0682.mp3",
+  "text": "点心",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我笑着点了点头。": {
+  "file": "kddcc137f.mp3",
+  "text": "我笑着点了点头。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我只吃了一点点心。": {
+  "file": "k0b5a8f6e.mp3",
+  "text": "我只吃了一点点心。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:常": {
+  "file": "kc1a9ef00.mp3",
+  "text": "常",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:常常": {
+  "file": "k37d31f28.mp3",
+  "text": "常常",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:日常": {
+  "file": "k50a55a11.mp3",
+  "text": "日常",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:常见": {
+  "file": "kad540aed.mp3",
+  "text": "常见",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我常常去公园玩。": {
+  "file": "k12088002.mp3",
+  "text": "我常常去公园玩。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:这是我日常用的杯子。": {
+  "file": "k07487930.mp3",
+  "text": "这是我日常用的杯子。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:病": {
+  "file": "k88594f12.mp3",
+  "text": "病",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:生病": {
+  "file": "k0a3f4bb3.mp3",
+  "text": "生病",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:病人": {
+  "file": "ke6314f13.mp3",
+  "text": "病人",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:看病": {
+  "file": "ke534c0ba.mp3",
+  "text": "看病",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:弟弟生病了，要多喝水。": {
+  "file": "kaa6d706c.mp3",
+  "text": "弟弟生病了，要多喝水。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:妈妈带我去看病。": {
+  "file": "k21c6a083.mp3",
+  "text": "妈妈带我去看病。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:星": {
+  "file": "kf361c090.mp3",
+  "text": "星",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:星星": {
+  "file": "k7fabfa95.mp3",
+  "text": "星星",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:星空": {
+  "file": "kf3304357.mp3",
+  "text": "星空",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:卫星": {
+  "file": "k2e76ff3f.mp3",
+  "text": "卫星",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:晚上天上有许多星星。": {
+  "file": "ke3b9da4f.mp3",
+  "text": "晚上天上有许多星星。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:星星一闪一闪的。": {
+  "file": "kc2771bfd.mp3",
+  "text": "星星一闪一闪的。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:晴": {
+  "file": "k46c60891.mp3",
+  "text": "晴",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:晴天": {
+  "file": "k8bf7a925.mp3",
+  "text": "晴天",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:晴朗": {
+  "file": "k5f4fb62c.mp3",
+  "text": "晴朗",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:放晴": {
+  "file": "k177217ce.mp3",
+  "text": "放晴",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:今天是个大晴天。": {
+  "file": "kccfd4e54.mp3",
+  "text": "今天是个大晴天。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:天晴了，我们出去玩。": {
+  "file": "kd77d2da5.mp3",
+  "text": "天晴了，我们出去玩。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:跑": {
+  "file": "k0c5bf8f0.mp3",
+  "text": "跑",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:跑步": {
+  "file": "k82d24f07.mp3",
+  "text": "跑步",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:奔跑": {
+  "file": "k88b54b6d.mp3",
+  "text": "奔跑",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:跑车": {
+  "file": "k5b8721e6.mp3",
+  "text": "跑车",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我每天早上去跑步。": {
+  "file": "kf24dcd38.mp3",
+  "text": "我每天早上去跑步。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:小狗在草地上奔跑。": {
+  "file": "k5850249f.mp3",
+  "text": "小狗在草地上奔跑。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:书": {
+  "file": "k237f8915.mp3",
+  "text": "书",
+  "lang": "zh",
+  "kind": "单字"
  },
  "w:书本": {
   "file": "k985d4e13.mp3",
@@ -1289,12 +2609,6 @@
   "lang": "zh",
   "kind": "词组"
  },
- "w:音乐": {
-  "file": "kc99d58ca.mp3",
-  "text": "音乐",
-  "lang": "zh",
-  "kind": "词组"
- },
  "w:欢乐": {
   "file": "k36ef18b3.mp3",
   "text": "欢乐",
@@ -1412,36 +2726,6 @@
  "e:小白羊在山坡上。": {
   "file": "k85bfd120.mp3",
   "text": "小白羊在山坡上。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:乙": {
-  "file": "k9519a428.mp3",
-  "text": "乙",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:甲乙": {
-  "file": "k4527d76a.mp3",
-  "text": "甲乙",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:乙方": {
-  "file": "ka727aa85.mp3",
-  "text": "乙方",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:乙等": {
-  "file": "kbc8e1f26.mp3",
-  "text": "乙等",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:我按甲乙丙丁的顺序排队。": {
-  "file": "k55360cb5.mp3",
-  "text": "我按甲乙丙丁的顺序排队。",
   "lang": "zh",
   "kind": "例句"
  },
@@ -1670,36 +2954,6 @@
  "e:妈妈用菜刀切菜。": {
   "file": "k956f0de7.mp3",
   "text": "妈妈用菜刀切菜。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:乃": {
-  "file": "k687b5d52.mp3",
-  "text": "乃",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:乃是": {
-  "file": "kf2d485a1.mp3",
-  "text": "乃是",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:乃至": {
-  "file": "k2111fa7a.mp3",
-  "text": "乃至",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:乃父": {
-  "file": "kddbf5507.mp3",
-  "text": "乃父",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:这本书乃是老师送的。": {
-  "file": "k8f81885a.mp3",
-  "text": "这本书乃是老师送的。",
   "lang": "zh",
   "kind": "例句"
  },
@@ -2057,36 +3311,6 @@
   "lang": "zh",
   "kind": "例句"
  },
- "c:已": {
-  "file": "ka6e41ad1.mp3",
-  "text": "已",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:已经": {
-  "file": "k4a2a4a3f.mp3",
-  "text": "已经",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:而已": {
-  "file": "k02186596.mp3",
-  "text": "而已",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:已知": {
-  "file": "k6079624f.mp3",
-  "text": "已知",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:我已经吃完饭了。": {
-  "file": "k0f895bf0.mp3",
-  "text": "我已经吃完饭了。",
-  "lang": "zh",
-  "kind": "例句"
- },
  "c:工": {
   "file": "k25379f16.mp3",
   "text": "工",
@@ -2174,36 +3398,6 @@
  "e:请把门关上。": {
   "file": "ka3953573.mp3",
   "text": "请把门关上。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:及": {
-  "file": "k99791eb4.mp3",
-  "text": "及",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:及时": {
-  "file": "k8912e0a7.mp3",
-  "text": "及时",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:以及": {
-  "file": "k418cc8ab.mp3",
-  "text": "以及",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:及格": {
-  "file": "kf9c0a98d.mp3",
-  "text": "及格",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:我们要及时喝水。": {
-  "file": "ke3dc1c07.mp3",
-  "text": "我们要及时喝水。",
   "lang": "zh",
   "kind": "例句"
  },
@@ -2354,36 +3548,6 @@
  "e:我把手洗得很干净。": {
   "file": "k900beb0f.mp3",
   "text": "我把手洗得很干净。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:士": {
-  "file": "kec216544.mp3",
-  "text": "士",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:士兵": {
-  "file": "k761675c9.mp3",
-  "text": "士兵",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:战士": {
-  "file": "k9ddcf07a.mp3",
-  "text": "战士",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:士气": {
-  "file": "k9a081978.mp3",
-  "text": "士气",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:士兵站得很直。": {
-  "file": "k27813361.mp3",
-  "text": "士兵站得很直。",
   "lang": "zh",
   "kind": "例句"
  },
@@ -2573,216 +3737,6 @@
   "lang": "zh",
   "kind": "例句"
  },
- "c:亡": {
-  "file": "k96364f75.mp3",
-  "text": "亡",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:亡羊补牢": {
-  "file": "kd18ee822.mp3",
-  "text": "亡羊补牢",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:死亡": {
-  "file": "k5c6d7aef.mp3",
-  "text": "死亡",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:逃亡": {
-  "file": "ka1f5f3c1.mp3",
-  "text": "逃亡",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:亡羊补牢，还不算晚。": {
-  "file": "kba472e6e.mp3",
-  "text": "亡羊补牢，还不算晚。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:凡": {
-  "file": "kfd1c6dfc.mp3",
-  "text": "凡",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:凡是": {
-  "file": "k2da23756.mp3",
-  "text": "凡是",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:平凡": {
-  "file": "ke1073365.mp3",
-  "text": "平凡",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:不凡": {
-  "file": "k07cf46e2.mp3",
-  "text": "不凡",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:凡是自己能做的事，就自己做。": {
-  "file": "k403af235.mp3",
-  "text": "凡是自己能做的事，就自己做。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:亿": {
-  "file": "k6c397216.mp3",
-  "text": "亿",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:一亿": {
-  "file": "k648081d5.mp3",
-  "text": "一亿",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:亿万": {
-  "file": "kac3ce05e.mp3",
-  "text": "亿万",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:一亿年": {
-  "file": "ked0174a8.mp3",
-  "text": "一亿年",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:一亿是很大的数。": {
-  "file": "k5139e8b3.mp3",
-  "text": "一亿是很大的数。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:川": {
-  "file": "k0d352788.mp3",
-  "text": "川",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:四川": {
-  "file": "kcfa982a4.mp3",
-  "text": "四川",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:山川": {
-  "file": "k8b57fa5b.mp3",
-  "text": "山川",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:川流不息": {
-  "file": "k7378f9c8.mp3",
-  "text": "川流不息",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:四川有可爱的大熊猫。": {
-  "file": "kdf637f38.mp3",
-  "text": "四川有可爱的大熊猫。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:丈": {
-  "file": "ke6b2b59b.mp3",
-  "text": "丈",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:丈夫": {
-  "file": "k6e6d28af.mp3",
-  "text": "丈夫",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:万丈": {
-  "file": "k73dc7ee1.mp3",
-  "text": "万丈",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:方丈": {
-  "file": "k5011c11d.mp3",
-  "text": "方丈",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:这座山好像有万丈高。": {
-  "file": "k955b594b.mp3",
-  "text": "这座山好像有万丈高。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:尸": {
-  "file": "k09706508.mp3",
-  "text": "尸",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:僵尸": {
-  "file": "kdb91c46a.mp3",
-  "text": "僵尸",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:尸体": {
-  "file": "kd7aa33db.mp3",
-  "text": "尸体",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:尸骨": {
-  "file": "k6bfacd3a.mp3",
-  "text": "尸骨",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:万圣节有人扮成僵尸。": {
-  "file": "kd3314388.mp3",
-  "text": "万圣节有人扮成僵尸。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:亏": {
-  "file": "k4ae042ba.mp3",
-  "text": "亏",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:吃亏": {
-  "file": "k6a01a9f7.mp3",
-  "text": "吃亏",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:幸亏": {
-  "file": "k81fa9b22.mp3",
-  "text": "幸亏",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:亏本": {
-  "file": "k02c7d477.mp3",
-  "text": "亏本",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:幸亏今天带了雨伞。": {
-  "file": "k422bd35f.mp3",
-  "text": "幸亏今天带了雨伞。",
-  "lang": "zh",
-  "kind": "例句"
- },
  "c:寸": {
   "file": "kc42a6b96.mp3",
   "text": "寸",
@@ -2810,66 +3764,6 @@
  "e:这条绳子有一寸长。": {
   "file": "k7a7e3359.mp3",
   "text": "这条绳子有一寸长。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:夕": {
-  "file": "k6201ee28.mp3",
-  "text": "夕",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:夕阳": {
-  "file": "kcbd71606.mp3",
-  "text": "夕阳",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:除夕": {
-  "file": "k05d730e8.mp3",
-  "text": "除夕",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:七夕": {
-  "file": "k780db205.mp3",
-  "text": "七夕",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:夕阳把天空染红了。": {
-  "file": "k3cf6cea4.mp3",
-  "text": "夕阳把天空染红了。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:弓": {
-  "file": "k0979d344.mp3",
-  "text": "弓",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:弓箭": {
-  "file": "kc7a11485.mp3",
-  "text": "弓箭",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:拉弓": {
-  "file": "kd7810c50.mp3",
-  "text": "拉弓",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:弹弓": {
-  "file": "kb23fe2c9.mp3",
-  "text": "弹弓",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:他拉开弓射箭。": {
-  "file": "k65256687.mp3",
-  "text": "他拉开弓射箭。",
   "lang": "zh",
   "kind": "例句"
  },
@@ -2933,30 +3827,6 @@
   "lang": "zh",
   "kind": "例句"
  },
- "c:乞": {
-  "file": "k0b7d318b.mp3",
-  "text": "乞",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:乞求": {
-  "file": "k513ec97d.mp3",
-  "text": "乞求",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:乞丐": {
-  "file": "k70c1d712.mp3",
-  "text": "乞丐",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:小狗在门口乞求食物。": {
-  "file": "ka6e0558c.mp3",
-  "text": "小狗在门口乞求食物。",
-  "lang": "zh",
-  "kind": "例句"
- },
  "c:丸": {
   "file": "kc06b8537.mp3",
   "text": "丸",
@@ -2984,72 +3854,6 @@
  "e:妈妈做了鱼丸汤。": {
   "file": "k18df4f26.mp3",
   "text": "妈妈做了鱼丸汤。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:丫": {
-  "file": "k44d5c4e9.mp3",
-  "text": "丫",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:丫头": {
-  "file": "k51e2258a.mp3",
-  "text": "丫头",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:树丫": {
-  "file": "kb9917a98.mp3",
-  "text": "树丫",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:树丫上有一只小鸟。": {
-  "file": "ke024e19e.mp3",
-  "text": "树丫上有一只小鸟。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:刃": {
-  "file": "kafe430d7.mp3",
-  "text": "刃",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:刀刃": {
-  "file": "kcd20a837.mp3",
-  "text": "刀刃",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:刃口": {
-  "file": "kabbab1d6.mp3",
-  "text": "刃口",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:菜刀的刀刃很锋利。": {
-  "file": "k69513cbe.mp3",
-  "text": "菜刀的刀刃很锋利。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:兀": {
-  "file": "k83431f20.mp3",
-  "text": "兀",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:突兀": {
-  "file": "kaff23dca.mp3",
-  "text": "突兀",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:大山突兀地立在远处。": {
-  "file": "kf1e96c9f.mp3",
-  "text": "大山突兀地立在远处。",
   "lang": "zh",
   "kind": "例句"
  },
@@ -3158,12 +3962,6 @@
  "w:以后": {
   "file": "k8bbb022c.mp3",
   "text": "以后",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:以前": {
-  "file": "k89b2fa8e.mp3",
-  "text": "以前",
   "lang": "zh",
   "kind": "词组"
  },
@@ -3323,12 +4121,6 @@
   "lang": "zh",
   "kind": "词组"
  },
- "w:长高": {
-  "file": "kb70c9461.mp3",
-  "text": "长高",
-  "lang": "zh",
-  "kind": "词组"
- },
  "w:长发": {
   "file": "k36223407.mp3",
   "text": "长发",
@@ -3377,12 +4169,6 @@
   "lang": "zh",
   "kind": "词组"
  },
- "w:语文": {
-  "file": "k816d7a81.mp3",
-  "text": "语文",
-  "lang": "zh",
-  "kind": "词组"
- },
  "w:文明": {
   "file": "k3f861b76.mp3",
   "text": "文明",
@@ -3407,23 +4193,11 @@
   "lang": "zh",
   "kind": "词组"
  },
- "w:看见": {
-  "file": "k3643756d.mp3",
-  "text": "看见",
-  "lang": "zh",
-  "kind": "词组"
- },
  "w:再见": {
   "file": "k74b00499.mp3",
   "text": "再见",
   "lang": "zh",
   "kind": "词组"
- },
- "e:我看见一只小鸟。": {
-  "file": "ke2adacdf.mp3",
-  "text": "我看见一只小鸟。",
-  "lang": "zh",
-  "kind": "例句"
  },
  "c:什": {
   "file": "kc3446e6a.mp3",
@@ -3530,12 +4304,6 @@
  "w:认识": {
   "file": "kb2188c9d.mp3",
   "text": "认识",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:认真": {
-  "file": "k29440650.mp3",
-  "text": "认真",
   "lang": "zh",
   "kind": "词组"
  },
@@ -3854,12 +4622,6 @@
  "w:大风": {
   "file": "kf52f8505.mp3",
   "text": "大风",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:春风": {
-  "file": "kbd636aa7.mp3",
-  "text": "春风",
   "lang": "zh",
   "kind": "词组"
  },
@@ -4426,12 +5188,6 @@
   "text": "互",
   "lang": "zh",
   "kind": "单字"
- },
- "w:互相": {
-  "file": "kf4ed73b8.mp3",
-  "text": "互相",
-  "lang": "zh",
-  "kind": "词组"
  },
  "w:相互": {
   "file": "k14352a94.mp3",
@@ -5603,6 +6359,12 @@
   "lang": "zh",
   "kind": "单字"
  },
+ "w:乞丐": {
+  "file": "k70c1d712.mp3",
+  "text": "乞丐",
+  "lang": "zh",
+  "kind": "词组"
+ },
  "e:我给乞丐送了一碗热饭。": {
   "file": "k55a3a8df.mp3",
   "text": "我给乞丐送了一碗热饭。",
@@ -5720,30 +6482,6 @@
  "e:尹老师教我们唱歌。": {
   "file": "k54c20d0b.mp3",
   "text": "尹老师教我们唱歌。",
-  "lang": "zh",
-  "kind": "例句"
- },
- "c:歹": {
-  "file": "k835d87db.mp3",
-  "text": "歹",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:好歹": {
-  "file": "kda89d4f2.mp3",
-  "text": "好歹",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:好说歹说": {
-  "file": "k0420c053.mp3",
-  "text": "好说歹说",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:你好歹把作业写完。": {
-  "file": "k6775f033.mp3",
-  "text": "你好歹把作业写完。",
   "lang": "zh",
   "kind": "例句"
  },
@@ -5938,12 +6676,6 @@
   "text": "发芽",
   "lang": "zh",
   "kind": "词组"
- },
- "e:种子发芽了。": {
-  "file": "k4c42fa54.mp3",
-  "text": "种子发芽了。",
-  "lang": "zh",
-  "kind": "例句"
  },
  "c:用": {
   "file": "ke6ab40a4.mp3",
@@ -6232,12 +6964,6 @@
   "text": "头",
   "lang": "zh",
   "kind": "单字"
- },
- "w:点头": {
-  "file": "kc6f76817.mp3",
-  "text": "点头",
-  "lang": "zh",
-  "kind": "词组"
  },
  "e:我点点头答应了。": {
   "file": "k9d43c085.mp3",
@@ -7259,24 +7985,6 @@
   "lang": "zh",
   "kind": "例句"
  },
- "c:史": {
-  "file": "kb17ba62a.mp3",
-  "text": "史",
-  "lang": "zh",
-  "kind": "单字"
- },
- "w:史书": {
-  "file": "ka9b9fdcf.mp3",
-  "text": "史书",
-  "lang": "zh",
-  "kind": "词组"
- },
- "e:我喜欢听历史故事。": {
-  "file": "k2cd5be9e.mp3",
-  "text": "我喜欢听历史故事。",
-  "lang": "zh",
-  "kind": "例句"
- },
  "c:乎": {
   "file": "k16ca21ef.mp3",
   "text": "乎",
@@ -7928,12 +8636,6 @@
  "w:叶子": {
   "file": "kc60d4263.mp3",
   "text": "叶子",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:树叶": {
-  "file": "k4b52dc42.mp3",
-  "text": "树叶",
   "lang": "zh",
   "kind": "词组"
  },
@@ -9731,12 +10433,6 @@
   "lang": "zh",
   "kind": "单字"
  },
- "w:很多": {
-  "file": "k7baf0e90.mp3",
-  "text": "很多",
-  "lang": "zh",
-  "kind": "词组"
- },
  "w:多么": {
   "file": "ka6f869c4.mp3",
   "text": "多么",
@@ -9782,12 +10478,6 @@
  "w:同学": {
   "file": "k7491cf6c.mp3",
   "text": "同学",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:相同": {
-  "file": "k8093b1e8.mp3",
-  "text": "相同",
   "lang": "zh",
   "kind": "词组"
  },
@@ -10085,12 +10775,6 @@
   "lang": "zh",
   "kind": "词组"
  },
- "w:请问": {
-  "file": "kee3c236a.mp3",
-  "text": "请问",
-  "lang": "zh",
-  "kind": "词组"
- },
  "w:问好": {
   "file": "kf9f4f756.mp3",
   "text": "问好",
@@ -10340,12 +11024,6 @@
  "w:先生": {
   "file": "k01f69115.mp3",
   "text": "先生",
-  "lang": "zh",
-  "kind": "词组"
- },
- "w:首先": {
-  "file": "k931d56af.mp3",
-  "text": "首先",
   "lang": "zh",
   "kind": "词组"
  },
@@ -11387,12 +12065,6 @@
   "lang": "zh",
   "kind": "单字"
  },
- "w:思考": {
-  "file": "k19b60741.mp3",
-  "text": "思考",
-  "lang": "zh",
-  "kind": "词组"
- },
  "w:考试": {
   "file": "k75b2cba1.mp3",
   "text": "考试",
@@ -11506,12 +12178,6 @@
   "text": "兴",
   "lang": "zh",
   "kind": "单字"
- },
- "w:高兴": {
-  "file": "ka43d99aa.mp3",
-  "text": "高兴",
-  "lang": "zh",
-  "kind": "词组"
  },
  "w:兴趣": {
   "file": "k388aab96.mp3",
@@ -11716,12 +12382,6 @@
   "text": "创",
   "lang": "zh",
   "kind": "单字"
- },
- "w:创造": {
-  "file": "k299c7ab7.mp3",
-  "text": "创造",
-  "lang": "zh",
-  "kind": "词组"
  },
  "w:创作": {
   "file": "k64c3dddd.mp3",
@@ -14537,12 +15197,6 @@
   "lang": "zh",
   "kind": "词组"
  },
- "w:前进": {
-  "file": "k8999f26b.mp3",
-  "text": "前进",
-  "lang": "zh",
-  "kind": "词组"
- },
  "e:请进来喝杯水吧。": {
   "file": "k3e578b3b.mp3",
   "text": "请进来喝杯水吧。",
@@ -14648,6 +15302,768 @@
  "e:我的房间很干净。": {
   "file": "k8dc70edc.mp3",
   "text": "我的房间很干净。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:应": {
+  "file": "kc147e161.mp3",
+  "text": "应",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:应该": {
+  "file": "kc9aa27d2.mp3",
+  "text": "应该",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:答应": {
+  "file": "k3811b836.mp3",
+  "text": "答应",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:回应": {
+  "file": "k3405b47f.mp3",
+  "text": "回应",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我们应该早睡早起。": {
+  "file": "ked520676.mp3",
+  "text": "我们应该早睡早起。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:妈妈叫我，我马上答应。": {
+  "file": "k6d9b5add.mp3",
+  "text": "妈妈叫我，我马上答应。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:体": {
+  "file": "k11a08832.mp3",
+  "text": "体",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:身体": {
+  "file": "k6328c0d5.mp3",
+  "text": "身体",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:体育": {
+  "file": "k8ef8cff6.mp3",
+  "text": "体育",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:集体": {
+  "file": "k068d6227.mp3",
+  "text": "集体",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:多运动，身体会很棒。": {
+  "file": "k83ce3667.mp3",
+  "text": "多运动，身体会很棒。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:体育课上我们一起做游戏。": {
+  "file": "k6bef3c8f.mp3",
+  "text": "体育课上我们一起做游戏。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:利": {
+  "file": "k745ff901.mp3",
+  "text": "利",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:顺利": {
+  "file": "k321ef42a.mp3",
+  "text": "顺利",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:锋利": {
+  "file": "k13485c18.mp3",
+  "text": "锋利",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:有利": {
+  "file": "k78676d87.mp3",
+  "text": "有利",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:祝你今天事事顺利。": {
+  "file": "kc90cf314.mp3",
+  "text": "祝你今天事事顺利。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:剪刀很锋利，用时要小心。": {
+  "file": "kdbe52a19.mp3",
+  "text": "剪刀很锋利，用时要小心。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:身": {
+  "file": "k7ff95f0f.mp3",
+  "text": "身",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:身上": {
+  "file": "k7a349c50.mp3",
+  "text": "身上",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:全身": {
+  "file": "k802b848f.mp3",
+  "text": "全身",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我们要好好爱护身体。": {
+  "file": "kf5e8a25e.mp3",
+  "text": "我们要好好爱护身体。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:弟弟身上穿着新衣服。": {
+  "file": "kcb830f8d.mp3",
+  "text": "弟弟身上穿着新衣服。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:位": {
+  "file": "kebafb551.mp3",
+  "text": "位",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:座位": {
+  "file": "k6f6f51d0.mp3",
+  "text": "座位",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:一位": {
+  "file": "ke3164692.mp3",
+  "text": "一位",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:位子": {
+  "file": "kf19a0580.mp3",
+  "text": "位子",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:请回到自己的座位上。": {
+  "file": "ke053cb13.mp3",
+  "text": "请回到自己的座位上。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:老师给每一位小朋友发了贴纸。": {
+  "file": "kea7b5389.mp3",
+  "text": "老师给每一位小朋友发了贴纸。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:声": {
+  "file": "k6644aca8.mp3",
+  "text": "声",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:大声": {
+  "file": "k3d5461ca.mp3",
+  "text": "大声",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:歌声": {
+  "file": "kc1e3592a.mp3",
+  "text": "歌声",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:窗外传来小鸟的声音。": {
+  "file": "kbffda017.mp3",
+  "text": "窗外传来小鸟的声音。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:唱歌时不要大声喊。": {
+  "file": "k3ea99360.mp3",
+  "text": "唱歌时不要大声喊。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:员": {
+  "file": "kbe815023.mp3",
+  "text": "员",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:服务员": {
+  "file": "k6a22d884.mp3",
+  "text": "服务员",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:队员": {
+  "file": "kc31dd8f3.mp3",
+  "text": "队员",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:演员": {
+  "file": "kd10b64e3.mp3",
+  "text": "演员",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:叔叔是饭店的服务员。": {
+  "file": "k98108070.mp3",
+  "text": "叔叔是饭店的服务员。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我是班里的小队员。": {
+  "file": "kfd159146.mp3",
+  "text": "我是班里的小队员。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:走": {
+  "file": "k72048a2c.mp3",
+  "text": "走",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:走路": {
+  "file": "kbafaeaf3.mp3",
+  "text": "走路",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:快走": {
+  "file": "k74f25e65.mp3",
+  "text": "快走",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我们一起走路去幼儿园。": {
+  "file": "k07638dd2.mp3",
+  "text": "我们一起走路去幼儿园。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:小狗慢慢地走过来了。": {
+  "file": "kc3260a3e.mp3",
+  "text": "小狗慢慢地走过来了。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:条": {
+  "file": "k4f77297e.mp3",
+  "text": "条",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:一条": {
+  "file": "k47cedabd.mp3",
+  "text": "一条",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:面条": {
+  "file": "kf84a0ea2.mp3",
+  "text": "面条",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:纸条": {
+  "file": "k8e052b3d.mp3",
+  "text": "纸条",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:妈妈煮了香香的面条。": {
+  "file": "k54f79ef0.mp3",
+  "text": "妈妈煮了香香的面条。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我在纸上画了一条小河。": {
+  "file": "k1f4825fe.mp3",
+  "text": "我在纸上画了一条小河。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:系": {
+  "file": "kb8d0b31f.mp3",
+  "text": "系",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:系鞋带": {
+  "file": "k3eb61076.mp3",
+  "text": "系鞋带",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:关系": {
+  "file": "kc01ab801.mp3",
+  "text": "关系",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我会自己系鞋带了。": {
+  "file": "k7eddb297.mp3",
+  "text": "我会自己系鞋带了。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我和妹妹关系很好。": {
+  "file": "k75a27661.mp3",
+  "text": "我和妹妹关系很好。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:更": {
+  "file": "k74f06a13.mp3",
+  "text": "更",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:更加": {
+  "file": "k83ec4bcd.mp3",
+  "text": "更加",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:更好": {
+  "file": "kf2f61f79.mp3",
+  "text": "更好",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:更多": {
+  "file": "k4ee79b53.mp3",
+  "text": "更多",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:早睡早起，身体会更好。": {
+  "file": "k4d50f5a1.mp3",
+  "text": "早睡早起，身体会更好。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我希望能认识更多小朋友。": {
+  "file": "k0ff9675f.mp3",
+  "text": "我希望能认识更多小朋友。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:别": {
+  "file": "k9a51982d.mp3",
+  "text": "别",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:别人": {
+  "file": "k09a43646.mp3",
+  "text": "别人",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:告别": {
+  "file": "kfad8155a.mp3",
+  "text": "告别",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:别怕": {
+  "file": "k84580108.mp3",
+  "text": "别怕",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我们要帮助别人。": {
+  "file": "kdf7c2fa1.mp3",
+  "text": "我们要帮助别人。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:上学前我和奶奶告别。": {
+  "file": "k37d42f3f.mp3",
+  "text": "上学前我和奶奶告别。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:何": {
+  "file": "kf8c32d07.mp3",
+  "text": "何",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:如何": {
+  "file": "k4effec09.mp3",
+  "text": "如何",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:老师说要多想想如何把事情做好。": {
+  "file": "k482b7b27.mp3",
+  "text": "老师说要多想想如何把事情做好。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:报": {
+  "file": "k4d9969f1.mp3",
+  "text": "报",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:报纸": {
+  "file": "kf967bfce.mp3",
+  "text": "报纸",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:报告": {
+  "file": "k4444c749.mp3",
+  "text": "报告",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:画报": {
+  "file": "ke0af5539.mp3",
+  "text": "画报",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:爷爷每天早上看报纸。": {
+  "file": "k2079f401.mp3",
+  "text": "爷爷每天早上看报纸。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我把这件事报告给了老师。": {
+  "file": "k00b05e03.mp3",
+  "text": "我把这件事报告给了老师。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:克": {
+  "file": "k1491c6a8.mp3",
+  "text": "克",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "e:妈妈给我买了一块巧克力。": {
+  "file": "k488ded95.mp3",
+  "text": "妈妈给我买了一块巧克力。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:形": {
+  "file": "k41bce23f.mp3",
+  "text": "形",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:形状": {
+  "file": "kc9db8abb.mp3",
+  "text": "形状",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:圆形": {
+  "file": "k93731441.mp3",
+  "text": "圆形",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:方形": {
+  "file": "kf71f96b9.mp3",
+  "text": "方形",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我认识很多不同的形状。": {
+  "file": "k120d67b3.mp3",
+  "text": "我认识很多不同的形状。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:皮球是圆形的，很可爱。": {
+  "file": "k1115608e.mp3",
+  "text": "皮球是圆形的，很可爱。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:社": {
+  "file": "kcd39c306.mp3",
+  "text": "社",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:社区": {
+  "file": "kaf4409a7.mp3",
+  "text": "社区",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:社会": {
+  "file": "k4aae75ab.mp3",
+  "text": "社会",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我们社区里有个小公园。": {
+  "file": "kc3a8bcfb.mp3",
+  "text": "我们社区里有个小公园。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:大家一起把社区打扫得干干净净。": {
+  "file": "k11bd1f94.mp3",
+  "text": "大家一起把社区打扫得干干净净。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:听": {
+  "file": "k862e95d7.mp3",
+  "text": "听",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:听话": {
+  "file": "k5f4678a7.mp3",
+  "text": "听话",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:听见": {
+  "file": "k839eaee0.mp3",
+  "text": "听见",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:好听": {
+  "file": "kdffac6fe.mp3",
+  "text": "好听",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:这首歌真好听。": {
+  "file": "k1fd79ae0.mp3",
+  "text": "这首歌真好听。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我听见小鸟在唱歌。": {
+  "file": "k1d735863.mp3",
+  "text": "我听见小鸟在唱歌。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:却": {
+  "file": "k6a2e619d.mp3",
+  "text": "却",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:却是": {
+  "file": "k00d5885a.mp3",
+  "text": "却是",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:天黑了，弟弟却还想玩。": {
+  "file": "kba8de444.mp3",
+  "text": "天黑了，弟弟却还想玩。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:即": {
+  "file": "kf44af43e.mp3",
+  "text": "即",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:立即": {
+  "file": "k8a261f00.mp3",
+  "text": "立即",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:听到铃声，我们立即回到教室。": {
+  "file": "kf0ab1098.mp3",
+  "text": "听到铃声，我们立即回到教室。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:完": {
+  "file": "kfc85ae62.mp3",
+  "text": "完",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:完成": {
+  "file": "k4f8f32ac.mp3",
+  "text": "完成",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:做完": {
+  "file": "kacf5e308.mp3",
+  "text": "做完",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:完整": {
+  "file": "k8ce0ba61.mp3",
+  "text": "完整",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我做完作业就去玩。": {
+  "file": "ka4680703.mp3",
+  "text": "我做完作业就去玩。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:积木搭得很完整。": {
+  "file": "k9a039b0f.mp3",
+  "text": "积木搭得很完整。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:住": {
+  "file": "k05a1d47d.mp3",
+  "text": "住",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:住在": {
+  "file": "kb5cc7227.mp3",
+  "text": "住在",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:住处": {
+  "file": "k908ba23f.mp3",
+  "text": "住处",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:小鸟住在树上。": {
+  "file": "k1d27fb98.mp3",
+  "text": "小鸟住在树上。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:告": {
+  "file": "k4d38216b.mp3",
+  "text": "告",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:告诉": {
+  "file": "kfda57588.mp3",
+  "text": "告诉",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我告诉妈妈今天很开心。": {
+  "file": "k9e704b76.mp3",
+  "text": "我告诉妈妈今天很开心。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我和小朋友挥手告别。": {
+  "file": "k3ccda938.mp3",
+  "text": "我和小朋友挥手告别。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:求": {
+  "file": "kd42133a2.mp3",
+  "text": "求",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:请求": {
+  "file": "k14668b90.mp3",
+  "text": "请求",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:求助": {
+  "file": "ka40163b1.mp3",
+  "text": "求助",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:遇到困难可以向老师求助。": {
+  "file": "k8d02a201.mp3",
+  "text": "遇到困难可以向老师求助。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:我请求妈妈陪我一起看书。": {
+  "file": "kd2eef4f6.mp3",
+  "text": "我请求妈妈陪我一起看书。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "c:张": {
+  "file": "kb6a9b252.mp3",
+  "text": "张",
+  "lang": "zh",
+  "kind": "单字"
+ },
+ "w:一张": {
+  "file": "kbe104191.mp3",
+  "text": "一张",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:张开": {
+  "file": "k1b90bb02.mp3",
+  "text": "张开",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "w:纸张": {
+  "file": "k77dbb011.mp3",
+  "text": "纸张",
+  "lang": "zh",
+  "kind": "词组"
+ },
+ "e:我有一张漂亮的画。": {
+  "file": "k7bc8deef.mp3",
+  "text": "我有一张漂亮的画。",
+  "lang": "zh",
+  "kind": "例句"
+ },
+ "e:小鸟张开了翅膀。": {
+  "file": "kf73438dd.mp3",
+  "text": "小鸟张开了翅膀。",
   "lang": "zh",
   "kind": "例句"
  },
