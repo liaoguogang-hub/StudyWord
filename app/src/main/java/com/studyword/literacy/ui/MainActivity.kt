@@ -3,10 +3,13 @@ package com.studyword.literacy.ui
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.view.GestureDetector
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.Toast
+import kotlin.math.abs
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -90,6 +93,35 @@ class MainActivity : AppCompatActivity() {
     private var currentItem: StudyItem?
         get() = vm.currentItem
         set(value) { vm.currentItem = value }
+
+    /**
+     * v1.6.0:左右滑动导航用的两个栈。
+     * - [cardHistory]:看过的卡片,向右滑 = 回到上一张
+     * - [cardForward]:从历史回退过之后再向前滑,按原路返回
+     *   (否则"回退一步后再往前"会变成重新抽卡,回不到刚才那张)
+     */
+    private val cardHistory = ArrayDeque<StudyItem>()
+    private val cardForward = ArrayDeque<StudyItem>()
+
+    /** 滑动识别器(在 [dispatchTouchEvent] 里旁路使用) */
+    private var cardSwipeDetector: GestureDetector? = null
+
+    /** 滑动判定的最小横向距离(dp → px),太短的滑动不当作翻卡 */
+    private val swipeMinDistancePx: Int by lazy { (28 * resources.displayMetrics.density).toInt() }
+
+    /**
+     * 切换卡片。**统一从这里走**,是为了不漏记滑动历史 ——
+     * 之前 currentItem 在多处直接赋值(loadNextItem / loadItemById / restorePreJumpState),
+     * 如果把记历史的逻辑散在各处,很容易漏掉某一条路径。
+     */
+    private fun setCurrentItem(item: StudyItem?, recordHistory: Boolean = true) {
+        val old = currentItem
+        if (recordHistory && old != null && item != null && old.id != item.id) {
+            cardHistory.addLast(old)
+            while (cardHistory.size > HISTORY_MAX) cardHistory.removeFirst()
+        }
+        currentItem = item
+    }
 
     /**
      * v1.4.2:跳转来源 — null = 正常启动;/ "progress" = 从 ProgressActivity 跳回;
@@ -260,6 +292,7 @@ class MainActivity : AppCompatActivity() {
 
         TtsManager.init(this)
         setupMenuButton()
+        setupCardSwipe()
         setupSystemBarInsets()
         setupDrawerEntries()
         setupBackJumpButton()
@@ -954,13 +987,86 @@ class MainActivity : AppCompatActivity() {
             rebuildQueue()
         }
 
-        currentItem = if (pendingItems.isEmpty()) {
-            null
-        } else {
-            pendingItems.removeFirst()
-        }
+        // v1.6.0:经 setCurrentItem,以便统一记录滑动历史
+        setCurrentItem(if (pendingItems.isEmpty()) null else pendingItems.removeFirst())
 
         updateCurrentItemView(currentItem)
+        updateSummaryHint()
+    }
+
+    // ============================================================
+    // v1.6.0:卡片左右滑动切换
+    // ============================================================
+
+    /**
+     * 向左滑 = 下一张,向右滑 = 上一张。
+     *
+     * 只接管**横向**手势:横向位移必须超过 [swipeMinDistancePx] 且明显大于纵向位移,
+     * 否则卡片内容一多就没法上下滚动了。
+     * 监听器返回 false(不消费事件),纵向滚动仍然交给 NestedScrollView。
+     */
+    private fun setupCardSwipe() {
+        cardSwipeDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDown(e: MotionEvent) = true
+
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                val start = e1 ?: return false
+                val dx = e2.x - start.x
+                val dy = e2.y - start.y
+                if (abs(dx) < swipeMinDistancePx || abs(dx) < abs(dy) * 1.5f) return false
+                if (dx < 0) goToNextCard() else goToPreviousCard()
+                return true
+            }
+        })
+    }
+
+    /**
+     * v1.6.0:在 **Activity 层**接手势,而不是给某个 View 挂 OnTouchListener。
+     *
+     * 原因:卡片里的字卡/词组 chip 都带点击监听,手指落在它们上面时子 View 会成为
+     * touch target,父容器的 OnTouchListener 就再也收不到事件了 ——
+     * 实测挂在 homeScrollView 上时,滑动完全无效(卡片一直不变)。
+     * 在 dispatchTouchEvent 里旁路一份,才能保证任何位置滑动手势都能识别。
+     *
+     * 这里**不消费事件**(不改变返回值),纵向滚动/点击照常工作。
+     */
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (cardSwipeDetector != null && !isDrawerOpen()) {
+            cardSwipeDetector?.onTouchEvent(ev)
+        }
+        return super.dispatchTouchEvent(ev)
+    }
+
+    private fun isDrawerOpen(): Boolean =
+        binding.drawerLayout.isDrawerOpen(GravityCompat.END)
+
+    /** 下一张:若刚从历史回退过,先沿原路前进 */
+    private fun goToNextCard() {
+        if (cardForward.isNotEmpty()) {
+            val next = cardForward.removeLast()
+            setCurrentItem(next)
+            updateCurrentItemView(next)
+            updateSummaryHint()
+            return
+        }
+        loadNextItem()
+    }
+
+    /** 上一张:已经是第一张时给一句提示,而不是静默无反应 */
+    private fun goToPreviousCard() {
+        val previous = cardHistory.removeLastOrNull()
+        if (previous == null) {
+            Toast.makeText(this, getString(R.string.swipe_no_previous), Toast.LENGTH_SHORT).show()
+            return
+        }
+        currentItem?.let { cardForward.addLast(it) }
+        setCurrentItem(previous, recordHistory = false)
+        updateCurrentItemView(previous)
         updateSummaryHint()
     }
 
@@ -1249,6 +1355,9 @@ class MainActivity : AppCompatActivity() {
     private enum class ItemResult { KNOWN, UNKNOWN }
 
     companion object {
+        /** 滑动历史栈上限,防止长时间使用后无限增长 */
+        private const val HISTORY_MAX = 50
+
         /** v1.5.0:鼓励文案(原先硬编码在 showEncourageSparkle 内) */
         private val ENCOURAGE_MESSAGES = listOf("继续加油！", "还差一点点", "我们一起努力", "Try again!")
 

@@ -233,6 +233,7 @@
     <string name="en_char_placeholder">Aa</string>
     <string name="en_phonetic_placeholder">/eɪ/</string>
     <string name="status_placeholder">状态</string>
+    <string name="swipe_no_previous">已经是第一张啦</string>
 
     <!-- marker_progress.xml -->
     <string name="marker_date_placeholder">10-01</string>
