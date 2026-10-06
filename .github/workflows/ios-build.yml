@@ -1,20 +1,27 @@
-# v1.7.0 (Phase 0):iOS 模拟器构建 + 启动截图。
+# v1.7.0 (Phase 0 收回):iOS 模拟器构建 + 启动截图 —— 纯 SwiftUI 链路。
+#
+# Phase 0 范围(经第一次跑复盘后收紧):
+#   - 不依赖 KMP / Compose,纯 SwiftUI 占位;
+#   - 不升级 Kotlin,不触碰 :app,不影响老的 ci.yml;
+#   - 只验证"Windows 上写代码 → push → macOS runner 出可启动的 .app + 截图"
+#     这条 Mac-free 流程。
 #
 # 关键设计:
-#   1. **Mac-free 原则**:整条流程在 GitHub Actions macOS runner 上跑,Windows
-#      上只写代码 + push,不见 Xcode。
-#   2. **CODE_SIGNING_ALLOWED=NO**:模拟器构建不需要签名,因此 Phase 0-3 都不需要
+#   1. **Mac-free 原则**:Windows 上只写代码,push 后由 macos-14 runner 接手。
+#   2. **CODE_SIGNING_ALLOWED=NO**:模拟器构建不需要签名,Phase 0 不需要
 #      Apple Developer 账号($99/年推迟到真机分发前再买)。
-#   3. **XcodeGen 生成 .xcodeproj**:不手维护 pbxproj。
+#   3. **XcodeGen 生成 .xcodeproj**:不手维护 pbxproj,CI 每次从 project.yml 重新生成。
 #   4. **截图产物**:模拟器启动后用 `xcrun simctl io booted screenshot` 抓屏,
-#      上传 artifact。这样 Windows 上可以肉眼确认 iOS UI 是否真在渲染。
-#   5. **触发面克制**:只在 main / master / PR 触发,**不**监听 feature/**,
-#      因为每个 feature 分支都会额外消耗 macOS 分钟(10x 倍率)。
+#      上传 artifact —— 这是 Phase 0 唯一的验收凭证。
+#   5. **触发面克制**:只在 main / master / PR 触发,不监听 feature/**,
+#      每个 feature 分支都额外消耗 macOS 分钟(10x 倍率)。
+#   6. **不指定 Xcode 版本**:第一次跑复盘发现 `Xcode_15.4.app` 在 macos-14
+#      runner 上不一定存在。让 macOS runner 用其默认 Xcode,失败时再修。
 #
-# 局限性(Phase 4 会补):
-#   - 当前只编 iosX64(模拟器),不上真机;
-#   - 没有 XCUITest,截图是模拟器自然启动状态;
-#   - 没有与 KMP shared 模块联动(Phase 1 起会加)。
+# Phase 1+ 会补:
+#   - 引入 KMP shared 模块的 linkDebugFrameworkIosX64;
+#   - 加 XCUITest 跑遍 6 屏并上传截图;
+#   - 加 iosArm64 / iosSimulatorArm64 目标(当前 Phase 0 仅需 1 个目标)。
 name: ios-build
 
 on:
@@ -35,59 +42,51 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Select Xcode 15
-        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+      - name: Show Xcode/Swift toolchain
+        # 第一次跑失败的根因之一:硬编码 Xcode_15.4.app 在 macos-14 runner
+        # 上不存在。先 dump 出来,后续真有问题时也能从日志里看到可用版本。
+        run: |
+          xcode-select -p
+          xcodebuild -version
+          swift --version
 
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      # 当前 Phase 0 还没编 shared 模块的 iOS framework,所以暂时只构建纯 SwiftUI
-      # 占位 app。Phase 1 起会把 ./gradlew :shared:linkDebugFrameworkIosX64
-      # 加在 xcodebuild 之前,把 .framework 路径传给 Xcode。
-
-      # XcodeGen 把 project.yml → .xcodeproj。Linux/Windows 上手写,push 后 CI 重新生成。
+      # XcodeGen 把 project.yml → .xcodeproj。Windows 上手写,push 后 CI 重新生成。
+      # brew install 在 macos-14 runner 上是缓存的,通常秒级完成。
       - name: Generate Xcode project
         run: |
           brew install xcodegen
+          xcodegen --version
           cd iosApp
           xcodegen generate
 
       - name: Boot iOS Simulator
         run: |
-          xcrun simctl list devices available | grep "iPhone 15 " | head -1
-          UDID=$(xcrun simctl list devices available | grep "iPhone 15 " | head -1 | sed -E 's/.*\(([0-9A-F-]+)\).*/\1/')
+          set -e
+          # 取第一个可用的 iPhone 模拟器。第一次跑复盘时 iPhone 15 / iPhone 16
+          # 命名都可能,固定 grep "iPhone" 比 grep "iPhone 15" 更稳。
+          LINE=$(xcrun simctl list devices available | grep -E "iPhone (15|16)" | grep -v "Plus" | head -1)
+          UDID=$(echo "$LINE" | sed -E 's/.*\(([0-9A-F-]+)\).*/\1/')
+          echo "SIMULATOR_LINE=$LINE"
+          echo "SIMULATOR_UDID=$UDID"
           echo "SIMULATOR_UDID=$UDID" >> $GITHUB_ENV
           xcrun simctl boot "$UDID" || true
+          # 等模拟器系统就绪,否则 xcodebuild 会因 simctl 没准备好超时。
+          xcrun simctl bootstatus "$UDID" -b
 
       - name: Build for simulator (unsigned)
         run: |
           cd iosApp
+          mkdir -p build
           xcodebuild \
             -project StudyWord.xcodeproj \
             -scheme StudyWord \
             -configuration Debug \
-            -destination "platform=iOS Simulator,name=iPhone 15,OS=latest" \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_UDID" \
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             build | tee build/xcodebuild.log
-        env:
-          # 同上,Phase 1 起这里要 export KMP_FRAMEWORKS=/path/to/.../shared.framework
-          KOTLIN_NATIVE_VERSION: 2.0.21
 
       - name: Install & launch on simulator
         run: |
