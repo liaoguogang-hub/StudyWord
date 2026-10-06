@@ -36,13 +36,40 @@ object AudioClips {
     /** 池大小:一次只播一条为主,留几个余量给"点得很快"的情况 */
     private const val POOL_SIZE = 3
 
+    /** 同一 key 连续失败多少次才判定为"这条音频不可用"(偶发失败允许重试) */
+    private const val MAX_PLAY_FAILURES = 2
+
     private var appContext: Context? = null
 
     /** 已确认**不存在**的 key,避免每次都去 assets 里探一遍(IO 不便宜) */
     private val missing = HashSet<String>()
 
-    private val pool = ArrayDeque<MediaPlayer>()
-    private var poolIndex = 0
+    /** 每个 key 的播放失败次数;达到 [MAX_PLAY_FAILURES] 才永久拉黑 */
+    private val failureCounts = HashMap<String, Int>()
+
+    /**
+     * 最近一次播放失败的原因(含 MediaPlayer 错误码)。
+     * 供"语音诊断"显示 —— 这类失败在设备上通常**没有任何用户可见的报错**,
+     * 只能靠这里回传的 what/extra 定位(例如设备不支持该音频编码)。
+     */
+    @Volatile
+    var lastError: String? = null
+        private set
+
+    /** 已确认缺失的 key 数量 */
+    val missingCount: Int get() = missing.size
+
+    /** 供"语音诊断"展示的内置语音包状态 */
+    fun report(): String = buildString {
+        append("内置语音包：")
+        append(if (lastError == null) "未出现播放错误" else "最近一次播放失败")
+        append('\n')
+        append("已判定缺失的 key：").append(missing.size).append(" 个\n")
+        lastError?.let { append("错误详情：").append(it) }
+    }
+
+    /** MediaPlayer 池:取走式(见 [SimplePool] 的说明,轮转式曾导致实例被误销毁) */
+    private val pool = SimplePool<MediaPlayer>(POOL_SIZE) { MediaPlayer() }
 
     /** 当前正在播放的实例,用于 stop() */
     private var current: MediaPlayer? = null
@@ -103,16 +130,47 @@ object AudioClips {
                 mp.setDataSource(it.fileDescriptor, it.startOffset, it.length)
             }
             mp.setOnCompletionListener { /* 播完就停着,下次复用 */ }
+            attachErrorListener(mp, key)
             mp.prepare()
             mp.start()
             current = mp
             true
         } catch (e: Exception) {
-            Log.w(TAG, "播放失败 key=$key path=$path: ${e.javaClass.simpleName} ${e.message}")
-            // 播放失败也算不可用,避免反复尝试
-            missing.add(key)
+            recordFailure(key, "异常 ${e.javaClass.simpleName}: ${e.message}")
             releaseCurrent()
             false
+        }
+    }
+
+    /**
+     * 记录一次播放失败。
+     *
+     * 只有**反复失败**才把 key 拉黑 —— 偶发失败(实例状态、被其他应用抢占音频焦点等)
+     * 应该允许下次重试,否则一次抖动会让这个字在本次进程内**永远没声音**。
+     * 失败原因同时记进 [lastError],否则这类问题在设备上完全无法定位。
+     */
+    private fun recordFailure(key: String, reason: String) {
+        lastError = "key=$key $reason"
+        Log.w(TAG, "播放失败 $lastError")
+        val count = (failureCounts[key] ?: 0) + 1
+        failureCounts[key] = count
+        if (count >= MAX_PLAY_FAILURES) missing.add(key)
+    }
+
+    /**
+     * MediaPlayer 的错误回调。
+     * 编码不支持、文件损坏等都会走到这里(what=1, extra=负的错误码),
+     * 而**不会有异常抛出** —— 不挂这个监听就只能看到"没声音"。
+     *
+     * 返回 true 表示已处理,引擎不会再走完成回调;因此这里必须自己把实例
+     * 归还池子,否则该实例会一直挂在"使用中"状态,后续播放拿不到可用实例。
+     */
+    private fun attachErrorListener(mp: MediaPlayer, key: String) {
+        mp.setOnErrorListener { player, what, extra ->
+            recordFailure(key, "MediaPlayer 错误 what=$what extra=$extra")
+            current = null
+            release(player)
+            true
         }
     }
 
@@ -164,6 +222,7 @@ object AudioClips {
             release(mp)
             playAt(ctx, paths, index + 1)
         }
+        attachErrorListener(mp, paths[index])
         mp.prepare()
         mp.start()
         current = mp
@@ -176,8 +235,7 @@ object AudioClips {
 
     fun release() {
         stopCurrent()
-        pool.forEach { runCatching { it.release() } }
-        pool.clear()
+        pool.clear { dead -> runCatching { dead.release() } }
     }
 
     // ============================================================
@@ -195,23 +253,20 @@ object AudioClips {
         current = null
     }
 
-    /** 从池里取一个实例(轮换),池满则复用最旧的那个 */
-    private fun obtain(): MediaPlayer {
-        if (pool.isNotEmpty()) {
-            val mp = pool.removeFirst()
-            pool.addLast(mp)
-            return mp
-        }
-        return MediaPlayer()
-    }
+    /**
+     * 取一个可用的 MediaPlayer。
+     *
+     * 语义由 [SimplePool] 保证:**取走后即不再属于池**,归还后才重新空闲。
+     * 曾经这里写成"轮转"(`removeFirst()` 后再 `addLast()`),
+     * 实例在使用期间仍留在池里,归还时被判为"已在池中"而销毁,
+     * 池里却留着已销毁的引用 —— 症状是"开头几声能响、之后全没声音"。
+     */
+    private fun obtain(): MediaPlayer = pool.obtain()
 
+    /** 归还实例:池未满则留作空闲,否则销毁 */
     private fun release(mp: MediaPlayer) {
         runCatching { mp.reset() }
-        if (pool.size < POOL_SIZE && !pool.contains(mp)) {
-            pool.addLast(mp)
-        } else {
-            runCatching { mp.release() }
-        }
+        pool.release(mp) { dead -> runCatching { dead.release() } }
     }
 
     private fun releaseCurrent() {

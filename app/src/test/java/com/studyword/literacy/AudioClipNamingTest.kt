@@ -22,19 +22,19 @@ class AudioClipNamingTest {
 
     /** 期望值来自 `python -c "import zlib; ..."`,即生成脚本使用的同一算法 */
     private val expected = mapOf(
-        "c:一" to "ke8693da9.ogg",
-        "c:花" to "k5ddd9086.ogg",
-        "c:天" to "k4d6e92af.ogg",
-        "w:一起" to "ke4d9ec4c.ogg",
-        "w:花朵" to "ka0bb8bd8.ogg",
-        "e:我们一起去公园。" to "k74edbb8b.ogg",
-        "z:苹果" to "kb3ee65b8.ogg",
-        "z:你好" to "kb5c1b1cf.ogg",
-        "l:A" to "k9afe4429.ogg",
-        "l:Z" to "k109b8dc5.ogg",
-        "n:Apple" to "k4dc9c444.ogg",
-        "n:apple" to "k8c08eb40.ogg",
-        "s:I love my cat." to "ke703d5c7.ogg",
+        "c:一" to "ke8693da9.mp3",
+        "c:花" to "k5ddd9086.mp3",
+        "c:天" to "k4d6e92af.mp3",
+        "w:一起" to "ke4d9ec4c.mp3",
+        "w:花朵" to "ka0bb8bd8.mp3",
+        "e:我们一起去公园。" to "k74edbb8b.mp3",
+        "z:苹果" to "kb3ee65b8.mp3",
+        "z:你好" to "kb5c1b1cf.mp3",
+        "l:A" to "k9afe4429.mp3",
+        "l:Z" to "k109b8dc5.mp3",
+        "n:Apple" to "k4dc9c444.mp3",
+        "n:apple" to "k8c08eb40.mp3",
+        "s:I love my cat." to "ke703d5c7.mp3",
     )
 
     @Test
@@ -49,7 +49,7 @@ class AudioClipNamingTest {
         for (key in expected.keys) {
             val path = AudioClipNaming.assetPath(key)
             assertTrue("路径应为 audio/xxx.ogg,实际 $path", path.startsWith("audio/"))
-            assertTrue(path.endsWith(".ogg"))
+            assertTrue(path.endsWith(".mp3"))
         }
     }
 

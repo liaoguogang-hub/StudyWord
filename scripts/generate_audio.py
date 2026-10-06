@@ -14,9 +14,24 @@ generate_audio.py —— 为字/词/例句生成内置语音包(离线播放,不
 技术选型
 --------
 - 语音合成:**edge-tts**(微软免费神经网络语音),中文音色自然,有儿童向音色
-- 体积:默认 mp3 是 48kbps,对语音太奢侈;转 **Opus 24kbps 单声道**可省 60~70%
-  Android 从 API 21 起原生支持 Ogg/Opus(minSdk 26,安全)
-- 文件命名:key 的 **CRC32**,形如 `k1a2b3c4.ogg`。
+- 编码:**MP3 40kbps 单声道 22050Hz**(libmp3lame)
+
+  ⚠️ **为什么最终选 MP3 而不是更"先进"的编码** —— 都是实测量出来的,不是偏好:
+
+  | 编码 | 4 条样例合计 | 相对 Opus | 全集预估 |
+  |---|---|---|---|
+  | Opus 24k | 12,871 B | 100% | 6.3 MB |
+  | **MP3 32k** | 11,562 B | **89%** | **5.7 MB** |
+  | MP3 40k | ~14,400 B | ~112% | ~7.1 MB |
+  | Vorbis 24k | 23,278 B | 180% | 11.5 MB |
+
+  1. **兼容性**:目标设备(HarmonyOS 的安卓兼容层)上 **Ogg/Opus 播不出声** ——
+     同一台设备游戏答题音效(`res/raw/*.ogg`)是 Vorbis 且有声音。
+     MP3 是 Android 从 1.0 起就硬件解码的格式,兼容面比 Vorbis 更广。
+  2. **体积**:MP3 反而比 Opus 小(Opus 短音频的容器开销占比高),
+     Vorbis 则是 Opus 的近 2 倍 —— 低码率下 Opus 效率优势明显。
+  3. **成本**:edge-tts 原生输出就是 mp3,不需要额外一代转码,音质少一次损失。
+- 文件命名:key 的 **CRC32**,形如 `k1a2b3c4.mp3`。
   - 纯 ASCII,不受资源名限制
   - 与内容一一对应且**稳定**:新增内容不会改动已有文件名
   - 构建时断言**无哈希碰撞**,碰撞就报错中止(不会静默覆盖)
@@ -67,7 +82,7 @@ VOICE_ZH = "zh-CN-XiaoyiNeural"     # 年轻女声,适合儿童内容
 VOICE_EN = "en-US-AnaNeural"        # 儿童音色
 RATE_ZH = "-8%"                     # 略慢一点,便于幼儿跟读
 RATE_EN = "-4%"
-OPUS_BITRATE = "24k"
+MP3_BITRATE = "40k"
 
 CHAR_COVER = 600                    # 简单字覆盖前 N 个
 EN_WORD_DIFFICULTY = "EASY"         # 英文单词只做"简单"这一档
@@ -77,7 +92,7 @@ LETTER_FIELDS = ["uppercase", "exampleWord", "exampleWordChinese"]
 
 def clip_name(key: str) -> str:
     """key -> 文件名(CRC32)"""
-    return f"k{zlib.crc32(key.encode('utf-8')) & 0xFFFFFFFF:08x}.ogg"
+    return f"k{zlib.crc32(key.encode('utf-8')) & 0xFFFFFFFF:08x}.mp3"
 
 
 def build_items():
@@ -174,14 +189,14 @@ def transcode(ffmpeg, src, dst):
     r = subprocess.run(
         [ffmpeg, "-y", "-loglevel", "error", "-i", str(src),
          "-af", SILENCE_TRIM,
-         "-c:a", "libopus", "-b:a", OPUS_BITRATE, "-ac", "1", "-ar", "24000", str(dst)],
+         "-c:a", "libmp3lame", "-b:a", MP3_BITRATE, "-ac", "1", "-ar", "22050", str(dst)],
         capture_output=True, text=True,
     )
     if r.returncode != 0:
         # 裁剪失败就退回不裁,不让个别条目卡住整批
         r = subprocess.run(
             [ffmpeg, "-y", "-loglevel", "error", "-i", str(src),
-             "-c:a", "libopus", "-b:a", OPUS_BITRATE, "-ac", "1", "-ar", "24000", str(dst)],
+             "-c:a", "libmp3lame", "-b:a", MP3_BITRATE, "-ac", "1", "-ar", "22050", str(dst)],
             capture_output=True, text=True,
         )
     return r.returncode == 0 and dst.exists() and dst.stat().st_size > 256
@@ -267,18 +282,18 @@ async def main() -> int:
                 return
             voice = VOICE_ZH if lang == "zh" else VOICE_EN
             rate = RATE_ZH if lang == "zh" else RATE_EN
-            mp3 = tmp / (clip_name(key)[:-4] + ".mp3")
-            ok = await synth_one(sem, edge_tts, text, voice, rate, mp3)
+            raw = tmp / (clip_name(key)[:-4] + "_raw.mp3")
+            ok = await synth_one(sem, edge_tts, text, voice, rate, raw)
             if not ok:
                 async with lock:
                     failed.append(key)
                 return
-            if not transcode(ffmpeg, mp3, dst):
+            if not transcode(ffmpeg, raw, dst):
                 async with lock:
                     failed.append(key)
                 return
             try:
-                mp3.unlink()
+                raw.unlink()
             except OSError:
                 pass
             async with lock:
@@ -293,7 +308,7 @@ async def main() -> int:
     print()
     print(f"新生成 {done} 条,跳过已存在 {skipped} 条,失败 {len(failed)} 条")
     print(f"本轮涉及文件合计 {total_bytes/1024/1024:.2f} MB")
-    files = list(OUT_DIR.glob("*.ogg"))
+    files = list(OUT_DIR.glob("*.mp3"))
     total = sum(f.stat().st_size for f in files)
     print(f"音频目录现有 {len(files)} 个文件,共 {total/1024/1024:.2f} MB")
     if failed:

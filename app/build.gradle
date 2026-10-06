@@ -65,11 +65,12 @@ android {
     }
 
     androidResources {
-        // v1.6.0:内置语音包(assets/audio/*.ogg)必须**不压缩**。
+        // v1.6.0:内置语音包(assets/audio/*.mp3)必须**不压缩**。
         // 原因:MediaPlayer 播放 assets 需要可 seek 的 AssetFileDescriptor,
         // 而被压缩进 APK 的资源拿不到 —— 会直接播不出声。
         // 另外 ogg/opus 本身已是压缩格式,再压一次几乎不省体积。
         noCompress 'ogg'
+        noCompress 'mp3'
     }
 }
 

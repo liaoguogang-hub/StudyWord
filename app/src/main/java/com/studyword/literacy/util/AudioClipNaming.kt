@@ -17,7 +17,7 @@ import java.util.zip.CRC32
 object AudioClipNaming {
 
     const val DIR = "audio"
-    const val EXT = "ogg"
+    const val EXT = "mp3"
 
     private const val HEX = "0123456789abcdef"
 
