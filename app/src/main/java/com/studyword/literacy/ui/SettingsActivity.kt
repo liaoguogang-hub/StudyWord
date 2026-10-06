@@ -16,6 +16,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.studyword.literacy.R
+import com.studyword.literacy.util.applyStatusBarTopPadding
 import com.studyword.literacy.util.TtsManager
 import com.studyword.literacy.data.CharacterRepository
 import com.studyword.literacy.data.EnglishRepository
@@ -57,6 +58,8 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        // v1.6.0:顶栏避让状态栏,否则返回箭头被状态栏遮住收不到点击
+        binding.root.applyStatusBarTopPadding()
 
         repository = CharacterRepository(this)
         englishRepository = EnglishRepository(this)

@@ -19,13 +19,18 @@
         android:orientation="vertical"
         android:padding="10dp">
 
-        <!-- letter 模式:"Aa"(uppercase + lowercase 一行),word 模式:单词 -->
+        <!--
+            letter 模式:"Aa"(uppercase + lowercase 一行),word 模式:单词
+            长单词(brother / elephant)在 4 列网格里放不下,必须自动缩字。
+            注意:AppCompatTextView 认的是 **app:autoSizeTextType**,
+            只写 android:autoSizeTextType 不生效(会保持固定 22sp → 被省略号截断)。
+        -->
         <TextView
             android:id="@+id/characterText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoSizeMaxTextSize="22sp"
-            android:autoSizeMinTextSize="12sp"
+            android:autoSizeMinTextSize="10sp"
             android:autoSizeStepGranularity="1sp"
             android:autoSizeTextType="uniform"
             android:ellipsize="end"
@@ -34,7 +39,11 @@
             android:text="@string/en_char_placeholder"
             android:textColor="@color/deep_blue"
             android:textSize="22sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:autoSizeMaxTextSize="22sp"
+            app:autoSizeMinTextSize="10sp"
+            app:autoSizeStepGranularity="1sp"
+            app:autoSizeTextType="uniform" />
 
         <TextView
             android:id="@+id/phoneticText"

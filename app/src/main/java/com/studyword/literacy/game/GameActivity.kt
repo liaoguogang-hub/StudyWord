@@ -35,6 +35,7 @@ import com.studyword.literacy.model.StudyMode
 import com.studyword.literacy.ui.ConfettiOverlayView
 import com.studyword.literacy.ui.GameViewModel
 import com.studyword.literacy.util.AudioClips
+import com.studyword.literacy.util.applyStatusBarTopPadding
 import com.studyword.literacy.util.TtsManager
 import kotlin.math.cos
 import kotlin.math.sin
@@ -104,6 +105,7 @@ class GameActivity : AppCompatActivity() {
         progressStore = ProgressStore.active(this)
         TtsManager.init(this)
         AudioClips.init(this)
+        setupSystemBarInsets()
 
         // v1.5.0:仅在首次创建时解析入口参数;
         // 旋转重建时 ViewModel 仍持有整轮进度,重开会让已答的题作废。
@@ -207,6 +209,17 @@ class GameActivity : AppCompatActivity() {
         binding.chipPinyin.isVisible = !isEnglish
         binding.chipListenLetter.isVisible = isEnglish
         binding.chipListenWord.isVisible = isEnglish
+    }
+
+    /**
+     * v1.6.0:系统栏避让。
+     *
+     * 起因:游戏页左上角返回箭头点了没反应 —— 主题里 statusBarColor 是透明的、
+     * 内容全屏绘制,而根布局没有避让,返回箭头正好落在状态栏区域里:
+     * 看得见,但点击被状态栏窗口吃掉。主页面一直有避让,游戏页漏了。
+     */
+    private fun setupSystemBarInsets() {
+        binding.root.applyStatusBarTopPadding()
     }
 
     private fun setupActions() {

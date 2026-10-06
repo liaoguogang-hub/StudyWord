@@ -112,8 +112,6 @@
     <string name="lang_label_english">🇬🇧 ENGLISH</string>
     <string name="hint_chinese_format">已认识 %1$d / %2$d · 待巩固 %3$d · 未测 %4$d</string>
     <string name="hint_english_format">已认识 %1$d / %2$d · 待巩固 %3$d · 未测 %4$d</string>
-    <string name="back_jump_progress">← 返回进度</string>
-    <string name="back_jump_library">← 返回字库</string>
 
     <!-- 进度页 -->
     <string name="label_total_count">字库总数：%1$d</string>

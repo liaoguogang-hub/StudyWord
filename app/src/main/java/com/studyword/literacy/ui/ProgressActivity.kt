@@ -22,6 +22,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.studyword.literacy.R
+import com.studyword.literacy.util.applyStatusBarTopPadding
 import com.studyword.literacy.data.CharacterRepository
 import com.studyword.literacy.data.EnglishRepository
 import com.studyword.literacy.data.ProgressSnapshot
@@ -58,6 +59,8 @@ class ProgressActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityProgressBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        // v1.6.0:顶栏避让状态栏,否则返回箭头被状态栏遮住收不到点击
+        binding.root.applyStatusBarTopPadding()
 
         repository = CharacterRepository(this)
         englishRepository = EnglishRepository(this)

@@ -52,11 +52,19 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
+                <!--
+                    v1.6.0:必须 maxLines=1 + ellipsize。
+                    跳转卡片时"← 返回"按钮会出现,占走一部分宽度 ——
+                    此前没有限制行数,标签被挤到第二行,整条顶栏变高、位置也变了。
+                    现在无论按钮在不在,标签都保持一行(极端情况下省略号收尾)。
+                -->
                 <TextView
                     android:id="@+id/topLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="@string/top_label_placeholder"
                     android:textColor="@color/deep_blue"
                     android:textSize="15sp"
@@ -68,8 +76,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:layout_marginEnd="4dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:paddingStart="6dp"
-                    android:paddingEnd="10dp"
+                    android:paddingEnd="8dp"
                     android:text="@string/back_with_arrow"
                     android:textSize="14sp"
                     android:visibility="gone" />
@@ -150,12 +160,22 @@
 
                             <TextView
                                 android:id="@+id/currentCharacter"
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:autoSizeMaxTextSize="100sp"
+                                android:autoSizeMinTextSize="40sp"
+                                android:autoSizeStepGranularity="2sp"
+                                android:autoSizeTextType="uniform"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:fontFamily="@font/studyword_kai"
                                 android:text="@string/main_character_placeholder"
                                 android:textColor="@color/deep_blue"
                                 android:textSize="100sp"
-                            android:fontFamily="@font/studyword_kai"
+                                app:autoSizeMaxTextSize="100sp"
+                                app:autoSizeMinTextSize="40sp"
+                                app:autoSizeStepGranularity="2sp"
+                                app:autoSizeTextType="uniform"
                                 android:textStyle="bold" />
 
                             <LinearLayout

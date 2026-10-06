@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.studyword.literacy.R
+import com.studyword.literacy.util.applyStatusBarTopPadding
 import com.studyword.literacy.data.CharacterRepository
 import com.studyword.literacy.data.EnglishRepository
 import com.studyword.literacy.data.ProgressStore
@@ -68,6 +69,8 @@ class CharacterLibraryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLibraryBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        // v1.6.0:顶栏避让状态栏,否则返回箭头被状态栏遮住收不到点击
+        binding.root.applyStatusBarTopPadding()
 
         repository = CharacterRepository(this)
         englishRepository = EnglishRepository(this)

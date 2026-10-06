@@ -641,11 +641,11 @@ class MainActivity : AppCompatActivity() {
             binding.backJumpButton.visibility = View.GONE
         } else {
             binding.backJumpButton.visibility = View.VISIBLE
-            binding.backJumpButton.text = when (source) {
-                SOURCE_PROGRESS -> getString(R.string.back_jump_progress)
-                SOURCE_LIBRARY -> getString(R.string.back_jump_library)
-                else -> getString(R.string.back)
-            }
+            // v1.6.0:统一用短文案「← 返回」。
+            // 原来按来源显示「← 返回进度」/「← 返回字库」,字数多 ->
+            // 把 topLabel 挤到第二行、整条顶栏变高且位置偏移。
+            // 返回目标其实不必写在按钮上(用户按一下就知道),优先保证顶栏一行。
+            binding.backJumpButton.text = getString(R.string.back_with_arrow)
         }
         // v1.4.3:按钮可见状态变了,刷新 topLabel 的 margin 让位
         refreshTopLabel()
