@@ -5,7 +5,13 @@
 plugins {
     id 'com.android.application' version '8.7.2' apply false
     id 'com.android.library' version '8.7.2' apply false
-    id 'org.jetbrains.kotlin.android' version '1.9.24' apply false
+    // v1.7.0:Android target 仍走 1.9.x 系列不破坏现有业务代码,
+    // 但 root 用 2.0.21 以同时承载 KMP/Compose 插件(plugin 自身需要 2.0+)。
+    id 'org.jetbrains.kotlin.android' version '2.0.21' apply false
+    // KMP 共享模块:model 平移 + Compose UI 双端共用 + iOS expect/actual。
+    id 'org.jetbrains.kotlin.multiplatform' version '2.0.21' apply false
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.0.21' apply false
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.21' apply false
 }
 
 // v1.5.0:改用 tasks.register + layout.buildDirectory。

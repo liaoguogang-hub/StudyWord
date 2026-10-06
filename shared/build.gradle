@@ -1,0 +1,62 @@
+// v1.7.0 (Phase 0):KMP 共享模块。
+//
+// 目的:把 model/*、util/*、Compose UI 双端共用;iOS 端只生成 expect/actual
+//   的小适配层(TtsManager / ProgressStore / 文件选择器),逻辑层零翻译。
+//
+// 本文件只搭骨架 —— Phase 1 才会把现有 model/util 平移过来,Phase 2 才会
+// 把现有 XML 改写成 Compose;现在仅含一个 Compose "hello" composable 用于
+// 打通 iOS 构建管线。
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform'
+    id 'org.jetbrains.kotlin.plugin.compose'
+    id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'com.android.library'
+}
+
+kotlin {
+    androidTarget {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = '17'
+            }
+        }
+    }
+    // Phase 0 仅生成 iosX64 一个目标,把 macOS runner 的编译时间砍到最小。
+    // Phase 3 实际发布前再补 iosArm64(真机) + iosSimulatorArm64(M 系列模拟器)。
+    iosX64 {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = '17'
+            }
+        }
+    }
+
+    sourceSets {
+        commonMain.dependencies {
+            // Compose Multiplatform(多平台 Compose UI 库)。
+            implementation 'org.jetbrains.compose.ui:ui:1.6.10'
+            implementation 'org.jetbrains.compose.foundation:foundation:1.6.10'
+            implementation 'org.jetbrains.compose.material3:material3:1.6.10'
+            implementation 'org.jetbrains.compose.runtime:runtime:1.6.10'
+            // 当前数据层只用 JSON 解析,kotlinx-serialization 已是最轻依赖。
+            implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3'
+        }
+        commonTest.dependencies {
+            implementation 'junit:junit:4.13.2'
+        }
+    }
+}
+
+android {
+    namespace 'com.studyword.literacy.shared'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 26
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

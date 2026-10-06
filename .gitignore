@@ -23,6 +23,16 @@ build/
 gitdata/
 .claude/
 
+# v1.7.0 (Phase 0):KMP / iOS 产物不入库。
+# XcodeGen 在 CI 里生成这些,本地也需要被忽略避免误提交。
+iosApp/StudyWord.xcodeproj/
+iosApp/StudyWord.xcworkspace/
+iosApp/iosApp.xcodeproj/
+iosApp/build/
+iosApp/screenshots/
+*.xcuserstate
+
+
 # Local configuration file (sdk path, etc)
 local.properties
 

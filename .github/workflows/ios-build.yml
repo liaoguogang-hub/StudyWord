@@ -1,0 +1,121 @@
+# v1.7.0 (Phase 0):iOS 模拟器构建 + 启动截图。
+#
+# 关键设计:
+#   1. **Mac-free 原则**:整条流程在 GitHub Actions macOS runner 上跑,Windows
+#      上只写代码 + push,不见 Xcode。
+#   2. **CODE_SIGNING_ALLOWED=NO**:模拟器构建不需要签名,因此 Phase 0-3 都不需要
+#      Apple Developer 账号($99/年推迟到真机分发前再买)。
+#   3. **XcodeGen 生成 .xcodeproj**:不手维护 pbxproj。
+#   4. **截图产物**:模拟器启动后用 `xcrun simctl io booted screenshot` 抓屏,
+#      上传 artifact。这样 Windows 上可以肉眼确认 iOS UI 是否真在渲染。
+#   5. **触发面克制**:只在 main / master / PR 触发,**不**监听 feature/**,
+#      因为每个 feature 分支都会额外消耗 macOS 分钟(10x 倍率)。
+#
+# 局限性(Phase 4 会补):
+#   - 当前只编 iosX64(模拟器),不上真机;
+#   - 没有 XCUITest,截图是模拟器自然启动状态;
+#   - 没有与 KMP shared 模块联动(Phase 1 起会加)。
+name: ios-build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios-simulator:
+    name: iOS · simulator build + screenshot
+    runs-on: macos-14
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode 15
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # 当前 Phase 0 还没编 shared 模块的 iOS framework,所以暂时只构建纯 SwiftUI
+      # 占位 app。Phase 1 起会把 ./gradlew :shared:linkDebugFrameworkIosX64
+      # 加在 xcodebuild 之前,把 .framework 路径传给 Xcode。
+
+      # XcodeGen 把 project.yml → .xcodeproj。Linux/Windows 上手写,push 后 CI 重新生成。
+      - name: Generate Xcode project
+        run: |
+          brew install xcodegen
+          cd iosApp
+          xcodegen generate
+
+      - name: Boot iOS Simulator
+        run: |
+          xcrun simctl list devices available | grep "iPhone 15 " | head -1
+          UDID=$(xcrun simctl list devices available | grep "iPhone 15 " | head -1 | sed -E 's/.*\(([0-9A-F-]+)\).*/\1/')
+          echo "SIMULATOR_UDID=$UDID" >> $GITHUB_ENV
+          xcrun simctl boot "$UDID" || true
+
+      - name: Build for simulator (unsigned)
+        run: |
+          cd iosApp
+          xcodebuild \
+            -project StudyWord.xcodeproj \
+            -scheme StudyWord \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,name=iPhone 15,OS=latest" \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build | tee build/xcodebuild.log
+        env:
+          # 同上,Phase 1 起这里要 export KMP_FRAMEWORKS=/path/to/.../shared.framework
+          KOTLIN_NATIVE_VERSION: 2.0.21
+
+      - name: Install & launch on simulator
+        run: |
+          cd iosApp
+          APP_PATH=$(find build -name "StudyWord.app" -path "*Debug-iphonesimulator*" | head -1)
+          echo "APP_PATH=$APP_PATH"
+          xcrun simctl install booted "$APP_PATH"
+          xcrun simctl launch booted com.studyword.literacy.ios
+
+      - name: Capture screenshot
+        run: |
+          mkdir -p screenshots
+          # 给 SwiftUI 一点时间渲染首屏。
+          sleep 4
+          xcrun simctl io booted screenshot screenshots/phase0-launch.png || true
+
+      - name: Upload screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-screenshot
+          path: iosApp/screenshots/**
+          if-no-files-found: ignore
+
+      - name: Upload xcodebuild log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-xcodebuild-log
+          path: iosApp/build/xcodebuild.log
+          if-no-files-found: ignore

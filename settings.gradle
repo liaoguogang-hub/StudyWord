@@ -17,3 +17,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "StudyWord"
 include ':app'
+// v1.7.0 (Phase 0):KMP 共享模块 —— 现有 Kotlin/Android 模块按 KMP 多平台模块托管。
+// app 模块依赖 shared 项目,共享 model / util / Compose UI;
+// shared 也独立可编译(JVM/Android/iOS 三 target)。
+include ':shared'
