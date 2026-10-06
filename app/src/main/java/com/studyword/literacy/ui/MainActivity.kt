@@ -498,40 +498,50 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * 例句朗读。v1.4.2:全部正常语速一遍发音。
-     * - 英文 word:英文 + 中文翻译(500ms 间隔)
+     * 例句朗读。
+     * - 中文:按顺序读**全部**例句
+     * - 英文 word:英文例句 + 中文翻译
      * - 英文 letter:只读英文
-     * - 中文:整段读一遍
+     *
+     * ⚠️ v1.6.0 修复:此前只朗读 `first.sentence`,而卡片把**所有**例句换行拼接显示。
+     * 于是有 2 条例句的字(共 239 个)点下去只听到第一句,第二句"看得见听不到"。
+     * 现在朗读的内容严格跟随显示的内容 —— 显示几句就读几句。
      */
-    private fun speakExampleSentence(item: StudyItem?, sentence: String, utteranceId: String) {
+    private fun speakExampleSentence(item: StudyItem?, sentences: List<String>, utteranceId: String) {
+        if (sentences.isEmpty()) return
         val english = item is EnglishWordItem || item is EnglishLetterItem
         val translation = (item as? EnglishWordItem)?.word?.exampleSentenceTranslation.orEmpty()
-        // 英文单词的例句读"英文 + 中文翻译";其余只读一句
         val clips = buildList {
-            add(if (english) "s:$sentence" else "e:$sentence")
-            if (translation.isNotBlank()) add("z:$translation")
+            sentences.forEach { add(if (english) "s:$it" else "e:$it") }
+            // 英文单词的例句读"英文 + 中文翻译";中文没有翻译这一步
+            if (english && translation.isNotBlank()) add("z:$translation")
         }
         if (AudioClips.playSequence(clips)) return
 
         if (item == null) {
-            if (TtsManager.speak(sentence, utteranceId = utteranceId)) return
+            if (TtsManager.speak(sentences.joinToString(""), utteranceId = utteranceId)) return
             showTtsUnavailable()
             return
         }
         if (item is EnglishWordItem && translation.isNotBlank()) {
             TtsManager.speakSequential(
-                items = listOf(sentence to true, translation to false),
+                items = sentences.map { it to true } + listOf(translation to false),
                 delayMs = 500,
                 baseUtteranceId = utteranceId
             )
             return
         }
-        val ok = if (english) {
-            TtsManager.speakEnglish(sentence, utteranceId = utteranceId)
-        } else {
-            TtsManager.speak(sentence, utteranceId = utteranceId)
+        // 中文/英文逐句发音,句间留间隔,避免连成一串听不清。
+        // speakSequential 不返回状态,所以先判可用性再调用,否则失败无人提示。
+        if (!TtsManager.isReady) {
+            showTtsUnavailable()
+            return
         }
-        if (!ok) showTtsUnavailable()
+        TtsManager.speakSequential(
+            items = sentences.map { it to english },
+            delayMs = 500,
+            baseUtteranceId = utteranceId
+        )
     }
 
     // ============================================================
@@ -1362,14 +1372,22 @@ class MainActivity : AppCompatActivity() {
                 if (isEnglish) R.string.examples_label_en else R.string.examples_label
             )
             val first = examples.first()
-            val displayText = if (isEnglish && item?.englishExtra?.isNotBlank() == true) {
-                "${first.sentence}\n— ${item.englishExtra}"
+            // 英文 word 只显示第一条 + 中文翻译;中文把全部例句换行拼接显示
+            val englishOnlyFirst = isEnglish && item?.englishExtra?.isNotBlank() == true
+            val displayText = if (englishOnlyFirst) {
+                // item 是可空的:把判定抽成变量后编译器不再智能转换,这里用安全调用
+                "${first.sentence}\n— ${item?.englishExtra.orEmpty()}"
             } else {
                 examples.joinToString(separator = "\n") { it.sentence }
             }
             exampleView.text = displayText
+            // v1.6.0:**朗读内容严格跟随显示内容**。
+            // 此前固定只传 first.sentence,而中文卡片把 2 条例句都显示了 ——
+            // 用户点下去只听到第一句(239 个字受影响)。
+            val spoken = if (englishOnlyFirst) listOf(first.sentence)
+            else examples.map { it.sentence }
             exampleView.setOnClickListener {
-                speakExampleSentence(item, first.sentence, "main_example_${item?.id ?: 0}")
+                speakExampleSentence(item, spoken, "main_example_${item?.id ?: 0}")
             }
         } else {
             examplesLabel.isVisible = false
