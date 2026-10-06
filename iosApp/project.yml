@@ -1,0 +1,45 @@
+# v1.7.0 (Phase 0):XcodeGen 工程描述。
+#
+# 关键设计:此文件是 Xcode 工程的"源"。.xcodeproj 由 `xcodegen generate` 在
+# CI / 本地构建时生成,**不入库**(.gitignore 里忽略)。
+#   这样:
+#     - 没有 Mac 的开发者能在 Windows 上手写/审阅 iOS 工程结构
+#     - 多人协作时不会因为 .xcodeproj 二进制冲突而卡合并
+#     - CI 每次都从 project.yml 重新生成,避免缓存陈旧
+name: StudyWord
+options:
+  bundleIdPrefix: com.studyword.literacy
+  deploymentTarget:
+    iOS: '17.0'
+  developmentLanguage: zh-Hans
+  # CI 用 CODE_SIGNING_ALLOWED=NO 跳过签名,本地真实构建时再走自动签名。
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: '5.9'
+    IPHONEOS_DEPLOYMENT_TARGET: '17.0'
+    # iOS 17+ 才有的 SwiftUI 新 API(std::charts, Inspector 等)用到时再放开。
+
+targets:
+  iosApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: iosApp
+    info:
+      path: iosApp/Info.plist
+      properties:
+        CFBundleDisplayName: 识字小帮手
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        # 隐私清单(Phase 6 完整化;Phase 0 先声明"不收集任何数据")。
+        NSPrivacyTracking: false
+        NSPrivacyCollectedDataTypes: []
+        NSPrivacyAccessedAPITypes: []
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.studyword.literacy.ios
+        TARGETED_DEVICE_FAMILY: '1,2'   # iPhone + iPad
+        ENABLE_PREVIEWS: YES

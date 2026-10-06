@@ -1,0 +1,13 @@
+# XcodeGen 产物 / Xcode 临时文件,不入库。
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+.DS_Store
+*.swp
+
+# CocoaPods(暂未引入;Phase 3 若引入则同步加 Podfile/Podfile.lock 入库策略)。
+Pods/
+Podfile.lock

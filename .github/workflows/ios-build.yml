@@ -1,0 +1,120 @@
+# v1.7.0 (Phase 0 收回):iOS 模拟器构建 + 启动截图 —— 纯 SwiftUI 链路。
+#
+# Phase 0 范围(经第一次跑复盘后收紧):
+#   - 不依赖 KMP / Compose,纯 SwiftUI 占位;
+#   - 不升级 Kotlin,不触碰 :app,不影响老的 ci.yml;
+#   - 只验证"Windows 上写代码 → push → macOS runner 出可启动的 .app + 截图"
+#     这条 Mac-free 流程。
+#
+# 关键设计:
+#   1. **Mac-free 原则**:Windows 上只写代码,push 后由 macos-14 runner 接手。
+#   2. **CODE_SIGNING_ALLOWED=NO**:模拟器构建不需要签名,Phase 0 不需要
+#      Apple Developer 账号($99/年推迟到真机分发前再买)。
+#   3. **XcodeGen 生成 .xcodeproj**:不手维护 pbxproj,CI 每次从 project.yml 重新生成。
+#   4. **截图产物**:模拟器启动后用 `xcrun simctl io booted screenshot` 抓屏,
+#      上传 artifact —— 这是 Phase 0 唯一的验收凭证。
+#   5. **触发面克制**:只在 main / master / PR 触发,不监听 feature/**,
+#      每个 feature 分支都额外消耗 macOS 分钟(10x 倍率)。
+#   6. **不指定 Xcode 版本**:第一次跑复盘发现 `Xcode_15.4.app` 在 macos-14
+#      runner 上不一定存在。让 macOS runner 用其默认 Xcode,失败时再修。
+#
+# Phase 1+ 会补:
+#   - 引入 KMP shared 模块的 linkDebugFrameworkIosX64;
+#   - 加 XCUITest 跑遍 6 屏并上传截图;
+#   - 加 iosArm64 / iosSimulatorArm64 目标(当前 Phase 0 仅需 1 个目标)。
+name: ios-build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios-simulator:
+    name: iOS · simulator build + screenshot
+    runs-on: macos-14
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Xcode/Swift toolchain
+        # 第一次跑失败的根因之一:硬编码 Xcode_15.4.app 在 macos-14 runner
+        # 上不存在。先 dump 出来,后续真有问题时也能从日志里看到可用版本。
+        run: |
+          xcode-select -p
+          xcodebuild -version
+          swift --version
+
+      # XcodeGen 把 project.yml → .xcodeproj。Windows 上手写,push 后 CI 重新生成。
+      # brew install 在 macos-14 runner 上是缓存的,通常秒级完成。
+      - name: Generate Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen --version
+          cd iosApp
+          xcodegen generate
+
+      - name: Boot iOS Simulator
+        run: |
+          set -e
+          # 取第一个可用的 iPhone 模拟器。第一次跑复盘时 iPhone 15 / iPhone 16
+          # 命名都可能,固定 grep "iPhone" 比 grep "iPhone 15" 更稳。
+          LINE=$(xcrun simctl list devices available | grep -E "iPhone (15|16)" | grep -v "Plus" | head -1)
+          UDID=$(echo "$LINE" | sed -E 's/.*\(([0-9A-F-]+)\).*/\1/')
+          echo "SIMULATOR_LINE=$LINE"
+          echo "SIMULATOR_UDID=$UDID"
+          echo "SIMULATOR_UDID=$UDID" >> $GITHUB_ENV
+          xcrun simctl boot "$UDID" || true
+          # 等模拟器系统就绪,否则 xcodebuild 会因 simctl 没准备好超时。
+          xcrun simctl bootstatus "$UDID" -b
+
+      - name: Build for simulator (unsigned)
+        run: |
+          cd iosApp
+          mkdir -p build
+          xcodebuild \
+            -project StudyWord.xcodeproj \
+            -scheme StudyWord \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_UDID" \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build | tee build/xcodebuild.log
+
+      - name: Install & launch on simulator
+        run: |
+          cd iosApp
+          APP_PATH=$(find build -name "StudyWord.app" -path "*Debug-iphonesimulator*" | head -1)
+          echo "APP_PATH=$APP_PATH"
+          xcrun simctl install booted "$APP_PATH"
+          xcrun simctl launch booted com.studyword.literacy.ios
+
+      - name: Capture screenshot
+        run: |
+          mkdir -p screenshots
+          # 给 SwiftUI 一点时间渲染首屏。
+          sleep 4
+          xcrun simctl io booted screenshot screenshots/phase0-launch.png || true
+
+      - name: Upload screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-screenshot
+          path: iosApp/screenshots/**
+          if-no-files-found: ignore
+
+      - name: Upload xcodebuild log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-xcodebuild-log
+          path: iosApp/build/xcodebuild.log
+          if-no-files-found: ignore
