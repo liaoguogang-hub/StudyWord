@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  v1.4.0:开机页 — 单 ImageView + 居中文本
-  drawable/splash_1..5.xml 是占位纯色 drawable,用户将提供 PNG/JPG 替换为真实图片
-  5 张自动翻页,每张停留 600ms,共 3s,然后启动 MainActivity
+  v1.6.0:开机启动页 —— 单张静态插画
+
+  由设计提供了一张成图(1024×1360 PNG)。整个 SplashActivity 期间
+  全屏显示这张图 2 秒后启动 MainActivity。
+  SplashActivity.kt 里负责计时与跳转。
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -13,35 +15,7 @@
         android:id="@+id/splashImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:contentDescription="开机图"
+        android:contentDescription="@string/cd_splash"
         android:scaleType="centerCrop"
-        android:src="@drawable/splash_1" />
-
-    <!-- 占位用文案:用户替换为真实图片后,这段会被图片自身的视觉占据 -->
-    <LinearLayout
-        android:id="@+id/splashOverlay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="24dp">
-
-        <TextView
-            android:id="@+id/splashEmoji"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🦁"
-            android:textSize="120sp" />
-
-        <TextView
-            android:id="@+id/splashTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/splash_title"
-            android:textColor="@color/deep_blue"
-            android:textSize="32sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+        android:src="@drawable/splash_intro" />
 </FrameLayout>
