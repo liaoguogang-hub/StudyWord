@@ -3,6 +3,7 @@ package com.studyword.literacy.ui
 import android.provider.Settings
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import android.util.TypedValue
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -20,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.TextViewCompat
 import androidx.core.view.updatePadding
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
@@ -1225,6 +1227,8 @@ class MainActivity : AppCompatActivity() {
             binding.lowercaseText.text = letter.lowercase
         } else {
             binding.currentCharacter.text = item.primaryText
+            // v1.6.0:按长度给主文字设字号上限(详见函数注释)
+            applyCharacterTextSize(item.primaryText, isWord)
             if (isWord) {
                 // 单词模式下显示中文意思,字号比 currentPinyin 略大,作为显眼释义
                 binding.wordMeaning.text = (item as EnglishWordItem).word.chineseMeaning
@@ -1238,6 +1242,40 @@ class MainActivity : AppCompatActivity() {
         setActionButtonsEnabled(true)
         renderWordsAndExamples(item)
     }
+    /**
+     * v1.6.0:按内容给卡片主文字设字号上限。
+     *
+     * 为什么"宽度自动缩字"还不够
+     * ------------------------
+     * autoSize 只保证**不超出宽度**,不管高度。例如 "banana"(6 字母)
+     * 在约 340dp 的可用宽度里能排到 ~96sp,行高就有 ~125dp ——
+     * 卡片被撑高、内容超出一屏,例句被挤出屏幕。
+     *
+     * 而主页现在要求"卡片固定不动"(FixedHomeScrollView 在内容放得下时
+     * 完全不响应拖拽),那就**必须先保证内容真的放得下一屏**。
+     * 单词不像单个汉字需要那么大,按长度给上限后各卡片高度就都可控了。
+     */
+    private fun applyCharacterTextSize(text: String, isWord: Boolean) {
+        val minSp: Int
+        val maxSp: Int
+        if (!isWord) {
+            // 中文单字:保持原有大字号,一个字的宽度远小于容器,不会溢出
+            minSp = 40
+            maxSp = 100
+        } else {
+            minSp = 24
+            maxSp = when (text.length) {
+                in 0..3 -> 88      // cat / dog
+                in 4..5 -> 72      // apple / water
+                in 6..7 -> 58      // banana / brother
+                else -> 46         // elephant / umbrella
+            }
+        }
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+            binding.currentCharacter, minSp, maxSp, 2, TypedValue.COMPLEX_UNIT_SP
+        )
+    }
+
     /**
      * 渲染词组 + 例句。
      * v1.4.0 改进:

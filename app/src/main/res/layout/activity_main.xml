@@ -100,7 +100,11 @@
                     app:iconTint="@color/deep_blue" />
             </LinearLayout>
 
-            <androidx.core.widget.NestedScrollView
+            <!--
+                v1.6.0:换成 FixedHomeScrollView —— 内容放得下一屏时**完全不响应拖拽**,
+                卡片固定在最高位置;只有内容确实超出时才允许滚动(避免底部够不到)。
+            -->
+            <com.studyword.literacy.ui.FixedHomeScrollView
                 android:id="@+id/homeScrollView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -143,7 +147,7 @@
                             android:layout_height="wrap_content"
                             android:gravity="center_horizontal"
                             android:orientation="vertical"
-                            android:padding="24dp"
+                            android:padding="16dp"
                             android:background="@drawable/bg_card_playful"
                             android:clickable="true"
                             android:focusable="true"
@@ -154,7 +158,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="🎯"
-                                android:textSize="40sp"
+                                android:textSize="32sp"
                         android:importantForAccessibility="no"
                         tools:ignore="HardcodedText" />
 
@@ -216,7 +220,7 @@
                                 android:layout_marginTop="6dp"
                                 android:text=""
                                 android:textColor="@color/gray_dark"
-                                android:textSize="26sp"
+                                android:textSize="22sp"
                                 android:textStyle="bold"
                                 android:visibility="gone" />
 
@@ -224,10 +228,10 @@
                                 android:id="@+id/currentPinyin"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="4dp"
                                 android:text="@string/main_pinyin_placeholder"
                                 android:textColor="@color/gray_dark"
-                                android:textSize="32sp"
+                                android:textSize="26sp"
                                 android:textStyle="bold" />
 
                             <!--
@@ -238,8 +242,8 @@
                                 android:id="@+id/wordsDivider"
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
-                                android:layout_marginTop="10dp"
-                                android:layout_marginBottom="8dp"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginBottom="6dp"
                                 android:background="@color/sky_blue"
                                 android:visibility="gone" />
 
@@ -268,7 +272,7 @@
                                 android:id="@+id/examplesLabel"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="14dp"
+                                android:layout_marginTop="8dp"
                                 android:text="@string/examples_label"
                                 android:textColor="@color/deep_blue"
                                 android:textSize="21sp"
@@ -279,16 +283,16 @@
                                 android:id="@+id/exampleSentence"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="4dp"
                                 android:background="?attr/selectableItemBackground"
                                 android:clickable="true"
                                 android:focusable="true"
                                 android:gravity="center"
-                                android:paddingTop="6dp"
-                                android:paddingBottom="6dp"
+                                android:paddingTop="4dp"
+                                android:paddingBottom="4dp"
                                 android:text=""
                                 android:textColor="@color/deep_blue"
-                                android:textSize="26sp"
+                                android:textSize="22sp"
                                 android:textStyle="bold"
                                 android:visibility="gone" />
 
@@ -299,12 +303,12 @@
                         android:id="@+id/remainingHint"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="14dp"
+                        android:layout_marginTop="8dp"
                         android:background="@drawable/bg_status_pill"
-                        android:paddingStart="18dp"
-                        android:paddingTop="8dp"
-                        android:paddingEnd="18dp"
-                        android:paddingBottom="8dp"
+                        android:paddingStart="14dp"
+                        android:paddingTop="6dp"
+                        android:paddingEnd="14dp"
+                        android:paddingBottom="6dp"
                         android:text="@string/remaining_hint_placeholder"
                         android:textColor="@color/deep_blue"
                         android:textSize="15sp"
@@ -315,7 +319,7 @@
 
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.core.widget.NestedScrollView>
+            </com.studyword.literacy.ui.FixedHomeScrollView>
 
             <LinearLayout
                 android:id="@+id/actionBar"
