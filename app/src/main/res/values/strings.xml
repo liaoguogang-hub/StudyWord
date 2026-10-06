@@ -296,4 +296,10 @@
     <string name="import_empty">文件里没有可识别的进度记录</string>
     <string name="import_fail_format">导入失败：%1$s</string>
     <string name="import_skipped_format">%1$d 行无法识别，已跳过</string>
+    <string name="tts_no_engine">手机里没有语音引擎，装一个（如华为语音引擎）就能听到发音</string>
+    <string name="tts_no_chinese">手机里的语音引擎缺少中文语音，下载后就能听到发音</string>
+    <string name="tts_init_failed">语音引擎初始化失败，请到系统设置里检查</string>
+    <string name="tts_not_ready">语音还没准备好，请稍后再试</string>
+    <string name="tts_open_settings">去设置</string>
+    <string name="tts_no_settings">打不开系统设置</string>
 </resources>

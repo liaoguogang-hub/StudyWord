@@ -1,5 +1,8 @@
 package com.studyword.literacy.ui
 
+import android.provider.Settings
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -344,6 +347,8 @@ class MainActivity : AppCompatActivity() {
      */
     private fun speakCurrentItem() {
         val item = currentItem ?: return
+        // v1.6.0:语音不可用时明确告知,而不是点下去毫无反应
+        if (!ensureTtsAvailable()) return
         when (item) {
             is ChineseStudyItem -> {
                 // v1.4.2:只读汉字一遍,不再 append 拼音(拼音仅作为卡片下方的 visual hint)
@@ -367,10 +372,58 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
+     * v1.6.0:语音不可用时给出**看得懂 + 能操作**的提示,而不是静默无声。
+     *
+     * 起因:用户在另一台鸿蒙手机上点卡片完全没反应 —— 那台设备没有可用的中文 TTS
+     * 引擎(答题音效走 MediaPlayer 所以正常),而旧实现把失败静默吞掉,
+     * 用户既听不到声音也不知道为什么。
+     *
+     * @return true = 语音可用,可以继续;false = 已提示用户,调用方应直接返回
+     */
+    private fun ensureTtsAvailable(): Boolean {
+        if (TtsManager.isReady) return true
+        val msgRes = when (TtsManager.status) {
+            TtsManager.Status.NO_ENGINE -> R.string.tts_no_engine
+            TtsManager.Status.NO_CHINESE -> R.string.tts_no_chinese
+            TtsManager.Status.INIT_FAILED -> R.string.tts_init_failed
+            else -> R.string.tts_not_ready
+        }
+        Log.w(
+            TAG,
+            "TTS 不可用 status=${TtsManager.status} engine=${TtsManager.enginePackage}\n" +
+                TtsManager.diagnostics
+        )
+        Snackbar.make(binding.root, getString(msgRes), Snackbar.LENGTH_LONG)
+            .setAction(R.string.tts_open_settings) { openTtsSettings() }
+            .show()
+        return false
+    }
+
+    /**
+     * 打开系统的"文字转语音"设置,让用户能下载中文语音或换一个引擎。
+     * 逐个尝试可用入口,避免某些 ROM 上某个 Intent 不存在导致崩溃。
+     */
+    private fun openTtsSettings() {
+        TtsManager.markEngineSettingsOpened()
+        val intents = listOf(
+            // Settings 类里没有这个常量(javap 核实),用系统实际使用的 action 字符串
+            Intent("com.android.settings.TTS_SETTINGS"),
+            Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA),
+            Intent(Settings.ACTION_SETTINGS)
+        )
+        for (intent in intents) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            if (runCatching { startActivity(intent) }.isSuccess) return
+        }
+        Toast.makeText(this, getString(R.string.tts_no_settings), Toast.LENGTH_SHORT).show()
+    }
+
+    /**
      * v1.4.1:点击字母行(letterContainer)只读字母,行为同 letter 分支。
      */
     private fun speakLetterOnly() {
         val letter = (currentItem as? EnglishLetterItem)?.letter ?: return
+        if (!ensureTtsAvailable()) return
         TtsManager.speakEnglish(letter.uppercase, utteranceId = "main_letter_only_${letter.id}")
     }
 
@@ -380,6 +433,7 @@ class MainActivity : AppCompatActivity() {
      * v1.5.0:移除从未使用的 pinyin 参数(lint/编译告警)
      */
     private fun speakWordOrSentence(text: String, utteranceId: String, isEnglish: Boolean) {
+        if (!ensureTtsAvailable()) return
         if (isEnglish) {
             TtsManager.speakEnglish(text, utteranceId = utteranceId)
         } else {
@@ -394,6 +448,7 @@ class MainActivity : AppCompatActivity() {
      * - 中文:整段读一遍
      */
     private fun speakExampleSentence(item: StudyItem?, sentence: String, utteranceId: String) {
+        if (!ensureTtsAvailable()) return
         if (item == null) {
             TtsManager.speak(sentence, utteranceId = utteranceId)
             return
@@ -1258,6 +1313,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // v1.6.0:家长可能刚在系统设置里装好中文语音 —— 回到前台自动重试,不必重启 App
+        TtsManager.retryIfNeeded(this)
         // v1.6.0:家长在设置里切换了孩子档案 → 必须换用新的 progressStore 并重建队列,
         // 否则会继续读写上一个孩子的进度(每个档案是独立的 SharedPreferences 文件)。
         val currentProfile = ProfileStore(this).activeProfileId()
@@ -1355,6 +1412,8 @@ class MainActivity : AppCompatActivity() {
     private enum class ItemResult { KNOWN, UNKNOWN }
 
     companion object {
+        private const val TAG = "MainActivity"
+
         /** 滑动历史栈上限,防止长时间使用后无限增长 */
         private const val HISTORY_MAX = 50
 

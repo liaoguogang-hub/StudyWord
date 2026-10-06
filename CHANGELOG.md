@@ -130,6 +130,48 @@
   - 改为**运行时按仓库实际数量生成**(`nav_library_desc_format`),
     现显示 `3000 字、26 字母、150 单词`,数据驱动不会过期。
 
+﻿### 修复：TTS 静默失败 —— 鸿蒙手机点卡片没声音也无提示（第 15 轮）
+
+**现象**：用户在一台 HarmonyOS 手机上安装 APK 后，点卡片**没有声音，也没有任何提示**；
+但答题音效（走 MediaPlayer）正常。
+
+**根因（代码缺陷，不是设备问题）**
+
+| 问题 | 后果 |
+|---|---|
+| `init()` **只尝试一次**默认引擎 + `Locale.SIMPLIFIED_CHINESE` | 失败即 `isReady=false` **永久沉默**；系统里其它支持中文的引擎**从不去找** |
+| 失败原因被**静默吞掉**（只返回 false） | 界面无法向用户解释"为什么没声音" |
+| 全项目**没有一条**"语音不可用"的文案 | 用户无从得知该去装中文语音 |
+| 卡片点击 `speakCurrentItem()` 忽略返回值 | 点下去毫无反应 |
+
+答题音效正常这一点很关键 —— 它说明**音频输出通路没问题**，只有 TTS 失败，
+即那台设备上没有可用的中文语音引擎。
+
+**修复内容**
+
+1. `TtsManager` 重写引擎探测（**API 签名全部保留**：`speak` / `speakEnglish` /
+   `speakPhraseCharByChar` / `speakSequential` / `stop` / `setSpeechRate` / `shutdown`）：
+   - 依次探测**默认引擎 + 系统里所有引擎**，取第一个支持中文的
+   - 中文 Locale 按 `zh_CN` → `zh` 顺序尝试（部分引擎只认其中一种）
+   - 新增 `status`（NO_ENGINE / NO_CHINESE / INIT_FAILED）+ `enginePackage` + `diagnostics`
+   - 新增 `retryIfNeeded()`：用户去系统设置装好语音后，回到前台**自动生效**，不必重启 App
+2. `MainActivity`：4 个发音入口（卡片 / 字母行 / 词组 chip / 例句）加守卫，
+   不可用时弹 **Snackbar 说明原因 + 「去设置」按钮**直接跳到系统语音设置；
+   `onResume` 接入自动重试
+3. strings.xml 新增 6 条文案
+
+**实现踩坑（已用 javap 核实，不靠记忆）**
+
+- `TextToSpeech.getEngines()` / `getDefaultEngine()` 是**实例方法**，不是静态方法 ——
+  必须先建一个默认引擎实例才能枚举系统引擎，再逐个新建实例去试
+- `android.provider.Settings` 里**没有** `ACTION_TTS_SETTINGS` 常量
+  （`javap android-34` 核实），改用系统实际使用的 action 字符串
+  `com.android.settings.TTS_SETTINGS`，并保留
+  `TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA` / `Settings.ACTION_SETTINGS` 作为降级链
+
+**验证**：141 单测全过 / lint 0 error / assembleDebug + assembleRelease 成功。
+真机行为待用户在鸿蒙设备上确认 —— 现在即使仍然没声音，也会**明确告诉用户原因**。
+
 ### 新增：App 图标换成黏土风插画（第 14 轮）
 
 **设计稿**：黏土 3D 风——地球 + 「字」 + ABCD 字母 + 小狮子 + 星星/蜡笔，
