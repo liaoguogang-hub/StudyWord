@@ -41,6 +41,21 @@ BASELINE_PATH = ROOT / "scripts" / "character_sets_order.sha256"
 EXPECTED_COUNTS = {"easy": 1200, "medium": 1000, "hard": 800}
 MIN_WORDS_COVERED = 1200  # 前 N 个简单字应具备词组与例句
 
+# 英文难度的下限规则(v1.6.0 起)
+#
+# 这 13 个词属于 Dolch Pre-Primer / Primer —— 母语儿童**最先学**的高频词。
+# 历史数据里 red / blue 被判为「困难」,而 yellow / black / white 却在「简单」,
+# 同为基础颜色却分成两档,是明显疏漏(用户即由此发现分级不可靠)。
+#
+# 规则:**公认最先学的词不允许落在「困难」档**。
+# run / jump / eat 这类可演示的核心动作归「简单」;
+# new / funny / pretty 是抽象评价性形容词,留在「中等」。
+DOLCH_FIRST_WORDS = {
+    "red", "blue", "yellow", "black", "white", "brown",
+    "big", "run", "jump", "eat", "funny", "pretty", "new",
+}
+
+
 # 经人工确认「找不到任何适合 3~6 岁幼儿的常用词组」的字。
 # 这些字在现代汉语里只有书面语/负面/姓氏用法(毋庸、自愧弗如、奴隶、囚禁、弘扬),
 # 不编造词条是对内容质量的保护,因此单列为允许缺失。
@@ -222,6 +237,23 @@ def main() -> int:
         print(f"英文单词            : {len(words)}  按难度 {dist}")
         if len(words) < 100:
             problems.append(f"英文单词仅 {len(words)} 个,对幼儿英语启蒙偏少(建议 ≥ 100)")
+        # v1.6.0:最先学的高频词不得落在「困难」档(分级可靠性的下限)
+        misplaced = [
+            w["word"] for w in words
+            if w["word"].lower() in DOLCH_FIRST_WORDS and w.get("difficulty") == "HARD"
+        ]
+        if misplaced:
+            problems.append(
+                f"以下最先学的高频词(Dolch Pre-Primer/Primer)被归入「困难」: {misplaced}"
+            )
+        # 三档都不应为空,且简单档应最大 —— 幼儿启蒙的主战场
+        for lvl in ("EASY", "MEDIUM", "HARD"):
+            if dist.get(lvl, 0) == 0:
+                problems.append(f"英文难度「{lvl}」档为空")
+        if dist.get("EASY", 0) < max(dist.get("MEDIUM", 0), dist.get("HARD", 0)):
+            problems.append(
+                f"「简单」档({dist.get('EASY', 0)})少于其它档,与幼儿启蒙定位不符: {dist}"
+            )
     print()
 
     if problems:

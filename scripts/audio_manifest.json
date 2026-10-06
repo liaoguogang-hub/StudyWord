@@ -15317,6 +15317,228 @@
   "lang": "zh",
   "kind": "例句翻译"
  },
+ "n:hand": {
+  "file": "k6e8bf23d.mp3",
+  "text": "hand",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "s:Wash your hand.": {
+  "file": "kf467c9d2.mp3",
+  "text": "Wash your hand.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:洗洗你的手。": {
+  "file": "k66b48cb8.mp3",
+  "text": "洗洗你的手。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:foot": {
+  "file": "k80668921.mp3",
+  "text": "foot",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "z:脚": {
+  "file": "k0212b1bb.mp3",
+  "text": "脚",
+  "lang": "zh",
+  "kind": "中文意思"
+ },
+ "s:My foot is small.": {
+  "file": "k85534f01.mp3",
+  "text": "My foot is small.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:我的脚小小的。": {
+  "file": "kc91c10cc.mp3",
+  "text": "我的脚小小的。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:eye": {
+  "file": "kf28f7857.mp3",
+  "text": "eye",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "z:眼睛": {
+  "file": "k132dc09a.mp3",
+  "text": "眼睛",
+  "lang": "zh",
+  "kind": "中文意思"
+ },
+ "s:I see with my eye.": {
+  "file": "k797aeb75.mp3",
+  "text": "I see with my eye.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:我用眼睛看东西。": {
+  "file": "k4e3b0c7e.mp3",
+  "text": "我用眼睛看东西。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:ear": {
+  "file": "kf34765c9.mp3",
+  "text": "ear",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "z:耳朵": {
+  "file": "kdb074e23.mp3",
+  "text": "耳朵",
+  "lang": "zh",
+  "kind": "中文意思"
+ },
+ "s:I hear with my ear.": {
+  "file": "kfd390f14.mp3",
+  "text": "I hear with my ear.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:我用耳朵听声音。": {
+  "file": "kc687f1c6.mp3",
+  "text": "我用耳朵听声音。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:nose": {
+  "file": "kc915dc61.mp3",
+  "text": "nose",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "s:My nose is small.": {
+  "file": "kd060ea41.mp3",
+  "text": "My nose is small.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:我的鼻子小小的。": {
+  "file": "kb193fb98.mp3",
+  "text": "我的鼻子小小的。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:mouth": {
+  "file": "kbbe36787.mp3",
+  "text": "mouth",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "z:嘴巴": {
+  "file": "ka9efcaa1.mp3",
+  "text": "嘴巴",
+  "lang": "zh",
+  "kind": "中文意思"
+ },
+ "s:Open your mouth.": {
+  "file": "ke225cfbd.mp3",
+  "text": "Open your mouth.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:张开你的嘴巴。": {
+  "file": "kb57dfc9e.mp3",
+  "text": "张开你的嘴巴。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:hair": {
+  "file": "kd51ed1ab.mp3",
+  "text": "hair",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "z:头发": {
+  "file": "k91a5f79a.mp3",
+  "text": "头发",
+  "lang": "zh",
+  "kind": "中文意思"
+ },
+ "s:I have black hair.": {
+  "file": "k1794e988.mp3",
+  "text": "I have black hair.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:我有一头黑发。": {
+  "file": "k423237fe.mp3",
+  "text": "我有一头黑发。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:red": {
+  "file": "k7a96a069.mp3",
+  "text": "red",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "s:I see a red apple.": {
+  "file": "ke9bc42b6.mp3",
+  "text": "I see a red apple.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:我看见一个红苹果。": {
+  "file": "kd6fa7d89.mp3",
+  "text": "我看见一个红苹果。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:blue": {
+  "file": "kd7df7a06.mp3",
+  "text": "blue",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "z:蓝色": {
+  "file": "k1fe525c1.mp3",
+  "text": "蓝色",
+  "lang": "zh",
+  "kind": "中文意思"
+ },
+ "s:The sky is blue.": {
+  "file": "kdc941b16.mp3",
+  "text": "The sky is blue.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:天空是蓝色的。": {
+  "file": "k47ccd569.mp3",
+  "text": "天空是蓝色的。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:green": {
+  "file": "kf5bcd531.mp3",
+  "text": "green",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "z:绿色": {
+  "file": "k15399464.mp3",
+  "text": "绿色",
+  "lang": "zh",
+  "kind": "中文意思"
+ },
+ "s:The grass is green.": {
+  "file": "kfc2b1173.mp3",
+  "text": "The grass is green.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:草是绿色的。": {
+  "file": "k405c2bef.mp3",
+  "text": "草是绿色的。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
  "n:pig": {
   "file": "k4cae6ab1.mp3",
   "text": "pig",
@@ -15959,30 +16181,6 @@
   "lang": "zh",
   "kind": "例句翻译"
  },
- "n:brother": {
-  "file": "k231c3216.mp3",
-  "text": "brother",
-  "lang": "en",
-  "kind": "单词"
- },
- "z:哥哥": {
-  "file": "kadc20a1e.mp3",
-  "text": "哥哥",
-  "lang": "zh",
-  "kind": "中文意思"
- },
- "s:My brother is tall.": {
-  "file": "kdbaf0432.mp3",
-  "text": "My brother is tall.",
-  "lang": "en",
-  "kind": "英文例句"
- },
- "z:我的哥哥很高。": {
-  "file": "k3dcc8264.mp3",
-  "text": "我的哥哥很高。",
-  "lang": "zh",
-  "kind": "例句翻译"
- },
  "n:sister": {
   "file": "k3937bda3.mp3",
   "text": "sister",
@@ -16076,54 +16274,6 @@
  "z:妈妈非常温柔。": {
   "file": "ke6f17ec3.mp3",
   "text": "妈妈非常温柔。",
-  "lang": "zh",
-  "kind": "例句翻译"
- },
- "n:grandpa": {
-  "file": "k4ba14a85.mp3",
-  "text": "grandpa",
-  "lang": "en",
-  "kind": "单词"
- },
- "z:爷爷": {
-  "file": "k5421fc2e.mp3",
-  "text": "爷爷",
-  "lang": "zh",
-  "kind": "中文意思"
- },
- "s:Grandpa is very kind.": {
-  "file": "k91ad3ad5.mp3",
-  "text": "Grandpa is very kind.",
-  "lang": "en",
-  "kind": "英文例句"
- },
- "z:爷爷非常和蔼。": {
-  "file": "k862bbfe4.mp3",
-  "text": "爷爷非常和蔼。",
-  "lang": "zh",
-  "kind": "例句翻译"
- },
- "n:grandma": {
-  "file": "kb4cd2699.mp3",
-  "text": "grandma",
-  "lang": "en",
-  "kind": "单词"
- },
- "z:奶奶": {
-  "file": "kccad6fe2.mp3",
-  "text": "奶奶",
-  "lang": "zh",
-  "kind": "中文意思"
- },
- "s:Grandma makes sweet cake.": {
-  "file": "kd9bf457d.mp3",
-  "text": "Grandma makes sweet cake.",
-  "lang": "en",
-  "kind": "英文例句"
- },
- "z:奶奶做甜甜的蛋糕。": {
-  "file": "k58cf9fd1.mp3",
-  "text": "奶奶做甜甜的蛋糕。",
   "lang": "zh",
   "kind": "例句翻译"
  },
@@ -16238,6 +16388,162 @@
  "z:我喜欢我的洋娃娃。": {
   "file": "k1a9883b3.mp3",
   "text": "我喜欢我的洋娃娃。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:run": {
+  "file": "kd0815b26.mp3",
+  "text": "run",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "z:跑": {
+  "file": "k61ab0d03.mp3",
+  "text": "跑",
+  "lang": "zh",
+  "kind": "中文意思"
+ },
+ "s:I can run fast.": {
+  "file": "k75ac94c0.mp3",
+  "text": "I can run fast.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:我能跑得很快。": {
+  "file": "k5f034444.mp3",
+  "text": "我能跑得很快。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:jump": {
+  "file": "kee5ab6a4.mp3",
+  "text": "jump",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "z:跳": {
+  "file": "kb4cb4ce7.mp3",
+  "text": "跳",
+  "lang": "zh",
+  "kind": "中文意思"
+ },
+ "s:The frog can jump.": {
+  "file": "kbd0f1474.mp3",
+  "text": "The frog can jump.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:青蛙会跳。": {
+  "file": "k26910a45.mp3",
+  "text": "青蛙会跳。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:eat": {
+  "file": "k1a24c0fc.mp3",
+  "text": "eat",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "z:吃": {
+  "file": "k400f5d7d.mp3",
+  "text": "吃",
+  "lang": "zh",
+  "kind": "中文意思"
+ },
+ "n:hot": {
+  "file": "k8c7f7e21.mp3",
+  "text": "hot",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "z:热的": {
+  "file": "kdb716b01.mp3",
+  "text": "热的",
+  "lang": "zh",
+  "kind": "中文意思"
+ },
+ "s:The soup is hot.": {
+  "file": "k947c30bb.mp3",
+  "text": "The soup is hot.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:汤很热。": {
+  "file": "k9468a64a.mp3",
+  "text": "汤很热。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:cold": {
+  "file": "k81223ab4.mp3",
+  "text": "cold",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "z:冷的": {
+  "file": "k61fdf281.mp3",
+  "text": "冷的",
+  "lang": "zh",
+  "kind": "中文意思"
+ },
+ "s:The water is cold.": {
+  "file": "kf85314ad.mp3",
+  "text": "The water is cold.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:水是冷的。": {
+  "file": "k06c588c1.mp3",
+  "text": "水是冷的。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:big": {
+  "file": "k530c1daf.mp3",
+  "text": "big",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "z:大的": {
+  "file": "k8ae5d97a.mp3",
+  "text": "大的",
+  "lang": "zh",
+  "kind": "中文意思"
+ },
+ "s:The ball is big.": {
+  "file": "kca277c2d.mp3",
+  "text": "The ball is big.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:这个球很大。": {
+  "file": "k7700de5d.mp3",
+  "text": "这个球很大。",
+  "lang": "zh",
+  "kind": "例句翻译"
+ },
+ "n:small": {
+  "file": "k5063d103.mp3",
+  "text": "small",
+  "lang": "en",
+  "kind": "单词"
+ },
+ "z:小的": {
+  "file": "k7a036fe9.mp3",
+  "text": "小的",
+  "lang": "zh",
+  "kind": "中文意思"
+ },
+ "s:The cat is small.": {
+  "file": "k8877eefa.mp3",
+  "text": "The cat is small.",
+  "lang": "en",
+  "kind": "英文例句"
+ },
+ "z:这只猫很小。": {
+  "file": "k0860487a.mp3",
+  "text": "这只猫很小。",
   "lang": "zh",
   "kind": "例句翻译"
  }

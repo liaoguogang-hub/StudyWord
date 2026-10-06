@@ -344,7 +344,7 @@
       "chineseMeaning": "手",
       "exampleSentence": "Wash your hand.",
       "exampleSentenceTranslation": "洗洗你的手。",
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY"
     },
     {
       "word": "foot",
@@ -352,7 +352,7 @@
       "chineseMeaning": "脚",
       "exampleSentence": "My foot is small.",
       "exampleSentenceTranslation": "我的脚小小的。",
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY"
     },
     {
       "word": "eye",
@@ -360,7 +360,7 @@
       "chineseMeaning": "眼睛",
       "exampleSentence": "I see with my eye.",
       "exampleSentenceTranslation": "我用眼睛看东西。",
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY"
     },
     {
       "word": "ear",
@@ -368,7 +368,7 @@
       "chineseMeaning": "耳朵",
       "exampleSentence": "I hear with my ear.",
       "exampleSentenceTranslation": "我用耳朵听声音。",
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY"
     },
     {
       "word": "nose",
@@ -376,7 +376,7 @@
       "chineseMeaning": "鼻子",
       "exampleSentence": "My nose is small.",
       "exampleSentenceTranslation": "我的鼻子小小的。",
-      "difficulty": "HARD"
+      "difficulty": "EASY"
     },
     {
       "word": "mouth",
@@ -384,7 +384,7 @@
       "chineseMeaning": "嘴巴",
       "exampleSentence": "Open your mouth.",
       "exampleSentenceTranslation": "张开你的嘴巴。",
-      "difficulty": "HARD"
+      "difficulty": "EASY"
     },
     {
       "word": "hair",
@@ -392,7 +392,7 @@
       "chineseMeaning": "头发",
       "exampleSentence": "I have black hair.",
       "exampleSentenceTranslation": "我有一头黑发。",
-      "difficulty": "HARD"
+      "difficulty": "EASY"
     },
     {
       "word": "day",
@@ -400,7 +400,7 @@
       "chineseMeaning": "白天",
       "exampleSentence": "It is a sunny day.",
       "exampleSentenceTranslation": "今天是个大晴天。",
-      "difficulty": "HARD"
+      "difficulty": "MEDIUM"
     },
     {
       "word": "night",
@@ -408,7 +408,7 @@
       "chineseMeaning": "夜晚",
       "exampleSentence": "I sleep at night.",
       "exampleSentenceTranslation": "我晚上睡觉。",
-      "difficulty": "HARD"
+      "difficulty": "MEDIUM"
     },
     {
       "word": "happy",
@@ -416,7 +416,7 @@
       "chineseMeaning": "开心",
       "exampleSentence": "I am happy.",
       "exampleSentenceTranslation": "我很开心。",
-      "difficulty": "HARD"
+      "difficulty": "MEDIUM"
     },
     {
       "word": "love",
@@ -424,7 +424,7 @@
       "chineseMeaning": "爱",
       "exampleSentence": "I love you.",
       "exampleSentenceTranslation": "我爱你。",
-      "difficulty": "HARD"
+      "difficulty": "MEDIUM"
     },
     {
       "word": "red",
@@ -432,7 +432,7 @@
       "chineseMeaning": "红色",
       "exampleSentence": "I see a red apple.",
       "exampleSentenceTranslation": "我看见一个红苹果。",
-      "difficulty": "HARD"
+      "difficulty": "EASY"
     },
     {
       "word": "blue",
@@ -440,7 +440,7 @@
       "chineseMeaning": "蓝色",
       "exampleSentence": "The sky is blue.",
       "exampleSentenceTranslation": "天空是蓝色的。",
-      "difficulty": "HARD"
+      "difficulty": "EASY"
     },
     {
       "word": "green",
@@ -448,7 +448,7 @@
       "chineseMeaning": "绿色",
       "exampleSentence": "The grass is green.",
       "exampleSentenceTranslation": "草是绿色的。",
-      "difficulty": "HARD"
+      "difficulty": "EASY"
     },
     {
       "word": "pig",
@@ -680,7 +680,7 @@
       "chineseMeaning": "哥哥",
       "exampleSentence": "My brother is tall.",
       "exampleSentenceTranslation": "我的哥哥很高。",
-      "difficulty": "EASY"
+      "difficulty": "MEDIUM"
     },
     {
       "word": "sister",
@@ -720,7 +720,7 @@
       "chineseMeaning": "爷爷",
       "exampleSentence": "Grandpa is very kind.",
       "exampleSentenceTranslation": "爷爷非常和蔼。",
-      "difficulty": "EASY"
+      "difficulty": "MEDIUM"
     },
     {
       "word": "grandma",
@@ -728,7 +728,7 @@
       "chineseMeaning": "奶奶",
       "exampleSentence": "Grandma makes sweet cake.",
       "exampleSentenceTranslation": "奶奶做甜甜的蛋糕。",
-      "difficulty": "EASY"
+      "difficulty": "MEDIUM"
     },
     {
       "word": "leg",
@@ -880,7 +880,7 @@
       "chineseMeaning": "跑",
       "exampleSentence": "I can run fast.",
       "exampleSentenceTranslation": "我能跑得很快。",
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY"
     },
     {
       "word": "jump",
@@ -888,7 +888,7 @@
       "chineseMeaning": "跳",
       "exampleSentence": "The frog can jump.",
       "exampleSentenceTranslation": "青蛙会跳。",
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY"
     },
     {
       "word": "walk",
@@ -920,7 +920,7 @@
       "chineseMeaning": "吃",
       "exampleSentence": "I eat an apple.",
       "exampleSentenceTranslation": "我吃一个苹果。",
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY"
     },
     {
       "word": "drink",
@@ -976,7 +976,7 @@
       "chineseMeaning": "热的",
       "exampleSentence": "The soup is hot.",
       "exampleSentenceTranslation": "汤很热。",
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY"
     },
     {
       "word": "cold",
@@ -984,7 +984,7 @@
       "chineseMeaning": "冷的",
       "exampleSentence": "The water is cold.",
       "exampleSentenceTranslation": "水是冷的。",
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY"
     },
     {
       "word": "big",
@@ -992,7 +992,7 @@
       "chineseMeaning": "大的",
       "exampleSentence": "The ball is big.",
       "exampleSentenceTranslation": "这个球很大。",
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY"
     },
     {
       "word": "small",
@@ -1000,7 +1000,7 @@
       "chineseMeaning": "小的",
       "exampleSentence": "The cat is small.",
       "exampleSentenceTranslation": "这只猫很小。",
-      "difficulty": "MEDIUM"
+      "difficulty": "EASY"
     },
     {
       "word": "long",
@@ -1168,7 +1168,7 @@
       "chineseMeaning": "花",
       "exampleSentence": "The flower is red.",
       "exampleSentenceTranslation": "这朵花是红色的。",
-      "difficulty": "HARD"
+      "difficulty": "MEDIUM"
     },
     {
       "word": "basket",
@@ -1400,7 +1400,7 @@
       "chineseMeaning": "河流",
       "exampleSentence": "The river is long.",
       "exampleSentenceTranslation": "这条河很长。",
-      "difficulty": "HARD"
+      "difficulty": "MEDIUM"
     },
     {
       "word": "pencil",
