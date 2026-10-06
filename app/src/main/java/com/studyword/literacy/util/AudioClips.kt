@@ -3,6 +3,8 @@ package com.studyword.literacy.util
 import android.content.Context
 import android.content.res.AssetFileDescriptor
 import android.media.MediaPlayer
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 
 /**
@@ -39,7 +41,19 @@ object AudioClips {
     /** 同一 key 连续失败多少次才判定为"这条音频不可用"(偶发失败允许重试) */
     private const val MAX_PLAY_FAILURES = 2
 
+    /**
+     * 顺序播放时两句之间的默认停顿。
+     * 550ms 是"能听出这是两句话、又不显得拖沓"的经验值。
+     */
+    private const val DEFAULT_GAP_MS = 550L
+
     private var appContext: Context? = null
+
+    /** 用于句间停顿(见 [playAt]) —— 以及 stop() 时取消未执行的补播 */
+    private val handler = Handler(Looper.getMainLooper())
+
+    /** 已排期但尚未执行的下一条播放;stop() 必须取消它 */
+    private var pendingPlayback: Runnable? = null
 
     /** 已确认**不存在**的 key,避免每次都去 assets 里探一遍(IO 不便宜) */
     private val missing = HashSet<String>()
@@ -185,12 +199,14 @@ object AudioClips {
     }
 
     /**
-     * 依次播放多条(如英文单词卡的"单词 → 中文意思")。
-     * 任一条缺失就用 [onMissing] 回调交给调用方回退 TTS;全部存在则顺序播完。
+     * 依次播放多条(如英文单词卡的"单词 → 中文意思"、中文卡的"第一句例句 → 第二句")。
+     * 任一条缺失就交给调用方回退 TTS;全部存在则顺序播完。
      *
+     * @param gapMs 两条之间的停顿。**中文多句例句必须留停顿** ——
+     *              否则两句连成一串,幼儿听不出这是两句话。
      * @return true = 已接管播放;false = 有缺失,调用方应自行处理(例如走 TTS)
      */
-    fun playSequence(keys: List<String>): Boolean {
+    fun playSequence(keys: List<String>, gapMs: Long = DEFAULT_GAP_MS): Boolean {
         if (!enabled) return false
         val ctx = appContext ?: return false
         if (keys.isEmpty()) return false
@@ -210,7 +226,7 @@ object AudioClips {
         }
         return try {
             stopCurrent()
-            playAt(ctx, paths, 0)
+            playAt(ctx, paths, 0, gapMs)
             true
         } catch (e: Exception) {
             Log.w(TAG, "顺序播放失败: ${e.javaClass.simpleName} ${e.message}")
@@ -219,7 +235,13 @@ object AudioClips {
         }
     }
 
-    private fun playAt(ctx: Context, paths: List<String>, index: Int) {
+    /**
+     * 播放第 index 条,播完停顿 [gapMs] 再播下一条。
+     *
+     * v1.6.0:加入停顿。此前是播完立刻播下一条,**两句例句会连成一串** ——
+     * 幼儿听不出这是两句、也来不及反应。用户反馈"2 句例句中间要停顿一下"。
+     */
+    private fun playAt(ctx: Context, paths: List<String>, index: Int, gapMs: Long) {
         if (index >= paths.size) {
             releaseCurrent()
             return
@@ -232,7 +254,16 @@ object AudioClips {
         mp.setOnCompletionListener {
             current = null
             release(mp)
-            playAt(ctx, paths, index + 1)
+            val next = index + 1
+            if (next < paths.size && gapMs > 0) {
+                // 用 delayed runnable 制造句间停顿;必须在 stop() 时取消,
+                // 否则切走页面后还会"补播"下一条 —— 听起来像幽灵声音。
+                val task = Runnable { playAt(ctx, paths, next, gapMs) }
+                pendingPlayback = task
+                handler.postDelayed(task, gapMs)
+            } else {
+                playAt(ctx, paths, next, gapMs)
+            }
         }
         attachErrorListener(mp, paths[index])
         mp.prepare()
@@ -255,6 +286,10 @@ object AudioClips {
     // ============================================================
 
     private fun stopCurrent() {
+        // 先取消"句间停顿后补播下一条"的排期 ——
+        // 否则离开页面后停顿结束仍会补播一句,听起来像幽灵声音
+        pendingPlayback?.let { handler.removeCallbacks(it) }
+        pendingPlayback = null
         current?.let { mp ->
             runCatching {
                 if (mp.isPlaying) mp.stop()

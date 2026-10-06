@@ -245,6 +245,17 @@ class MainActivity : AppCompatActivity() {
     /**
      * 回到跳转来源页(进度 / 字库)。
      *
+     * ⚠️ v1.6.0 修复:这里**不能 finish 主页**。
+     *
+     * 原实现是 `startActivity(intent); finish()` —— 主页被销毁后,源页就成了任务栈里
+     * 唯一的 Activity,于是**在源页上滑动返回/按返回键会把源页也关掉,整个 App 直接退出**,
+     * 完全绕过了"确定要退出吗"的确认对话框。
+     *
+     * 用户实测路径:字库 → 卡片 → (返回键) → 字库 → 左滑 → 直接退出。
+     *
+     * 改为与「返回字库」按钮走同一条路径 [openSourcePage]:主页保留在栈底,
+     * 源页关闭后回到卡片,退出仍然必须经过确认。
+     *
      * @return true 表示已跳转;false 表示来源无法解析(理论上不会发生),
      *         由调用方回落到退出确认,避免"按了返回却毫无反应"
      */
@@ -254,9 +265,9 @@ class MainActivity : AppCompatActivity() {
             SOURCE_LIBRARY -> Intent(this, CharacterLibraryActivity::class.java)
             else -> null
         } ?: return false
-        jumpSource = null
-        startActivity(intent)
-        finish()
+        // 注意:openSourcePage 内部会在首次跳转时记录 preJump 状态,并在源页关闭后还原,
+        // 与返回键的语义一致。这里不重置 jumpSource —— 由还原逻辑负责,避免状态错乱。
+        openSourcePage(intent)
         return true
     }
 
