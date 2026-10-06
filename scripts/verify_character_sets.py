@@ -206,11 +206,13 @@ def main() -> int:
     # v1.6.0:分桶报告覆盖度 —— 词组属于内容创作,还剩多少必须一眼可见,
     # 避免"以为做完了"或"以为漏了"两种误判。
     _easy = data.get("easy", [])
+    _medium = data.get("medium", [])
+    _hard = data.get("hard", [])
     for _label, _seg in (
         ("简单 1~600", _easy[:600]),
         ("简单 601~1167", _easy[600:1167]),
-        (f"中等 {len(data.get("medium", []))}", data.get("medium", [])),
-        (f"困难 {len(data.get("hard", []))}", data.get("hard", [])),
+        (f"中等 {len(_medium)}", _medium),
+        (f"困难 {len(_hard)}", _hard),
     ):
         _done = sum(1 for it in _seg if isinstance(it, dict) and it.get("words"))
         print(f"  词组覆盖 {_label:14}: {_done}/{len(_seg)}")
