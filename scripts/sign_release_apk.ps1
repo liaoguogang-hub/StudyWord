@@ -1,4 +1,10 @@
-﻿# sign_release_apk.ps1 —— 把 assembleRelease 产出的 unsigned 包装成可安装的 APK
+﻿# ⚠️ 什么时候**不需要**这个脚本
+# -------------------------------
+# 如果项目根目录已有 keystore.properties + 对应 .jks,app/build.gradle 会**自动签名**,
+# assembleRelease 直接产出 **app-release.apk**(已签名),本脚本就多余了。
+# 本脚本只在「没有正式密钥、但需要一份可安装的包来自测」时使用。
+#
+# sign_release_apk.ps1 —— 把 assembleRelease 产出的 unsigned 包装成可安装的 APK
 #
 # 背景
 # ----
